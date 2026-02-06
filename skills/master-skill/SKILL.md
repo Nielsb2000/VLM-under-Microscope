@@ -18,13 +18,6 @@ Welcome! This is the central contents page for all available skills. Each skill 
 - Use for: Understanding where files are located, file path resolution
 - Keywords: filesystem, directories, paths, /home/gem, file locations, sandbox structure
 
-### 🍕 `./pizza-making/SKILL.md`
-**Pizza Making Skills**
-- Main hub for all pizza-related knowledge
-- Contains sub-skills for traditional and unconventional pizza methods
-- Use for: Any pizza-related questions
-- Keywords: pizza, dough, baking, toppings, margherita, neapolitan
-
 ### 💻 `./bash-scripting/SKILL.md`
 **Bash/Shell Scripting**
 - File operations, text processing, command execution

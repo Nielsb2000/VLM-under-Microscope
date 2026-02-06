@@ -3,9 +3,7 @@
   "python.terminal.activateEnvironment": true,
   "python.terminal.useEnvFile": true,
   "files.exclude": {
-    "Dataset_images/": true,
-    "pizza_not_pizza/": true
-  },
+    "Dataset_images/": true},
   "search.exclude": {
     "Dataset_images/": true,
     "pizza_not_pizza/": true

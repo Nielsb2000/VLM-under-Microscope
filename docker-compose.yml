@@ -6,7 +6,6 @@ services:
       - "8080:8080"
     volumes:
       - ./skills:/workspace/skills
-      - ./pizza_not_pizza:/workspace/pizza_not_pizza
     environment:
       - WORKSPACE=/workspace
     security_opt:

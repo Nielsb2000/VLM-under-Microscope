@@ -1,12 +1,10 @@
 from llm_client import get_default_llm
 from pathlib import Path
-from image_utils import caption_with_gpt4_vision, extract_image_path
 from skills_utils import discover_skills, get_skills_summary
 
 
 def main():
     print("Ask questions to the LLM (type 'quit' to exit)")
-    print("You can reference pizza images by filename (e.g., '709947.jpg')")
     print("💡 The agent can execute code and commands in the AIO Sandbox")
     print("   - Python code: runs in sandbox, output appears in sandbox terminal")
     print("   - Shell commands: executed in sandbox environment")
@@ -19,7 +17,6 @@ def main():
         print()
     
     agent = get_default_llm()
-    image_caption_cache = {}  # Cache captions to avoid re-generating
     
     while True:
         question = input("You: ").strip()
@@ -31,49 +28,13 @@ def main():
         if not question:
             continue
         
-        # Check if query references an image
-        image_path = extract_image_path(question)
-        query_to_send = question
-        
-        if image_path:
-            # Generate or retrieve cached caption
-            if image_path not in image_caption_cache:
-                print("🔍 Analyzing image...", end="", flush=True)
-                try:
-                    # Custom prompt focused on recipe details
-                    recipe_prompt = """Describe this pizza image in detail for recipe generation purposes. Include:
-- Pizza style (Neapolitan, New York, Detroit, etc.)
-- Crust characteristics (thin/thick, charred spots, texture)
-- Cheese type and coverage
-- All visible toppings and ingredients
-- Sauce type and amount
-- Cooking method indicators (oven marks, char patterns)
-- Any distinctive features or garnishes"""
-                    
-                    caption = caption_with_gpt4_vision(image_path, prompt=recipe_prompt)
-                    image_caption_cache[image_path] = caption
-                    print(" Done! ✓\n")
-                except Exception as e:
-                    print(f" Failed: {e}\n")
-                    continue
-            else:
-                caption = image_caption_cache[image_path]
-                print(f"📸 Using cached analysis for {Path(image_path).name}\n")
-            
-            # Transform query to include image context
-            query_to_send = f"""I want to make a pizza that looks like this:
-
-[Image: {Path(image_path).name}]
-{caption}
-"""
-            
         try:
             result = agent.invoke(
                 {
                     "messages": [
                         {
                             "role": "user",
-                            "content": query_to_send,
+                            "content": question,
                         }
                     ],
                 },
