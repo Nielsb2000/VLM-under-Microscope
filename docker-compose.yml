@@ -1,0 +1,20 @@
+services:
+  aio-sandbox:
+    image: ghcr.io/agent-infra/sandbox:latest
+    container_name: aio-sandbox
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./skills:/workspace/skills
+      - ./pizza_not_pizza:/workspace/pizza_not_pizza
+    environment:
+      - WORKSPACE=/workspace
+    security_opt:
+      - seccomp:unconfined
+    shm_size: "2gb"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
