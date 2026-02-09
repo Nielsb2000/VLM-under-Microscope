@@ -14,3 +14,6 @@ wheels/
 # Large datasets
 Dataset_images/
 pizza_not_pizza/
+spatial_eval/vqa/
+spatial_eval/vtqa/
+spatial_eval/tqa/
