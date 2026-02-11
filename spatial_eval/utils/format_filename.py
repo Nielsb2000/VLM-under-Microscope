@@ -1,6 +1,7 @@
 import os
 import argparse
 from pathlib import Path
+import datetime
 
 def format_output_path_vlm(args):
     file_ext = ".jsonl"
@@ -28,7 +29,8 @@ def format_output_path_vlm(args):
     else:
         filename += "_bare"
 
-    modified_output_filename = f"{filename}{file_ext}"
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    modified_output_filename = f"{filename}_{timestamp}{file_ext}"
 
     output_path = output_dir / modified_output_filename
 
@@ -52,7 +54,8 @@ def format_output_path_lm(args):
     else:
         output_suffix += "_bare"
 
-    modified_output_filename = f"m-{model_name}{output_suffix}{file_ext}"
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    modified_output_filename = f"m-{model_name}{output_suffix}_{timestamp}{file_ext}"
     
     output_path = output_dir / modified_output_filename
 

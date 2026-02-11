@@ -276,7 +276,7 @@ if __name__ == "__main__":
     if args.mode != "tqa":
         from utils.load_image import load_image
     
-    if "gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower():
+    if "gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower():
         from models.gpt4_model import GPT4Vision
         model = GPT4Vision(model_name=args.model_path, max_tokens=args.max_new_tokens)
         processor = None

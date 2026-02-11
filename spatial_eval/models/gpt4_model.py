@@ -6,14 +6,14 @@ from langchain_core.messages import HumanMessage
 
 
 class GPT4Vision:
-    """Wrapper for GPT-4 Vision models (GPT-4o, GPT-4 Turbo with vision, etc.)"""
+    """Wrapper for GPT Vision models (GPT-4o, GPT-5.1, GPT-4 Turbo with vision, etc.)"""
     
     def __init__(self, model_name="gpt-4o", max_tokens=500):
         """
-        Initialize GPT-4 Vision model.
+        Initialize GPT Vision model.
         
         Args:
-            model_name: The OpenAI model name (e.g., "gpt-4o", "gpt-4-turbo")
+            model_name: The OpenAI model name (e.g., "gpt-4o", "gpt-5.1", "gpt-4-turbo")
             max_tokens: Maximum tokens for response
         """
         self.model_name = model_name

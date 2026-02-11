@@ -17,3 +17,10 @@ pizza_not_pizza/
 spatial_eval/vqa/
 spatial_eval/vtqa/
 spatial_eval/tqa/
+spatial_eval/eval_summary
+spatial_eval/logs
+spatial_eval/outputs
+MS paint images
+spatial_eval/eval_summary/vqa
+spatial_eval/eval_summary/vtqa
+

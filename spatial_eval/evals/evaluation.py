@@ -287,16 +287,36 @@ def evaluate_model_accuracy(model_output_path: str, eval_summary_path: str, mode
             task = data['id'].split('.')[0]
             line_count += 1
             try:
+                # Extract or normalize model answer per task
+                raw_answer = data.get('answer', None)
+
                 if task == 'spatialmap':
-                    model_answer = extract_answer_from_text_spatialmap(data['answer'], question_id, model_name)
+                    model_answer = extract_answer_from_text_spatialmap(raw_answer, question_id, model_name)
                 elif task == 'mazenav':
-                    model_answer = extract_answer_from_text_mazenav(data['answer'], question_id, model_name)
+                    model_answer = extract_answer_from_text_mazenav(raw_answer, question_id, model_name)
                 elif task == 'spatialgrid':
-                    model_answer = extract_answer_from_text_spatialgrid(data['answer'], question_id, model_name)
-                
-                ref_ans = str(data['oracle_answer']).lower()
+                    model_answer = extract_answer_from_text_spatialgrid(raw_answer, question_id, model_name)
+                elif task == 'spatialreal':
+                    # spatialreal outputs are diverse; fall back to using the raw answer string
+                    model_answer = raw_answer
+                else:
+                    model_answer = raw_answer
+
+                ref_ans = str(data.get('oracle_answer', '')).lower()
+
+                # Guard against missing model_answer
+                if model_answer is None:
+                    # Log problematic record to eval summary for debugging
+                    eval_summary.append({'ref': ref_ans, 'model_output': None, 'eval_result': 0, 'note': 'missing_model_answer', 'id': data.get('id')})
+                    continue
+
                 model_answer = str(model_answer).lower()
-                eval_result = int(ref_ans.lower() in model_answer.lower())
+                # Avoid exceptions if ref_ans or model_answer are empty
+                try:
+                    eval_result = int(ref_ans in model_answer)
+                except Exception:
+                    eval_result = 0
+
                 correct_answers += eval_result
                 eval_summary.append({'ref': ref_ans, 'model_output': model_answer, 'eval_result': eval_result})
             except ValueError:
