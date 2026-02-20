@@ -4,7 +4,7 @@ Run this after starting docker-compose to check connectivity.
 """
 
 import os
-from sandbox_tools import get_sandbox_context, execute_python_code, execute_shell_command
+from sandbox_core_functions import (execute_shell_command,get_sandbox_context, execute_python_code)
 
 def test_sandbox_connection():
     """Test basic sandbox connectivity and operations."""

@@ -5,12 +5,32 @@ deepagents tools through AIOSandboxBackend. These tools provide unique functiona
 """
 
 from langchain_core.tools import tool
-from sandbox_tools import (
-    create_skill_in_sandbox,
-    get_sandbox_context,
-    call_mcp_tool,
-)
+from sandbox_browser_tools import run_visible_browser_steps
+from MCP_functions import call_mcp_tool
+from sandbox_core_functions import get_sandbox_context, create_skill_in_sandbox
 
+@tool
+def run_browser_steps(
+    steps: list[dict],
+    screenshot_dir: str = "/home/gem/screenshots/browser_steps",
+    settle_seconds: float = 0.8,
+) -> dict:
+    """Run a sequence of visible GUI browser steps in the sandbox and save a screenshot after each step.
+
+    Args:
+        steps: List of step dicts, e.g.
+            {"op":"navigate","url":"https://example.com"}
+            {"op":"click","x":100,"y":200}
+            {"op":"type","text":"hello"}
+            {"op":"hotkey","keys":["enter"]}
+            {"op":"scroll","dy":600}
+        screenshot_dir: Directory to save screenshots.
+        settle_seconds: Default delay between steps.
+
+    Returns:
+        Dict with success flag, results per step, and screenshot_dir path.
+    """
+    return run_visible_browser_steps(steps, screenshot_dir, settle_seconds)
 
 @tool
 def create_skill(skill_name: str, description: str, content: str, parent_skill: str = None) -> dict:
@@ -58,9 +78,6 @@ def call_mcp_tool_in_sandbox(tool_name: str, arguments: dict) -> dict:
         Dictionary with tool execution results
         
     Examples:
-        # Browser navigation
-        call_mcp_tool_in_sandbox('browser_navigate', {'url': 'https://example.com'})
-        
         # File operations
         call_mcp_tool_in_sandbox('file_read', {'path': '/tmp/data.txt'})
         

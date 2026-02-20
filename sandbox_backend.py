@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 from deepagents.backends.sandbox import BaseSandbox
 from deepagents.backends.protocol import ExecuteResponse, WriteResult, EditResult, FileInfo, GrepMatch
-from sandbox_tools import execute_shell_command
+from sandbox_core_functions import execute_shell_command
 
 
 # Allowed base paths for file operations

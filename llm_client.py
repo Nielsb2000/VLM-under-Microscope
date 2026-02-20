@@ -7,7 +7,9 @@ from agent_tools import (
     create_skill,
     get_sandbox_info,
     call_mcp_tool_in_sandbox,
+    run_browser_steps,
 )
+from agent_tools_vision import make_analyze_sandbox_image_tool 
 
 
 def get_default_llm(model_name: str | None = None):
@@ -53,7 +55,6 @@ def get_default_llm(model_name: str | None = None):
 - **python-programming** → Python syntax, file I/O, data structures, HTTP
 - **web-network** → curl, wget, API calls, web scraping examples
 - **file-management** → Reading, writing, organizing files
-- **pizza-making** → Pizza recipes and cooking methods
 
 **CORRECT Example: "Write a Python script that prints hello world and execute it"**
 ```
@@ -71,12 +72,14 @@ Step 6: Respond: "Based on the bash-scripting skill for file creation and python
 ❌ Acting from built-in knowledge instead of consulting the skill files
 
 **REMEMBER: Skills contain the specific commands and patterns you should use. Always look them up first!**"""
-    
+    analyze_sandbox_image = make_analyze_sandbox_image_tool(llm) # creates a closure tool
     # Essential tools for unique functionality (basic ops handled by built-in tools)
     essential_tools = [
         create_skill,
         get_sandbox_info,
         call_mcp_tool_in_sandbox,
+        analyze_sandbox_image,
+        run_browser_steps,
     ]
     
     agent = create_deep_agent(
@@ -86,7 +89,7 @@ Step 6: Respond: "Based on the bash-scripting skill for file creation and python
         skills=["skills"],
         backend=get_aio_sandbox_backend(),
         tools=essential_tools,
-        debug=True,
+        #debug=True,
     )
 
     return agent

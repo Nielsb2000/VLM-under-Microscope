@@ -6,6 +6,8 @@ services:
       - "8080:8080"
     volumes:
       - ./skills:/workspace/skills
+      - ./MS paint images:/workspace/MS paint images
+      - ./sandbox_screenshots:/screenshots
     environment:
       - WORKSPACE=/workspace
     security_opt:
