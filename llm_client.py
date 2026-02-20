@@ -86,7 +86,7 @@ Step 6: Respond: "Based on the bash-scripting skill for file creation and python
         model=llm,
         checkpointer=checkpointer,
         system_prompt=system_prompt,
-        skills=["skills"],
+        skills=["/workspace/skills"],
         backend=get_aio_sandbox_backend(),
         tools=essential_tools,
         #debug=True,

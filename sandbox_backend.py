@@ -10,10 +10,23 @@ from pathlib import Path
 from deepagents.backends.sandbox import BaseSandbox
 from deepagents.backends.protocol import ExecuteResponse, WriteResult, EditResult, FileInfo, GrepMatch
 from sandbox_core_functions import execute_shell_command
+from deepagents.backends.protocol import FileDownloadResponse, FileUploadResponse
 
 
 # Allowed base paths for file operations
 ALLOWED_PATHS = ["/workspace", "/home/gem"]
+
+
+def _map_exception_to_error_code(exc_msg: str) -> str:
+    """Heuristic mapping from exception message to FileOperationError literal."""
+    m = (exc_msg or "").lower()
+    if "not found" in m or "404" in m or "no such file" in m:
+        return "file_not_found"
+    if "permission" in m or "access denied" in m or "permission denied" in m:
+        return "permission_denied"
+    if "is a directory" in m or ("is directory" in m and "not found" not in m):
+        return "is_directory"
+    return "invalid_path"
 
 
 def _is_path_allowed(path: str) -> bool:
@@ -65,46 +78,70 @@ class AIOSandboxBackend(BaseSandbox):
                 truncated=False,
             )
     
-    def upload_files(self, files: list[tuple[str, bytes]]) -> list:
-        """Upload files to the sandbox via volume mount.
-        
-        Since AIO Sandbox uses volume mounts, files are accessible directly.
-        This is a placeholder that indicates successful mounting.
+    def upload_files(self, files: list[tuple[str, bytes]]) -> list[FileUploadResponse]:
         """
-        from deepagents.backends.protocol import FileUploadResponse
-        return [
-            FileUploadResponse(path=path, success=True, error=None)
-            for path, _ in files
-        ]
-    
-    def download_files(self, paths: list[str]) -> list:
-        """Download files from the sandbox via volume mount.
-        
-        Since AIO Sandbox uses volume mounts, files are accessible directly.
-        This reads files and returns their content.
+        Report upload results. In the AIO Sandbox case with volume mounts,
+        files are already accessible, so we return success (error=None).
         """
-        from deepagents.backends.protocol import FileDownloadResponse
         responses = []
+        for path, _ in files:
+            # Validate path before acknowledging
+            if not _is_path_allowed(path):
+                responses.append(FileUploadResponse(path=path, error="permission_denied"))
+                continue
+            # If you want to actually write the bytes into the sandbox, do that here.
+            # For mount-based setup assume files are already present and return success.
+            responses.append(FileUploadResponse(path=path, error=None))
+        return responses
+
+    def download_files(self, paths: list[str]) -> list:
+        """
+        Download files from the AIO Sandbox via the Sandbox API.
+        Returns FileDownloadResponse objects with bytes in `.content` on success
+        or an error literal on failure.
+        """
+        # Local imports to avoid top-level import problems and keep signature stable
+        from deepagents.backends.protocol import FileDownloadResponse
+        from sandbox_core_functions import get_sandbox_client
+
+        client = get_sandbox_client()
+        # DEBUG: uncomment to see which base_url the client uses
+        # print("DEBUG: sandbox client base_url =", getattr(client, "base_url", None))
+
+        responses: list[FileDownloadResponse] = []
+
         for path in paths:
+            # quick allowlist check
+            if not _is_path_allowed(path):
+                responses.append(FileDownloadResponse(path=path, content=None, error="permission_denied"))
+                continue
+
             try:
-                content = self.read(path)
-                responses.append(
-                    FileDownloadResponse(
-                        path=path,
-                        content=content.encode(),
-                        success=True,
-                        error=None,
-                    )
-                )
+                # Read from the sandbox container via the sandbox API client
+                resp = client.file.read_file(file=path)
+
+                # If the API returned data.content, convert it to bytes and return success
+                if getattr(resp, "data", None) and getattr(resp.data, "content", None) is not None:
+                    raw = resp.data.content
+                    content = raw if isinstance(raw, (bytes, bytearray)) else str(raw).encode("utf-8")
+                    responses.append(FileDownloadResponse(path=path, content=content, error=None))
+                else:
+                    # No content was returned; treat as not found
+                    responses.append(FileDownloadResponse(path=path, content=None, error="file_not_found"))
+
             except Exception as e:
-                responses.append(
-                    FileDownloadResponse(
-                        path=path,
-                        content=b"",
-                        success=False,
-                        error=str(e),
-                    )
-                )
+                # Map common exception text to one of FileOperationError literals
+                msg = str(e).lower()
+                if "permission" in msg or "access denied" in msg:
+                    code = "permission_denied"
+                elif "not found" in msg or "no such file" in msg or "404" in msg:
+                    code = "file_not_found"
+                elif "directory" in msg and "is a directory" in msg:
+                    code = "is_directory"
+                else:
+                    code = "invalid_path"
+                responses.append(FileDownloadResponse(path=path, content=None, error=code))
+
         return responses
     
     def ls_info(self, path: str) -> list[FileInfo]:

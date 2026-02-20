@@ -24,3 +24,18 @@ MS paint images
 spatial_eval/eval_summary/vqa
 spatial_eval/eval_summary/vtqa
 
+# MS Paint Reasoning Evaluation outputs and data
+MS_Paint_Reasoning_Evaluation/Results/
+MS_Paint_Reasoning_Evaluation/MS_paint_images/
+MS_Paint_Reasoning_Evaluation/MS paint answers/
+MS_Paint_Reasoning_Evaluation/MS paint questions/
+
+# Ignore screenshots and visualizations
+screenshots/
+
+# Ignore Excel output files in MS Paint Reasoning Evaluation
+MS_Paint_Reasoning_Evaluation/*.xlsx
+
+# Ignore *_res.txt files in MS Paint Reasoning Evaluation
+MS_Paint_Reasoning_Evaluation/*_res.txt
+

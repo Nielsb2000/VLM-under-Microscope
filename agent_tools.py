@@ -6,13 +6,14 @@ deepagents tools through AIOSandboxBackend. These tools provide unique functiona
 
 from langchain_core.tools import tool
 from sandbox_browser_tools import run_visible_browser_steps
+import subprocess
 from MCP_functions import call_mcp_tool
 from sandbox_core_functions import get_sandbox_context, create_skill_in_sandbox
 
 @tool
 def run_browser_steps(
     steps: list[dict],
-    screenshot_dir: str = "/home/gem/screenshots/browser_steps",
+    screenshot_dir: str = "/workspace/screenshots",
     settle_seconds: float = 0.8,
 ) -> dict:
     """Run a sequence of visible GUI browser steps in the sandbox and save a screenshot after each step.
@@ -30,6 +31,7 @@ def run_browser_steps(
     Returns:
         Dict with success flag, results per step, and screenshot_dir path.
     """
+    # Ensure screenshot directory exists using bash (avoids some os.makedirs permission issues)
     return run_visible_browser_steps(steps, screenshot_dir, settle_seconds)
 
 @tool
@@ -84,4 +86,12 @@ def call_mcp_tool_in_sandbox(tool_name: str, arguments: dict) -> dict:
         # Terminal commands
         call_mcp_tool_in_sandbox('terminal_execute', {'command': 'ls -la'})
     """
+    if tool_name.startswith("browser_"):
+        return {
+            "success": False,
+            "error": (
+                "Blocked: MCP browser_* tools are disabled for this agent. "
+                "Use run_browser_steps (GUI runner) for browser actions."
+            ),
+        }
     return call_mcp_tool(tool_name, arguments)

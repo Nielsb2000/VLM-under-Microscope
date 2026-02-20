@@ -7,15 +7,11 @@ services:
     volumes:
       - ./skills:/workspace/skills
       - ./MS paint images:/workspace/MS paint images
-      - ./sandbox_screenshots:/screenshots
+      - ./screenshots:/workspace/screenshots
     environment:
       - WORKSPACE=/workspace
+      - SANDBOX_SCREENSHOT_DIR=/workspace/screenshots
     security_opt:
       - seccomp:unconfined
     shm_size: "2gb"
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 2G

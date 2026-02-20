@@ -5,65 +5,118 @@ description: Main reference guide and contents page for all available skills. St
 
 # Master Skills Reference Guide
 
-Welcome! This is the central contents page for all available skills. Each skill listed below contains specialized knowledge and sub-skills for specific domains.
+This is the central routing authority for all skills.
 
-## Available Skills
+The agent MUST use this file to determine:
+- Which skill to consult
+- Which tool to use
+- Which tool to avoid
 
-### 🗂️ `./sandbox-filesystem/SKILL.md`
-**Sandbox Filesystem Structure**
-- Complete guide to AIO Sandbox directory layout
-- `/home/gem` (user files), `/workspace/skills` (documentation), `/tmp` (temporary)
-- File access patterns and permissions
-- CRITICAL: User files live in `/home/gem`, NOT `/workspace`
-- Use for: Understanding where files are located, file path resolution
-- Keywords: filesystem, directories, paths, /home/gem, file locations, sandbox structure
+---
 
-### 💻 `./bash-scripting/SKILL.md`
-**Bash/Shell Scripting**
-- File operations, text processing, command execution
-- Automation and system tasks
-- Use for: Any command-line operations
-- Keywords: bash, shell, commands, scripts, automation, terminal
+# 🚨 GLOBAL TOOL POLICY
 
-### 🐍 `./python-programming/SKILL.md`
-**Python Programming**
-- Data processing, computations, logic
-- File parsing and manipulation
-- Use for: Complex programming tasks
-- Keywords: python, programming, scripting, computation, logic
+## Browser Automation Rule
 
-### 🌐 `./web-network/SKILL.md`
-**Web & Network Operations**
-- HTTP requests, API calls, web scraping
-- URL processing and network tasks
-- Use for: Online data fetching, API integration
-- Keywords: http, api, curl, wget, requests, web, network
+When performing browser interactions:
 
-### � `./mcp-tools/SKILL.md`
-**MCP Protocol Tools**
-- Browser automation (screenshots, scraping, form filling)
-- Advanced file operations (search, batch replace)
-- Terminal session management
-- Document format conversion
-- Use for: Web automation, advanced file processing, document conversion
-- Keywords: mcp, browser, automation, scraping, screenshot, markitdown, selenium
+Before the first browser interaction, always run a bash command to ensure a writable screenshot directory exists:
 
-### �📁 `./file-management/SKILL.md`
-**File Management**
-- Reading, writing, and organizing files
-- Directory operations and batch processing
-- Use for: File system operations
-- Keywords: files, directories, read, write, organize, manage
+Persistent directory (only if mounted and writable):
+  - `/workspace/screenshots`
 
-## How To Use
+If `/workspace/screenshots` is used, it must be verified writable before execution.
 
-1. **Identify the skill domain** that matches the user's request
-2. **Read the specific skill file** using the relative path shown above
-3. **Follow instructions within that skill** - it may reference additional sub-skills
-4. **Always cite which skill you're using** when providing answers
+---
 
-## Notes
+- If the task requires **visible step-by-step interaction**:
+  - Use: `run_browser_steps`
+  - Do NOT use MCP `browser_*` tools
 
-- This is just a navigation/reference page
-- Actual detailed instructions are in the individual skill files
-- Skills may contain their own sub-skills and navigation structures
+- If the task requires only text extraction:
+  - MCP browser tools may be used
+
+The GUI runner:
+- Executes visible browser operations
+- Saves step screenshots
+- Uses the `/screenshot` endpoint (NOT `/vnc/screenshot`)
+- Is the authoritative browser execution tool
+
+---
+
+# Available Skills
+
+---
+
+## 🖱️ `./sandbox-browser/SKILL.md`
+Visible GUI browser automation in the AIO Sandbox.
+
+Use for:
+- `run_browser_steps` step schemas
+- Supported operations (move, click, type, hotkey, scroll, drag, navigate)
+- Screenshot endpoint rules (`/workspace/screenshot`)
+- Screenshot directory requirements
+- Browser automation troubleshooting
+
+---
+
+## 🗂️ `./sandbox-filesystem/SKILL.md`
+Sandbox directory layout and path rules.
+
+Key directories:
+- `/home/gem` → user files
+- `/workspace/skills` → skill docs
+- `/workspace/screenshots` → persistent screenshots (if mounted)
+
+Use for:
+- Path resolution
+- File location questions
+
+---
+
+## 💻 `./bash-scripting/SKILL.md`
+Shell commands and automation.
+
+---
+
+## 🐍 `./python-programming/SKILL.md`
+Python logic and computation tasks.
+
+---
+
+## 🌐 `./web-network/SKILL.md`
+HTTP requests and network operations.
+
+---
+
+## 🧠 `./mcp-tools/SKILL.md`
+MCP tools for:
+- File operations
+- Code execution
+- Document conversion
+- Limited browser extraction (policy-restricted)
+
+---
+
+## 📁 `./file-management/SKILL.md`
+File organization and manipulation.
+
+---
+
+# How To Use
+
+1. Identify the domain.
+2. Open the corresponding skill.
+3. Follow its tool rules.
+4. Respect the browser automation policy.
+5. Cite which skill was used.
+
+---
+
+# Notes
+
+- This file governs routing decisions.
+- Browser automation must follow the GUI runner rule.
+- The `/vnc/` path is reserved for noVNC static assets.
+- Screenshots must use the `/screenshot` endpoint.
+- Skills define allowed and disallowed tool usage.
