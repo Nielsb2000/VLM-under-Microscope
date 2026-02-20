@@ -16,7 +16,7 @@ dependencies = [
     "datasets>=4.5.0",
     "pillow>=8.0,<11.0",
     "torch>=2.0.0",
-    "transformers==4.37.1",
+    "transformers==4.53.0",
     "pandas>=2.0.0",
     "sentencepiece==0.1.99",
     "protobuf>=6.33.5",
