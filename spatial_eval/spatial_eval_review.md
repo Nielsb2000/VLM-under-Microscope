@@ -1,20 +1,110 @@
+## License & Usage
+
+As of February 2026, the SpatialEval dataset and code are released for research and academic use only. No explicit open-source or Creative Commons license is specified in the official GitHub or Hugging Face pages. Users should cite the original paper (see above) and consult the [SpatialEval GitHub](https://github.com/jiayuww/SpatialEval) for any updates or clarifications regarding licensing before using the dataset or code in commercial or derivative works.
+
+**Summary:**
+- Intended for research/academic use
+- Cite the NeurIPS 2024 paper when using
+- Check the original repository for the latest license status
 # spatial_eval: Technical Review & Implementation Guide
 
----
+#
+# ---
+#
+# The following section is imported from README.md for completeness:
+#
+# ---
+
+# SpatialEval Dataset
+
+This folder contains the **SpatialEval** benchmark datasets for evaluating spatial intelligence in Large Language Models (LLMs) and Vision-Language Models (VLMs).
+
+## 📊 Dataset Overview
+
+**Source**: [MilaWang/SpatialEval on HuggingFace](https://huggingface.co/datasets/MilaWang/SpatialEval)  
+**Paper**: [Is A Picture Worth A Thousand Words? Delving Into Spatial Reasoning for Vision Language Models](https://arxiv.org/pdf/2406.14852)  
+
+# spatial_eval: Technical Review & Implementation Guide
 
 ## Overview
 
-**spatial_eval** is a modular Python suite for evaluating spatial reasoning in vision-language models. It supports flexible configuration, batch evaluation, and detailed result analysis for spatial VQA and VTQA tasks. The design emphasizes reproducibility, extensibility, and CLI-driven workflows, with organized outputs for easy comparison and downstream analysis.
+**spatial_eval** is a modular Python suite and dataset for evaluating spatial reasoning in vision-language models (VLMs) and large language models (LLMs). It provides:
+- The **SpatialEval** benchmark dataset (VQA and VTQA tasks)
+- Flexible, CLI-driven pipelines for inference, evaluation, and result analysis
+- Batch automation scripts and configuration presets
+- Organized outputs for reproducibility and comparison
 
 ---
 
-## Directory Structure
+## 1. Dataset: SpatialEval
 
+SpatialEval is a benchmark for spatial intelligence in LLMs and VLMs.
+
+**Source:** [MilaWang/SpatialEval on HuggingFace](https://huggingface.co/datasets/MilaWang/SpatialEval)  
+**Paper:** [Is A Picture Worth A Thousand Words?](https://arxiv.org/pdf/2406.14852)  
+**Code:** [jiayuww/SpatialEval](https://github.com/jiayuww/SpatialEval)
+
+**Size:** ~1.43 GB  
+**Total Samples:** ~9,270 (4,635 per modality)  
+**Modalities:** 2 (VQA, VTQA)  
+**Tasks:** 4 (Spatial-Map, Maze-Nav, Spatial-Grid, Spatial-Real)
+
+### Tasks
+- **Spatial-Map:** Map-based spatial relationships
+- **Maze-Nav:** Navigation in mazes
+- **Spatial-Grid:** Reasoning in grid environments
+- **Spatial-Real:** Real-world spatial understanding
+
+### Data Format
+Each `data.json` contains samples like:
+```json
+{
+  "id": "spatialmap.0.123",
+  "text": "Question text...",
+  "oracle_answer": "A",
+  "oracle_option": "northeast",
+  "oracle_full_answer": "The answer is A. northeast because...",
+  "image_path": "images/spatialmap_0_123.png"
+}
+```
+**Fields:**
+- `id`: Unique identifier
+- `text`: Question prompt
+- `oracle_answer`: Concise answer
+- `oracle_option`: Detailed answer
+- `oracle_full_answer`: Full reasoning
+- `image_path`: Relative path to image
+
+### Dataset Statistics
+| Modality | Task         | Samples | Images |
+|----------|--------------|---------|--------|
+| VQA      | Spatial-Map  | ~1,500  | ~1,500 |
+| VQA      | Maze-Nav     | ~1,500  | ~1,500 |
+| VQA      | Spatial-Grid | ~1,500  | ~1,500 |
+| VQA      | Spatial-Real | ~135    | ~135   |
+| VTQA     | Spatial-Map  | ~1,500  | ~1,500 |
+| VTQA     | Maze-Nav     | ~1,500  | ~1,500 |
+| VTQA     | Spatial-Grid | ~1,500  | ~1,500 |
+| VTQA     | Spatial-Real | ~135    | ~135   |
+**Total:** ~9,270 samples across 8 task-modality combinations
+
+### Loading Data Example
+```python
+import json
+from pathlib import Path
+with open('spatial_eval/vqa/spatial-map/data.json', 'r') as f:
+    vqa_spatial_map = json.load(f)
+```
+
+---
+
+## 2. Implementation & Codebase
+
+### Directory Structure
 ```
 spatial_eval/
-├── download_spatial_eval.py      # Downloads datasets/resources
+├── download_spatial_eval.py      # Download datasets/resources
 ├── inference_vlm.py              # Main inference pipeline (CLI)
-├── README.md                     # Module usage and details
 ├── TESTING_GUIDE.md              # Testing instructions
 ├── configs/
 │   └── inference_configs.py      # Model/config presets
@@ -51,24 +141,18 @@ spatial_eval/
 │   └── spatial-real/
 ```
 
----
+### Key Modules & Scripts
+- **download_spatial_eval.py:** Download datasets/resources
+- **inference_vlm.py:** Main CLI for model inference
+- **evals/evaluation.py:** Core evaluation logic
+- **eval_summary/plot_results.py:** Plotting and visualization
+- **configs/inference_configs.py:** Model/config presets
+- **models/**: Model wrappers/utilities
+- **scripts/**: Batch and pipeline automation
 
-## Key Modules & Scripts
-
-### 1. inference_vlm.py
-- **Purpose:** Main inference pipeline for running VLMs on spatial tasks.
-- **Features:**
-  - CLI: Select model, config, dataset, output path.
-  - Loads configs, datasets, and runs model inference.
-  - Saves outputs to organized folders.
-- **Key Functions:**
-  - `main()` (CLI entry)
-  - `run_inference(model, dataset, config)`
-- **Dependencies:** pandas, custom model scripts
-
-### 2. evals/evaluation.py
-- **Purpose:** Core evaluation logic for VQA/VTQA tasks.
-- **Features:**
+### Data Flow Diagram
+```
+[Datasets (vqa/vtqa)]
   - Computes accuracy, metrics, and aggregates results.
   - Used by pipeline scripts and summary tools.
 - **Key Functions:**
@@ -90,6 +174,124 @@ spatial_eval/
   - Easily add new models/configs.
   - Used by inference pipeline.
 - **Key Functions:**
+```
+
+
+### Testing & Usage Guide
+
+#### 1. Configure API Key
+Edit your `.env` file with OpenAI/Azure credentials:
+```bash
+OPENAI_API_KEY=your-key-here
+OPENAI_BASE_URL=https://api.openai.com/v1
+MODEL_NAME=gpt-4o
+```
+
+#### 2. Run Inference
+```bash
+uv run python inference_vlm.py \
+  --model_path gpt-4o \
+  --mode vqa \
+  --task mazenav \
+  --first_k 10 \
+  --max_new_tokens 1024 \
+  --temperature 0.2
+```
+
+#### 3. Evaluate Results
+```bash
+uv run python evals/evaluation.py \
+  --mode vqa \
+  --task mazenav \
+  --output_folder outputs/ \
+  --dataset_id MilaWang/SpatialEval \
+  --eval_summary_dir eval_summary
+```
+
+#### 4. Configuration Options
+
+**Tasks:**
+- `mazenav` - Maze navigation
+- `spatialgrid` - Grid-based reasoning
+- `spatialmap` - Map understanding
+- `spatialreal` - Real-world scenarios
+
+**Modes:**
+- `vqa` - Vision + Text
+- `tqa` - Text only
+- `vtqa` - Vision + Text (text emphasis)
+
+**Model Options:**
+- `--model_path gpt-4o` (API-based)
+- `--model_path llava-v1.5-7b` (local)
+- Others: bunny, qwen, cog, instructblip
+
+**Common Flags:**
+- `--first_k 10` - Test first 10 samples
+- `--temperature 0.2` - Sampling temperature
+- `--max_new_tokens 1024` - Max response length
+- `--w_reason` - Step-by-step reasoning
+- `--completion` - Add "Answer:" prompt
+
+#### 5. Evaluation Options
+
+**Run evaluation** on any task/mode:
+```bash
+uv run python evals/evaluation.py --mode vqa --task mazenav
+uv run python evals/evaluation.py --mode tqa --task spatialmap
+uv run python evals/evaluation.py --mode vtqa --task spatialgrid
+```
+**Parameters:**
+- `--mode {vqa,tqa,vtqa}`
+- `--task {mazenav,spatialgrid,spatialmap,spatialreal}`
+- `--output_folder outputs/`
+- `--dataset_id MilaWang/SpatialEval`
+- `--eval_summary_dir eval_summary`
+
+#### 6. Output Files
+
+- **Inference:** `outputs/MilaWang__SpatialEval/{mode}/{task}/m-{model}_{suffix}.jsonl`
+  - Contains: id, answer, oracle_answer, oracle_option, prompt, image
+- **Evaluation:**
+  - Summary: `eval_summary/{mode}/{task}_{model}_eval_summary.jsonl`
+  - Accuracy CSV: `eval_summary/{mode}/{task}_acc.csv`
+
+#### 7. Usage Examples
+
+**Test different tasks:**
+```bash
+uv run python inference_vlm.py --model_path gpt-4o --mode vqa --task mazenav --first_k 10
+uv run python inference_vlm.py --model_path gpt-4o --mode vqa --task spatialgrid --first_k 10
+uv run python inference_vlm.py --model_path gpt-4o --mode vqa --task all --first_k 5
+```
+**Evaluate multiple models:**
+```bash
+uv run python evals/evaluation.py --mode vqa --task mazenav
+# Results show all models in mazenav_acc.csv
+```
+
+---
+
+## 3. Re-downloading & References
+
+- To re-download datasets: `uv run python download_spatial_eval.py`
+- [Project Page](https://spatialeval.github.io/)
+- [Paper](https://arxiv.org/pdf/2406.14852)
+- [Dataset](https://huggingface.co/datasets/MilaWang/SpatialEval)
+- [Code](https://github.com/jiayuww/SpatialEval)
+- [NeurIPS Talk](https://neurips.cc/virtual/2024/poster/94371)
+
+### Citation
+```bibtex
+@inproceedings{wang2024spatial,
+  title={Is A Picture Worth A Thousand Words? Delving Into Spatial Reasoning for Vision Language Models},
+  author={Wang, Jiayu and Ming, Yifei and Shi, Zhenmei and Vineet, Vibhav and Wang, Xin and Li, Yixuan and Joshi, Neel},
+  booktitle={The Thirty-Eighth Annual Conference on Neural Information Processing Systems},
+  year={2024}
+}
+```
+
+---
   - `get_config(model_name)`
 - **Dependencies:** None (pure Python)
 
