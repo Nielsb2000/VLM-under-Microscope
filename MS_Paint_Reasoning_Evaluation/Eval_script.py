@@ -32,7 +32,7 @@ def get_img_dir(blur_level):
 
 def get_results_dir(blur_level):
 	if blur_level == "none":
-		return os.path.join(os.path.dirname(__file__), RESULTS_DIR)
+		return os.path.join(os.path.dirname(__file__), RESULTS_DIR, "none")
 	else:
 		return os.path.join(os.path.dirname(__file__), RESULTS_DIR, blur_level)
 

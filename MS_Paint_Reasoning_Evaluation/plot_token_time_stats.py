@@ -94,13 +94,18 @@ def main():
     imgq_set = sorted(set((img, q) for img, q, _, _, _, _, _ in stats))
     imgq_idx = {label: i for i, label in enumerate(imgq_set)}
 
-    tokens_matrix = np.zeros((len(imgq_set), len(MODELS)))
+    # Matrices for input, output, and total tokens
+    input_tokens_matrix = np.zeros((len(imgq_set), len(MODELS)))
+    output_tokens_matrix = np.zeros((len(imgq_set), len(MODELS)))
+    total_tokens_matrix = np.zeros((len(imgq_set), len(MODELS)))
     time_matrix = np.zeros((len(imgq_set), len(MODELS)))
 
-    for img, q, model, _, _, total_tokens, elapsed_time in stats:
+    for img, q, model, input_tokens, output_tokens, total_tokens, elapsed_time in stats:
         row = imgq_idx[(img, q)]
         col = MODELS.index(model)
-        tokens_matrix[row, col] = total_tokens
+        input_tokens_matrix[row, col] = input_tokens
+        output_tokens_matrix[row, col] = output_tokens
+        total_tokens_matrix[row, col] = total_tokens
         time_matrix[row, col] = elapsed_time
 
     # Pricing and cost calculation (Feb 2026, per 1M tokens, in USD)
@@ -121,24 +126,37 @@ def main():
         cost_eur = cost_usd * USD_TO_EUR
         cost_matrix[row, col] = cost_eur
 
-    # Plotting: tokens and time per image/question/model
-    fig, axes = plt.subplots(2, 1, figsize=(max(12, len(imgq_set)*0.7), 10), sharex=True)
+
+    # Plotting: input, output, and total tokens, and time per image/question/model
+    fig, axes = plt.subplots(2, 1, figsize=(max(14, len(imgq_set)*0.9), 12), sharex=True)
     bar_width = 0.2
     x = np.arange(len(imgq_set))
 
-    # Tokens plot with cost annotation and total cost in legend
+    # Tokens plot: input, output, total for each model
     total_costs = [cost_matrix[:, i].sum() for i in range(len(MODELS))]
-    legend_labels = [f"{model} (Total: €{total_costs[i]:.2f})" for i, model in enumerate(MODELS)]
+    token_types = ["Input", "Output", "Total"]
+    matrices = [input_tokens_matrix, output_tokens_matrix, total_tokens_matrix]
+    colors = ["#1f77b4", "#ff7f0e", "#2ca02c"]
+
+    legend_entries = []
     for i, model in enumerate(MODELS):
-        bars = axes[0].bar(x + i*bar_width, tokens_matrix[:, i], width=bar_width, label=legend_labels[i])
-        for j, bar in enumerate(bars):
-            cost = cost_matrix[j, i]
-            if tokens_matrix[j, i] > 0:
-                axes[0].text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.02*bar.get_height(),
-                             f"€{cost:.3f}", ha='center', va='bottom', fontsize=8, rotation=90)
-    axes[0].set_ylabel("Total Tokens")
-    axes[0].set_title("Token Usage per Image/Question per Model\n(Cost in EUR above bars, total in legend)")
-    axes[0].legend()
+        for t, (token_type, matrix, color) in enumerate(zip(token_types, matrices, colors)):
+            offset = (i * len(token_types) + t) * bar_width / len(token_types)
+            label = f"{model} {token_type}"
+            bars = axes[0].bar(x + offset, matrix[:, i], width=bar_width/len(token_types), label=label, color=color, alpha=0.8)
+            if token_type == "Total":
+                for j, bar in enumerate(bars):
+                    cost = cost_matrix[j, i]
+                    if matrix[j, i] > 0:
+                        axes[0].text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.02*bar.get_height(),
+                                     f"€{cost:.3f}", ha='center', va='bottom', fontsize=8, rotation=90)
+            # Only add one legend entry per model/token_type
+            if (model, token_type) not in legend_entries:
+                legend_entries.append((model, token_type, bars[0]))
+    axes[0].set_ylabel("Tokens")
+    axes[0].set_title("Token Usage per Image/Question per Model\n(Input, Output, Total; Cost in EUR above total bars)")
+    # Build legend with all model/token_type combinations
+    axes[0].legend([entry[2] for entry in legend_entries], [f"{entry[0]} {entry[1]}" for entry in legend_entries])
 
     # Time plot
     for i, model in enumerate(MODELS):

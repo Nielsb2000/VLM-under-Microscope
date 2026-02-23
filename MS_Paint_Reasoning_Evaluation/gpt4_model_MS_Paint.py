@@ -6,7 +6,7 @@ from langchain_core.messages import HumanMessage
 
 class GPT4VisionMSPaint:
     """Wrapper for GPT Vision models (GPT-4o, GPT-5.1, GPT-4 Turbo with vision, etc.) for MS Paint evaluation with token/time reporting and reasoning mode support."""
-    def __init__(self, model_name="gpt-4o", max_tokens=1500, reasoning_mode="medium"):
+    def __init__(self, model_name="gpt-4o", max_tokens=5000, reasoning_mode="medium"):
         self.model_name = model_name
         self.max_tokens = max_tokens
         self.reasoning_mode = reasoning_mode

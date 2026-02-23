@@ -8,7 +8,7 @@ questions_dir = os.path.join(base_dir, 'MS_paint_images', 'MS paint questions')
 models = ['gpt-4o', 'gpt-5.1', 'gpt-5.2']
 
 blur_levels = {
-    'none': os.path.join(base_dir, 'Results'),
+    'none': os.path.join(base_dir, 'Results', 'none'),
     'med_blur': os.path.join(base_dir, 'Results', 'med_blur'),
     'heavy_blur': os.path.join(base_dir, 'Results', 'heavy_blur'),
 }
