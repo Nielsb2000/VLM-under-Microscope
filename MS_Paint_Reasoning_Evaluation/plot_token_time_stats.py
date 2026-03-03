@@ -21,20 +21,24 @@ def extract_token_dict(text):
     return None
 
 def main():
-    parser = argparse.ArgumentParser(description="Plot token/time stats for MS Paint Reasoning, supporting blur levels and reasoning modes.")
-    parser.add_argument('--blur-level', default='none', choices=['none', 'med_blur', 'heavy_blur'],
-                        help="Which blur level to plot. Choices: none, med_blur, heavy_blur. Default: none.")
+
+    parser = argparse.ArgumentParser(description="Plot token/time stats for MS Paint Reasoning, supporting image types, blur levels, and reasoning modes.")
+    parser.add_argument('--image-type', default='original', choices=['original', 'greyscale', 'inverted_greyscale'],
+                        help="Which image type to plot. Choices: original, greyscale, inverted_greyscale. Default: original.")
+    parser.add_argument('--blur-level', default='no_blur', choices=['no_blur', 'med_blur', 'heavy_blur'],
+                        help="Which blur level to plot. Choices: no_blur, med_blur, heavy_blur. Default: no_blur.")
     parser.add_argument('--reasoning-mode', default='none', choices=['none', 'low', 'medium', 'high'],
                         help="Reasoning mode to plot. Choices: none, low, medium, high. Default: none.")
     args = parser.parse_args()
 
-    # Clean output folder naming: if reasoning-mode is 'none', just use blur-level as folder, else use blur_reasoning
+    # Output folder naming includes image type and matches conventions
+    blur_folder = args.blur_level
     if args.reasoning_mode == 'none':
-        results_dir = os.path.join("MS_Paint_Reasoning_Evaluation/Results", f"{args.blur_level}")
-        plot_dir = os.path.join("MS_Paint_Reasoning_Evaluation/Results", "res_vis", f"{args.blur_level}")
+        results_dir = os.path.join("MS_Paint_Reasoning_Evaluation/Results", f"{args.image_type}_{blur_folder}")
+        plot_dir = os.path.join("MS_Paint_Reasoning_Evaluation/Results", "res_vis", f"{args.image_type}_{blur_folder}")
     else:
-        results_dir = os.path.join("MS_Paint_Reasoning_Evaluation/Results", f"{args.blur_level}_{args.reasoning_mode}")
-        plot_dir = os.path.join("MS_Paint_Reasoning_Evaluation/Results", "res_vis", f"{args.blur_level}_{args.reasoning_mode}")
+        results_dir = os.path.join("MS_Paint_Reasoning_Evaluation/Results", f"{args.image_type}_{blur_folder}_{args.reasoning_mode}")
+        plot_dir = os.path.join("MS_Paint_Reasoning_Evaluation/Results", "res_vis", f"{args.image_type}_{blur_folder}_{args.reasoning_mode}")
     os.makedirs(plot_dir, exist_ok=True)
 
     TIME_RE = re.compile(r"Elapsed time:\s*([0-9.]+) seconds")

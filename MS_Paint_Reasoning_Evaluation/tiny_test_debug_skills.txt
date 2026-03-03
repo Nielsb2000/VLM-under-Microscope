@@ -1,0 +1,19 @@
+--- Tiny Test Eval Result ---
+Image: MS_Paint_Reasoning_Evaluation/MS_paint_images/original_med_blur_images/img1.png
+Question: Question 1: For the 2 shapes in the middle of the image, which shape is in front of the other one?
+Model: gpt-4o
+Blur type: med_blur
+Skills directory used: /home/nielsbroekhuizen/projects/my-vscode-project/MS_Paint_Reasoning_Evaluation/skills
+Image processed: True
+
+Reasoning:
+In the image, the two shapes in the middle are a black oval and a red triangle. The red triangle is partially obscured by the black oval, indicating that the black oval is in front of the red triangle.
+
+Final Answer:
+The black oval is in front of the red triangle.
+
+Token Usage:
+{'input_tokens': 6758, 'output_tokens': 76, 'total_tokens': 6834, 'input_token_details': {'audio': 0, 'cache_read': 6528}, 'output_token_details': {'audio': 0, 'reasoning': 0}}
+
+Elapsed Time (s):
+2.9019689559936523

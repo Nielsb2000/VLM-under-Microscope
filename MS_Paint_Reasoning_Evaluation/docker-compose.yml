@@ -1,0 +1,11 @@
+services:
+  dashboard:
+    build: .
+    container_name: ms-paint-plotly-dashboard
+    ports:
+      - "8050:8050"
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped

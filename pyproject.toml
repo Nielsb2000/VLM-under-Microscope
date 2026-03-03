@@ -24,6 +24,9 @@ dependencies = [
     "einops>=0.8.2",
     "matplotlib>=3.6.0",
     "openpyxl>=3.1.5",
+    "pytest>=9.0.2",
+    "dash>=4.0.0",
+    "plotly-express>=0.4.1",
 ]
 
 

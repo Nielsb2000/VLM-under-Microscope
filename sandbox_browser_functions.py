@@ -30,35 +30,53 @@ def get_sandbox_client() -> Sandbox:
 
 
 def write_binary_file(client, path: str, data: bytes) -> Dict[str, Any]:
-    """
-    Write binary bytes to a file inside the sandbox.
-
-    Tries sandbox File API first (best). If that fails (SDK expects str),
-    falls back to a safe base64->python decode+write in the sandbox.
-    """
-    # 1) Try File API directly (some SDKs accept bytes)
     try:
-        client.file.write_file(file=path, content=data)
-        return {"success": True, "method": "file_api_bytes", "path": path, "bytes_written": len(data)}
-    except Exception as e1:
-        # 2) Fallback: base64 decode and write via sandbox shell
+        base_dir = "/workspace/screenshots"
+        rel_path = os.path.relpath(path, base_dir)
+        safe_path = os.path.join(base_dir, rel_path)
+        # Ensure screenshots directory and subfolders exist
+        client.shell.exec_command(command=f"mkdir -p '{os.path.dirname(safe_path)}'")
+        client.shell.exec_command(command=f"mkdir -p '{base_dir}'")
+        b64 = base64.b64encode(data).decode("ascii")
+        cmd = (
+            "python3 - <<'PY'\n"
+            "import base64, os\n"
+            f"data = base64.b64decode({b64!r})\n"
+            f"path = {safe_path!r}\n"
+            "os.makedirs(os.path.dirname(path), exist_ok=True)\n"
+            "with open(path, 'wb') as f:\n"
+            "    f.write(data)\n"
+            "print('WROTE', len(data), 'BYTES')\n"
+            "PY"
+        )
+        res = client.shell.exec_command(command=cmd)
+        shell_output = getattr(res, 'output', None)
+        shell_error = getattr(res, 'error', None)
+        # Print and log shell output and error
+        print(f"[write_binary_file] Shell output: {shell_output}")
+        print(f"[write_binary_file] Shell error: {shell_error}")
+        # Ensure log directory exists before writing log
+        client.shell.exec_command(command=f"mkdir -p '{base_dir}'")
+        log_path = os.path.join(base_dir, "write_binary_file_shell.log")
         try:
-            b64 = base64.b64encode(data).decode("ascii")
-            cmd = (
-                "python3 - <<'PY'\n"
-                "import base64, os\n"
-                f"data = base64.b64decode({b64!r})\n"
-                f"path = {path!r}\n"
-                "os.makedirs(os.path.dirname(path), exist_ok=True)\n"
-                "with open(path, 'wb') as f:\n"
-                "    f.write(data)\n"
-                "print('WROTE', len(data), 'BYTES')\n"
-                "PY"
-            )
-            client.shell.exec_command(command=cmd)
-            return {"success": True, "method": "shell_base64_fallback", "path": path, "bytes_written": len(data), "note": str(e1)}
-        except Exception as e2:
-            return {"success": False, "error": f"file_api_failed={e1}; fallback_failed={e2}", "path": path}
+            with open(log_path, "a") as logf:
+                logf.write(f"PATH: {safe_path}\nOUTPUT: {shell_output}\nERROR: {shell_error}\n\n")
+        except Exception as log_exc:
+            print(f"[write_binary_file] Log write exception: {log_exc}")
+        if res and getattr(res, 'success', True):
+            return {"success": True, "method": "shell_base64", "path": safe_path, "bytes_written": len(data), "shell_output": shell_output}
+        else:
+            return {"success": False, "path": safe_path, "bytes_written": len(data), "shell_output": shell_output, "shell_error": shell_error}
+    except Exception as e:
+        print(f"[write_binary_file] Exception: {e}")
+        try:
+            client.shell.exec_command(command=f"mkdir -p '{base_dir}'")
+            log_path = os.path.join(base_dir, "write_binary_file_shell.log")
+            with open(log_path, "a") as logf:
+                logf.write(f"PATH: {path}\nEXCEPTION: {e}\n\n")
+        except Exception as log_exc:
+            print(f"[write_binary_file] Log write exception: {log_exc}")
+        return {"success": False, "path": path, "bytes_written": len(data), "error": str(e)}
 
 
 def take_browser_screenshot_png(
@@ -94,86 +112,63 @@ def take_browser_screenshot_png(
         p = pathlib.Path(path)
         # if path is a directory (ends with slash), use default filename
         if str(path).endswith(os.sep) or p.name == "":
-            p = (p / "screenshot.png")
-        # force .png extension
-        p = p.with_suffix(".png")
-
-        # Create directory if needed
-        p.parent.mkdir(parents=True, exist_ok=True)
-
-        # Build unique filename: timestamp + short uuid
-        timestamp = datetime.datetime.utcnow().strftime("%Y%m%d_%H%M%S_%f")  # UTC
-        short_id = uuid.uuid4().hex[:8]
-        unique_name = f"{p.stem}_{timestamp}_{short_id}{p.suffix}"
-        unique_path = p.parent / unique_name
-
-        last_exc: Optional[Exception] = None
-        for attempt in range(retries + 1):
+            # Method 4: Call minimal working screenshot script via shell command
             try:
-                # stream response to file (don't load whole body into memory)
-                with requests.get(vnc_url, stream=True, timeout=timeout) as resp:
-                    resp.raise_for_status()
-
-                    status_code = getattr(resp, "status_code", None)
-                    # Some VNC endpoints may not set Content-Type; be lenient but check if present
-                    content_type = resp.headers.get("Content-Type", "").lower()
-                    # Accept common image types; prefer png but allow jpeg if server returns that
-                    if content_type and "image" not in content_type:
-                        # Not necessarily fatal — but warn / raise
-                        # We'll still attempt to write but mark as suspicious.
-                        pass
-
-                    bytes_written = 0
-                    with open(unique_path, "wb") as f:
-                        for chunk in resp.iter_content(chunk_size=chunk_size):
-                            if chunk:
-                                f.write(chunk)
-                                bytes_written += len(chunk)
-
-                # Simple validation: first bytes match PNG signature
-                with open(unique_path, "rb") as f:
-                    header = f.read(8)
-                png_sig = b"\x89PNG\r\n\x1a\n"
-                if not header.startswith(png_sig):
-                    # if not PNG, try renaming to what it actually is (jpeg) or fail
-                    # check for JPEG signature
-                    if header.startswith(b"\xff\xd8\xff"):
-                        # rename to .jpg
-                        alt_path = unique_path.with_suffix(".jpg")
-                        unique_path.rename(alt_path)
-                        unique_path = alt_path
-                        # still return success, but with note
-                        return {
-                            "success": True,
-                            "path": str(unique_path.resolve()),
-                            "bytes_written": bytes_written,
-                            "status_code": status_code,
-                            "url": vnc_url,
-                            "note": "content was JPEG, file saved with .jpg extension",
-                        }
-                    else:
-                        # Unknown/invalid image
-                        raise ValueError("Downloaded content is not PNG or JPEG image (invalid header)")
-
-                # success
-                return {
-                    "success": True,
-                    "path": str(unique_path.resolve()),
-                    "bytes_written": bytes_written,
-                    "status_code": status_code,
-                    "url": vnc_url,
-                }
-
-            except Exception as exc:
-                last_exc = exc
-                # if last attempt, raise, otherwise retry
-                if attempt < retries:
-                    # simple backoff
-                    import time
-                    time.sleep(0.5 * (attempt + 1))
-                    continue
-                else:
-                    raise
+                temp_path = path + ".tmp"
+                res_temp = client.file.write_file(file=temp_path, content=data)
+                if res_temp and getattr(res_temp, 'success', True):
+                    cmd4 = f"python3 test_basic_screenshot.py {temp_path} {path}"
+                    res4 = client.shell.exec_command(command=cmd4)
+                    if res4 and getattr(res4, 'success', True):
+                        return {"success": True, "method": "minimal_script_shell", "path": path, "bytes_written": len(data)}
+            except Exception:
+                pass
+            # Method 1: Sandbox file API
+            try:
+                res1 = client.file.write_file(file=path, content=data)
+                if res1 and getattr(res1, 'success', True):
+                    return {"success": True, "method": "file_api", "path": path, "bytes_written": len(data)}
+            except Exception:
+                pass
+            # Method 2: Shell command (base64 decode)
+            try:
+                b64 = base64.b64encode(data).decode("ascii")
+                cmd = (
+                    "python3 - <<'PY'\n"
+                    "import base64, os\n"
+                    f"data = base64.b64decode({b64!r})\n"
+                    f"path = {path!r}\n"
+                    "os.makedirs(os.path.dirname(path), exist_ok=True)\n"
+                    "with open(path, 'wb') as f:\n"
+                    "    f.write(data)\n"
+                    "print('WROTE', len(data), 'BYTES')\n"
+                    "PY"
+                )
+                res2 = client.shell.exec_command(command=cmd)
+                if res2 and getattr(res2, 'success', True):
+                    return {"success": True, "method": "shell_base64", "path": path, "bytes_written": len(data)}
+            except Exception:
+                pass
+            # Method 3: Python file write via exec_command
+            try:
+                hex_bytes = data.hex()
+                cmd3 = (
+                    "python3 - <<'PY'\n"
+                    "import os\n"
+                    f"path = {path!r}\n"
+                    f"data = bytes.fromhex({hex_bytes!r})\n"
+                    "os.makedirs(os.path.dirname(path), exist_ok=True)\n"
+                    "with open(path, 'wb') as f:\n"
+                    "    f.write(data)\n"
+                    "print('WROTE', len(data), 'BYTES')\n"
+                    "PY"
+                )
+                res3 = client.shell.exec_command(command=cmd3)
+                if res3 and getattr(res3, 'success', True):
+                    return {"success": True, "method": "shell_hex", "path": path, "bytes_written": len(data)}
+            except Exception:
+                pass
+            return {"success": False, "path": path, "bytes_written": len(data)}
 
     except Exception as e:
         tb = traceback.format_exc()

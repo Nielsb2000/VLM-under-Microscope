@@ -21,9 +21,10 @@ Our goal is to develop a model architecture and skill suite that enables robust 
 
 ---
 
+
 ## Key Features & Components
 
-- **MS_Paint_Reasoning_Evaluation/**: Evaluate visual reasoning using MS Paint-style images. Includes blurring, evaluation, plotting, and Excel export tools.
+- **MS_Paint_Reasoning_Evaluation/**: Evaluate visual reasoning using MS Paint-style images. Includes blurring, evaluation, plotting, and Excel export tools. The batch evaluation script now prints clear success messages after all questions/images are processed, making batch runs easier to monitor and verify.
 - **spatial_eval/**: Evaluate spatial reasoning (VQA/VTQA) in vision-language models. Supports batch inference, evaluation, and result visualization.
 - **skills/**: Modular skills for agent execution in the sandbox.
 - **pizza_not_pizza/**: Example dataset for image classification tasks.

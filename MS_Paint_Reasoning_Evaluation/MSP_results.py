@@ -11,21 +11,27 @@ import numpy as np
 import os
 
 def main():
-    parser = argparse.ArgumentParser(description="Visualize MS Paint Reasoning results for a specific blur level and reasoning mode.")
+
+    parser = argparse.ArgumentParser(description="Visualize MS Paint Reasoning results for a specific image type, blur level, and reasoning mode.")
+    parser.add_argument('--image-type', default='color', choices=['color', 'greyscale', 'inverted_greyscale'],
+                        help="Which image type to visualize. Choices: color, greyscale, inverted_greyscale. Default: color.")
     parser.add_argument('--blur-level', default='none', choices=['none', 'med_blur', 'heavy_blur'],
                         help="Which blur level to visualize. Choices: none, med_blur, heavy_blur. Default: none.")
     parser.add_argument('--reasoning-mode', default='none', choices=['none', 'low', 'medium', 'high'],
                         help="Reasoning mode to visualize. Choices: none, low, medium, high. Default: none.")
-    parser.add_argument('--res-file', default=None, help="Path to the results .txt file. If not set, will use default for blur level and reasoning mode.")
+    parser.add_argument('--res-file', default=None, help="Path to the results .txt file. If not set, will use default for image type, blur level, and reasoning mode.")
     args = parser.parse_args()
 
-    # Clean output folder naming: if reasoning-mode is 'none', just use blur-level as folder, else use blur_reasoning
+
+    # Output and results file naming includes image type
+    # Map 'none' blur level to 'no_blur' for file/folder naming
+    blur_folder = args.blur_level if args.blur_level != 'none' else 'no_blur'
     if args.reasoning_mode == 'none':
-        res_file = args.res_file or f'MS_Paint_Reasoning_Evaluation/{args.blur_level}_res.txt'
-        res_vis_dir = f'MS_Paint_Reasoning_Evaluation/Results/res_vis/{args.blur_level}'
+        res_file = args.res_file or f'MS_Paint_Reasoning_Evaluation/Results/{args.image_type}_{blur_folder}/{args.image_type}_{blur_folder}_res.txt'
+        res_vis_dir = f'MS_Paint_Reasoning_Evaluation/Results/res_vis/{args.image_type}_{blur_folder}'
     else:
-        res_file = args.res_file or f'MS_Paint_Reasoning_Evaluation/{args.blur_level}_{args.reasoning_mode}_res.txt'
-        res_vis_dir = f'MS_Paint_Reasoning_Evaluation/Results/res_vis/{args.blur_level}_{args.reasoning_mode}'
+        res_file = args.res_file or f'MS_Paint_Reasoning_Evaluation/Results/{args.image_type}_{blur_folder}_{args.reasoning_mode}/{args.image_type}_{blur_folder}_{args.reasoning_mode}_res.txt'
+        res_vis_dir = f'MS_Paint_Reasoning_Evaluation/Results/res_vis/{args.image_type}_{blur_folder}_{args.reasoning_mode}'
     os.makedirs(res_vis_dir, exist_ok=True)
 
     # Load results from res.txt
@@ -60,9 +66,9 @@ def main():
     plt.bar(accuracies.keys(), accuracies.values(), color=colors)
     plt.ylabel('Accuracy')
     if args.reasoning_mode != 'none':
-        plt.title(f'MS Paint Model Accuracy ({args.blur_level}, reasoning: {args.reasoning_mode})')
+        plt.title(f'MS Paint Model Accuracy ({args.image_type}, {args.blur_level}, reasoning: {args.reasoning_mode})')
     else:
-        plt.title(f'MS Paint Model Accuracy ({args.blur_level})')
+        plt.title(f'MS Paint Model Accuracy ({args.image_type}, {args.blur_level})')
     plt.ylim(0, 1)
     for i, m in enumerate(accuracies):
         plt.text(i, accuracies[m]+0.02, f"{accuracies[m]*100:.1f}%", ha='center')
@@ -89,9 +95,9 @@ def main():
         cmap.set_bad(color='black')
         plt.imshow(masked, cmap=cmap, vmin=0, vmax=1)
         if args.reasoning_mode != 'none':
-            plt.title(f'{col} Correctness ({args.blur_level}, reasoning: {args.reasoning_mode})')
+            plt.title(f'{col} Correctness ({args.image_type}, {args.blur_level}, reasoning: {args.reasoning_mode})')
         else:
-            plt.title(f'{col} Correctness ({args.blur_level})')
+            plt.title(f'{col} Correctness ({args.image_type}, {args.blur_level})')
         plt.xlabel('Question #')
         plt.ylabel('Image #')
         plt.xticks(np.arange(max_q), [str(i+1) for i in range(max_q)])
