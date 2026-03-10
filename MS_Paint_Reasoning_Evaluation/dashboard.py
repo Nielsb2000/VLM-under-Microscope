@@ -23,8 +23,8 @@ reasoning_options = [
 ]
 image_type_options = [
     {"label": "Color", "value": "color"},
-    {"label": "Grayscale", "value": "grayscale"},
-    {"label": "Inverted Grayscale", "value": "inverted-grayscale"},
+    {"label": "Greyscale", "value": "greyscale"},
+    {"label": "Inverted Greyscale", "value": "inverted-greyscale"},
 ]
 blur_level_options = [
     {"label": "No Blur", "value": "no_blur"},
@@ -54,7 +54,7 @@ def compute_heatmap_data(df, model, reasoning_mode=None):
     df_model = df[df['Model'] == model]
     if reasoning_mode is not None and 'reasoning_mode' in df_model.columns:
         df_model = df_model[df_model['reasoning_mode'] == reasoning_mode]
-    image_types = ['color', 'grayscale', 'inverted-grayscale']
+    image_types = ['color', 'greyscale', 'inverted-greyscale']
     blur_levels = ['no_blur', 'med_blur', 'heavy_blur']
     z = []
     for img_type in image_types:
@@ -109,7 +109,7 @@ def build_stacked_skills_figure(df, category):
     level_map = {
         'reasoning_mode': ['low', 'medium', 'high'],
         'blur_level': ['no_blur', 'med_blur', 'heavy_blur'],
-        'image_type': ['color', 'grayscale', 'inverted-grayscale']
+        'image_type': ['color', 'greyscale', 'inverted-greyscale']
     }
     levels = level_map.get(category, [])
     if not levels:
@@ -149,7 +149,7 @@ def build_stacked_skills_figure(df, category):
         yaxis=dict(title='Accuracy', range=[0, 1]),
         xaxis=dict(title=category.replace('_', ' ').title()),
         title='Effectiveness of Skills vs No Skills',
-        height=400,
+        height=600,
         width=800,
         showlegend=True,
         legend=dict(title='Model/Skills', orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
@@ -413,7 +413,7 @@ def bar_blurring_effect(_, skills_mode):
 )
 def bar_imagetype_effect(_, skills_mode):
     models = ['gpt-4o', 'gpt-5.1', 'gpt-5.2']
-    image_types = ['color', 'grayscale', 'inverted-grayscale']
+    image_types = ['color', 'greyscale', 'inverted-greyscale']
     colors = ['#2ca02c', '#1f77b4', '#ff7f0e']
     bar_colors = {m: c for m, c in zip(models, colors)}
     bars = []

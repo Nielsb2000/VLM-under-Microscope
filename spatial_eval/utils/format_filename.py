@@ -29,6 +29,9 @@ def format_output_path_vlm(args):
     else:
         filename += "_bare"
 
+    if getattr(args, 'use_skills', False):
+        filename += "_skills"
+
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     modified_output_filename = f"{filename}_{timestamp}{file_ext}"
 

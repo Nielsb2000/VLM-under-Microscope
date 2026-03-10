@@ -274,58 +274,86 @@ def convert_str_to_int(var: str) -> Optional[int]:
             return var
     return var
     
+def _check_answer(model_answer: str, data: dict) -> Tuple[int, int]:
+    """
+    Match the model's raw answer against oracle fields in priority order:
+      1. oracle_full_answer  (e.g. "C. 2")   — substring match in full text
+      2. oracle_answer       (e.g. "2")       — whole-word match in last non-empty line only
+      3. oracle_option       (e.g. "C")       — explicit answer marker in last non-empty line only
+    Restricting steps 2 and 3 to the final line avoids false positives from
+    intermediate reasoning (e.g. "total 7" when the final answer is "A. 8").
+    Returns (is_correct: int, step_matched: int) where step_matched is 1/2/3 or 0 if wrong.
+    """
+    if not model_answer:
+        return 0, 0
+    text = model_answer.lower()
+
+    # Derive the last non-empty line for focused matching
+    lines = [l.strip() for l in text.splitlines() if l.strip()]
+    last_line = lines[-1] if lines else ''
+
+    # 1. oracle_full_answer — substring in full text (e.g. "c. 2" is specific enough)
+    full = str(data.get('oracle_full_answer') or '').lower().strip()
+    if full and full in text:
+        return 1, 1
+
+    # 2. oracle_answer — whole-word match, last line only
+    ans = str(data.get('oracle_answer') or '').lower().strip()
+    if ans and re.search(rf'\b{re.escape(ans)}\b', last_line):
+        return 1, 2
+
+    # 3. oracle_option — explicit answer marker, last line only
+    opt = str(data.get('oracle_option') or '').strip()
+    if opt:
+        o = re.escape(opt.lower())
+        if re.search(rf'(?<![a-z]){o}[.)]', last_line) or re.search(rf'\({o}\)', last_line):
+            return 1, 3
+
+    return 0, 0
+
+
 def evaluate_model_accuracy(model_output_path: str, eval_summary_path: str, model_name: Optional[str] = None) -> Tuple[float, int]:
-    """Evaluates the accuracy of the model based on the output and summary paths."""
+    """Evaluates the accuracy of the model based on the output and summary paths.
+
+    Matching strategy (in order):
+      1. oracle_full_answer substring in model answer  (e.g. "C. 2")
+      2. oracle_answer substring in model answer       (e.g. "2")
+      3. oracle_option substring in model answer       (e.g. "C")
+    If none match, the answer is considered wrong.
+    """
     eval_summary: List[Dict[str, str]] = []
     correct_answers = 0
     line_count = 0
-    
+    step_counts = {1: 0, 2: 0, 3: 0, 0: 0}  # 0 = wrong/no match
+
     with open(model_output_path, 'r') as f:
         for line in f:
             data = json.loads(line)
-            question_id = int(data['id'].split('.')[-1])
-            task = data['id'].split('.')[0]
             line_count += 1
-            try:
-                # Extract or normalize model answer per task
-                raw_answer = data.get('answer', None)
+            raw_answer = data.get('answer') or ''
+            eval_result, step = _check_answer(raw_answer, data)
+            correct_answers += eval_result
+            step_counts[step] += 1
+            eval_summary.append({
+                'id': data.get('id'),
+                'oracle_full_answer': data.get('oracle_full_answer'),
+                'oracle_option': data.get('oracle_option'),
+                'oracle_answer': data.get('oracle_answer'),
+                'model_output': raw_answer[:300],
+                'eval_result': eval_result,
+                'match_step': step,
+            })
 
-                if task == 'spatialmap':
-                    model_answer = extract_answer_from_text_spatialmap(raw_answer, question_id, model_name)
-                elif task == 'mazenav':
-                    model_answer = extract_answer_from_text_mazenav(raw_answer, question_id, model_name)
-                elif task == 'spatialgrid':
-                    model_answer = extract_answer_from_text_spatialgrid(raw_answer, question_id, model_name)
-                elif task == 'spatialreal':
-                    # spatialreal outputs are diverse; fall back to using the raw answer string
-                    model_answer = raw_answer
-                else:
-                    model_answer = raw_answer
-
-                ref_ans = str(data.get('oracle_answer', '')).lower()
-
-                # Guard against missing model_answer
-                if model_answer is None:
-                    # Log problematic record to eval summary for debugging
-                    eval_summary.append({'ref': ref_ans, 'model_output': None, 'eval_result': 0, 'note': 'missing_model_answer', 'id': data.get('id')})
-                    continue
-
-                model_answer = str(model_answer).lower()
-                # Avoid exceptions if ref_ans or model_answer are empty
-                try:
-                    eval_result = int(ref_ans in model_answer)
-                except Exception:
-                    eval_result = 0
-
-                correct_answers += eval_result
-                eval_summary.append({'ref': ref_ans, 'model_output': model_answer, 'eval_result': eval_result})
-            except ValueError:
-                continue
+    total = line_count or 1
+    print(f"  Match stats: step1(full)={step_counts[1]} ({step_counts[1]/total:.0%})  "
+          f"step2(answer)={step_counts[2]} ({step_counts[2]/total:.0%})  "
+          f"step3(option)={step_counts[3]} ({step_counts[3]/total:.0%})  "
+          f"no_match={step_counts[0]} ({step_counts[0]/total:.0%})")
 
     with open(eval_summary_path, 'w') as outfile:
         for entry in eval_summary:
             json.dump(entry, outfile)
-            outfile.write('\n') 
+            outfile.write('\n')
     return correct_answers / line_count if line_count > 0 else 0, line_count
 
 

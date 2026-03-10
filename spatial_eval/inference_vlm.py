@@ -107,8 +107,9 @@ def main(args, model, processor, dataset, output_file_path):
 
     with open(output_file_path, 'w', encoding='utf-8') as outfile:
         for question_id, items in question_groups.items():
-            num_to_process = args.first_k if args.first_k is not None else len(items)
-            for index, item in enumerate(items[:num_to_process]):
+            offset = getattr(args, 'offset_k', 0) or 0
+            sliced = items[offset:] if args.first_k is None else items[offset:offset + args.first_k]
+            for index, item in enumerate(sliced):
                 id = item['id']
                 
                 if args.mode == "tqa":
@@ -276,7 +277,11 @@ if __name__ == "__main__":
     if args.mode != "tqa":
         from utils.load_image import load_image
     
-    if "gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower():
+    if ("gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower()) and getattr(args, 'use_skills', False):
+        from models.deepagent_model import DeepAgentGPT
+        model = DeepAgentGPT(model_name=args.model_path, max_tokens=args.max_new_tokens)
+        processor = None
+    elif "gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower():
         from models.gpt4_model import GPT4Vision
         model = GPT4Vision(model_name=args.model_path, max_tokens=args.max_new_tokens)
         processor = None

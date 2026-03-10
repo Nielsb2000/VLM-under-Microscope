@@ -41,6 +41,7 @@ class InferenceArgumentParser:
         self.parser.add_argument("--completion", action="store_true", help="Add completion prompt.")
         self.parser.add_argument("--w_reason", action="store_true", help="Add reason prompt.")
         self.parser.add_argument("--first_k", type=int, default=None, help="Test first k samples for each question type. If not specified, test all samples.")
+        self.parser.add_argument("--offset_k", type=int, default=0, help="Skip the first offset_k samples before applying first_k. Use for non-overlapping multi-run evaluation.")
     
     def _add_lm_args(self):
         add_model_args(self.parser)
@@ -57,6 +58,8 @@ class InferenceArgumentParser:
         self.parser.add_argument("--model_path", type=str,
                                  help="Local model path for storing model checkpoints or model identifier for Hugging Face.")
         self.parser.add_argument("--model_base", type=str, default=None, help="Base model.")
+        self.parser.add_argument("--use_skills", action="store_true", default=False,
+                                 help="Use deepagents with spatial reasoning skills instead of plain GPT.")
 
     def parse_args(self):
         return self.parser.parse_args()

@@ -17,37 +17,55 @@ def load_results_df():
     for fname in os.listdir(RESULTS_DIR):
         if not fname.endswith('.json'):
             continue
-        meta = re.match(r"llm_results_([a-zA-Z0-9_\-]+)_([a-zA-Z0-9_\-]+)_([a-zA-Z0-9_\-.]+)_?([a-zA-Z0-9_]*)?.json", fname)
-        if not meta:
+        
+        # Remove .json extension
+        base = fname[:-5]
+        
+        # Remove llm_results_ prefix
+        if not base.startswith('llm_results_'):
             continue
-        # Parse skills/no_skills from filename (robust to multiple underscores)
-        base = fname.rsplit('.', 1)[0]
-        last_part = base.split('_')[-2:]  # e.g. ['no', 'skills'] or ['skills']
-        if last_part == ['no', 'skills']:
+        base = base[12:]  # Remove 'llm_results_'
+        
+        # Parse skills mode from the end
+        parts = base.split('_')
+        if len(parts) >= 2 and parts[-2:] == ['no', 'skills']:
             skills_mode = 'no_skills'
-        elif last_part[-1] == 'skills':
+            base = '_'.join(parts[:-2])
+        elif parts[-1] == 'skills':
             skills_mode = 'skills'
+            base = '_'.join(parts[:-1])
         else:
             skills_mode = 'unknown'
-
-        # Fix: parse image_type and blur_level correctly
-        # image_type may contain _no, _med, or _heavy at the end, which is actually the blur_level
-        image_type_raw = meta.group(1)
-        blur_level = meta.group(2)
-        model = meta.group(3)
-        reasoning_mode = meta.group(4) or "none"
-        # If image_type ends with _no, _med, or _heavy, that's the blur level
-        if image_type_raw.endswith('_no'):
-            image_type = image_type_raw[:-3]
-            blur_level = 'no_blur'
-        elif image_type_raw.endswith('_med'):
-            image_type = image_type_raw[:-4]
-            blur_level = 'med_blur'
-        elif image_type_raw.endswith('_heavy'):
-            image_type = image_type_raw[:-6]
-            blur_level = 'heavy_blur'
-        else:
-            image_type = image_type_raw
+            
+        # Now base is: {image_type}_{blur_level}_{models_str}_{reasoning_effort}
+        # Example: "color_no_blur_gpt-4o-gpt-5.1-gpt-5.2_low"
+        parts = base.split('_')
+        
+        # Last part is reasoning_effort
+        reasoning_mode = parts[-1] if parts else 'none'
+        
+        # Find blur_level - it's one of: no_blur, med_blur, heavy_blur
+        # These are at positions [i, i+1] where parts[i]_parts[i+1] matches
+        image_type = None
+        blur_level = None
+        model = None
+        
+        for i in range(len(parts) - 1):
+            test_blur = f"{parts[i]}_{parts[i+1]}"
+            if test_blur in ['no_blur', 'med_blur', 'heavy_blur']:
+                # Found blur level
+                image_type = '_'.join(parts[:i]) if i > 0 else parts[0]
+                blur_level = test_blur
+                # Model is everything between blur and reasoning
+                model_parts = parts[i+2:-1]
+                model = '_'.join(model_parts) if model_parts else ''
+                break
+        
+        if not blur_level:
+            # Fallback
+            image_type = parts[0] if parts else 'unknown'
+            blur_level = 'unknown'
+            model = '_'.join(parts[1:-1]) if len(parts) > 2 else ''
         with open(os.path.join(RESULTS_DIR, fname), 'r') as f:
             data = json.load(f)
         for key, value in data.items():
