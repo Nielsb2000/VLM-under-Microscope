@@ -1,10 +1,17 @@
 #!/bin/bash
 
 # =============================================================================
-# Final Evaluation: GPT-5.2 Skills vs Baseline — All 3 Tasks, 100 samples
+# Main Experiment: GPT-5.2 Skills vs Baseline — All 3 Tasks, 100 samples
 # =============================================================================
 # 3 tasks × 2 modes × 2 variants = 12 inference runs
 # Then 6 evaluation runs + 3 comparison plots (one per task)
+#
+# Writes to: outputs/  and  eval_summary/
+#
+# Usage (from spatial_eval/ directory):
+#   bash scripts/run_experiment.sh
+#
+# See scripts/run_experiment_rounds.sh for multi-round statistical evaluation.
 # =============================================================================
 
 set -e
@@ -12,8 +19,8 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
-OUT_FOLDER="outputs_final"
-EVAL_DIR="eval_summary_final"
+OUT_FOLDER="outputs"
+EVAL_DIR="eval_summary"
 MODEL="gpt-5.2"
 FIRST_K=100
 MAX_TOKENS=1024
@@ -96,8 +103,9 @@ done
 
 echo ""
 echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}   Done! Plots saved to ${PROJECT_DIR}/${EVAL_DIR}/       ${NC}"
-echo -e "${GREEN}   - mazenav_skills_comparison.png                        ${NC}"
-echo -e "${GREEN}   - spatialgrid_skills_comparison.png                    ${NC}"
-echo -e "${GREEN}   - spatialmap_skills_comparison.png                     ${NC}"
+echo -e "${GREEN}   Done! Results in ${PROJECT_DIR}/${EVAL_DIR}/             ${NC}"
+echo -e "${GREEN}   Plots: mazenav_skills_comparison.png                   ${NC}"
+echo -e "${GREEN}          spatialgrid_skills_comparison.png               ${NC}"
+echo -e "${GREEN}          spatialmap_skills_comparison.png                ${NC}"
+echo -e "${GREEN}   Accuracy CSVs: {vqa,vtqa}/{task}_acc.csv               ${NC}"
 echo -e "${GREEN}═══════════════════════════════════════════════════════════${NC}"

@@ -1,13 +1,21 @@
 #!/bin/bash
 
 # =============================================================================
-# Final Evaluation Rounds 2 & 3 — non-overlapping 100-sample batches
+# Multi-Round Experiment: GPT-5.2 Skills vs Baseline — 3 × 100 sample batches
 # =============================================================================
-# Round 1 (images 0-99)   → already run by run_final_eval.sh → outputs_final
-# Round 2 (images 100-199) → outputs_final_r2
-# Round 3 (images 200-299) → outputs_final_r3
+# Runs non-overlapping 100-sample rounds to compute mean ± std across rounds.
 #
-# After all 3 rounds complete, run the stats script to get mean ± std.
+# Round 1 (images   0-99)  → run by scripts/run_experiment.sh  → outputs/
+# Round 2 (images 100-199) → outputs_round2/  eval_summary_round2/
+# Round 3 (images 200-299) → outputs_round3/  eval_summary_round3/
+#
+# After all 3 rounds complete, the cross-round stats script generates
+# mean ± std comparison plots in eval_summary_stats/.
+#
+# Usage (from spatial_eval/ directory):
+#   # First ensure Round 1 exists (run scripts/run_experiment.sh)
+#   # Then uncomment the run_round lines below and execute:
+#   bash scripts/run_experiment_rounds.sh
 # =============================================================================
 
 set -e
@@ -33,8 +41,8 @@ cd "${PROJECT_DIR}"
 run_round() {
     local ROUND="$1"
     local OFFSET="$2"
-    local OUT_FOLDER="outputs_final_r${ROUND}"
-    local EVAL_DIR="eval_summary_final_r${ROUND}"
+    local OUT_FOLDER="outputs_round${ROUND}"
+    local EVAL_DIR="eval_summary_round${ROUND}"
     local TOTAL=$(( ${#TASKS[@]} * ${#MODES[@]} * 2 ))
     local RUN=0
 
@@ -84,10 +92,9 @@ run_round() {
 echo ""
 log "${YELLOW}Computing cross-round statistics and plots...${NC}"
 uv run python eval_summary/plot_skills_comparison_multi.py \
-    --eval_dirs eval_summary_final eval_summary_final_r2 eval_summary_final_r3 \
+    --eval_dirs eval_summary eval_summary_round2 eval_summary_round3 \
     --tasks mazenav spatialgrid spatialmap \
-    --out_dir eval_summary_final_stats
+    --out_dir eval_summary_stats
 
 echo ""
-echo -e "${GREEN}All done! Stats plots in eval_summary_final_stats/${NC}"
-ye
+echo -e "${GREEN}All done! Stats plots in eval_summary_stats/${NC}"

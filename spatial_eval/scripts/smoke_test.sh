@@ -1,18 +1,22 @@
 #!/bin/bash
 
 # =============================================================================
-# Mazenav Mini Comparison: GPT-5.2 Skills vs Baseline  (10 samples)
+# Smoke Test: GPT-5.2 Skills vs Baseline — Mazenav (10 samples)
 # =============================================================================
-# Runs 4 inference jobs (2 modes × 2 variants) then evaluates and plots.
-# Uses an isolated output folder so it doesn't pollute the main outputs.
+# Quick end-to-end sanity check: 4 inference jobs (2 modes × 2 variants),
+# evaluation, and a comparison plot. Writes to isolated smoke-test folders
+# so it never pollutes the canonical outputs/ or eval_summary/.
+#
+# Usage (from spatial_eval/ directory):
+#   bash scripts/smoke_test.sh
 # =============================================================================
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"   # = spatial_eval/
-OUT_FOLDER="outputs_mini"
-EVAL_SUMMARY="eval_summary_mini"
+OUT_FOLDER="outputs_smoke_test"
+EVAL_SUMMARY="eval_summary_smoke_test"
 MODEL="gpt-5.2"
 FIRST_K=10
 MAX_TOKENS=1024
@@ -30,7 +34,7 @@ cd "${PROJECT_DIR}"
 # ── Phase 1: Inference ────────────────────────────────────────────────────────
 echo ""
 echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
-echo -e "${BLUE}   Mazenav Mini Comparison  (first_k=${FIRST_K})${NC}"
+echo -e "${BLUE}   Smoke Test — Mazenav  (first_k=${FIRST_K})${NC}"
 echo -e "${BLUE}═══════════════════════════════════════════════════════════${NC}"
 echo ""
 
@@ -78,4 +82,7 @@ uv run python eval_summary/plot_skills_comparison.py \
     --out_dir "${EVAL_SUMMARY}"
 
 echo ""
-echo -e "${GREEN}Done! Plot saved to ${PROJECT_DIR}/${EVAL_SUMMARY}/mazenav_skills_comparison.png${NC}"
+echo -e "${GREEN}Smoke test complete!${NC}"
+echo -e "  Outputs  : ${PROJECT_DIR}/${OUT_FOLDER}/"
+echo -e "  Eval     : ${PROJECT_DIR}/${EVAL_SUMMARY}/"
+echo -e "  Plot     : ${PROJECT_DIR}/${EVAL_SUMMARY}/mazenav_skills_comparison.png"
