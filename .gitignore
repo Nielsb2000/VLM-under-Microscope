@@ -17,26 +17,38 @@ pizza_not_pizza/
 spatial_eval/vqa/
 spatial_eval/vtqa/
 spatial_eval/tqa/
-spatial_eval/eval_summary
-spatial_eval/logs
-spatial_eval/outputs
-MS paint images
-spatial_eval/eval_summary/vqa
-spatial_eval/eval_summary/vtqa
 
-# MS Paint Reasoning Evaluation outputs and data
-MS_Paint_Reasoning_Evaluation/Results/
+# SpatialEval outputs and generated data (gitignored — large JSONL files)
+spatial_eval/outputs/
+spatial_eval/outputs_smoke_test/
+spatial_eval/outputs_round2/
+spatial_eval/outputs_round3/
+spatial_eval/legacy/
+
+# SpatialEval eval_summary data (keep Python scripts, ignore data files)
+spatial_eval/eval_summary/vqa/
+spatial_eval/eval_summary/vtqa/
+spatial_eval/eval_summary/result_vis/
+spatial_eval/eval_summary_smoke_test/
+spatial_eval/eval_summary_round2/
+spatial_eval/eval_summary_round3/
+spatial_eval/eval_summary_stats/
+spatial_eval/evaluation_summary_20260210_154546.txt
+spatial_eval/evaluation_summary_20260211_145420.txt
+spatial_eval/eval_summary/evaluation_summary_20260210_154546.txt
+spatial_eval/eval_summary/evaluation_summary_20260211_145420.txt
+
+# SpatialEval logs
+spatial_eval/logs/
+
+# MS Paint Reasoning Evaluation — generated outputs (not Results/dashboard_data/ or skills/)
+MS_Paint_Reasoning_Evaluation/Results/color_*/
+MS_Paint_Reasoning_Evaluation/Results/greyscale_*/
+MS_Paint_Reasoning_Evaluation/Results/inverted_greyscale_*/
+MS_Paint_Reasoning_Evaluation/Results/legacy/
+MS_Paint_Reasoning_Evaluation/Results/res_vis/
 MS_Paint_Reasoning_Evaluation/MS_paint_images/
-MS_Paint_Reasoning_Evaluation/MS paint answers/
-MS_Paint_Reasoning_Evaluation/MS paint questions/
-MS_Paint_Reasoning_Evaluation/skills
-
-# Ignore screenshots and visualizations
-screenshots/
-
-# Ignore Excel output files in MS Paint Reasoning Evaluation
-MS_Paint_Reasoning_Evaluation/*.xlsx
-
-# Ignore *_res.txt files in MS Paint Reasoning Evaluation
 MS_Paint_Reasoning_Evaluation/*_res.txt
-
+MS_Paint_Reasoning_Evaluation/logs/
+MS_Paint_Reasoning_Evaluation/Results/dashboard_data/
+MS_Paint_Reasoning_Evaluation/Results/

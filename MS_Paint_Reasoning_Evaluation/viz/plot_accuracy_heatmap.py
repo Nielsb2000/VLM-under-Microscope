@@ -1,0 +1,134 @@
+"""
+Per-run heatmap + accuracy bar chart for a specific (image_type, blur_level, reasoning_mode, skills_mode).
+Reads from Results/dashboard_data/ via load_results_df().
+
+Usage (from project root):
+    uv run python MS_Paint_Reasoning_Evaluation/viz/plot_accuracy_heatmap.py \\
+        --image-type color --blur-level heavy_blur --reasoning-mode medium --skills-mode no_skills
+"""
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+import argparse
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
+
+from json_results_to_df import load_results_df
+
+OUT_BASE = os.path.join(os.path.dirname(__file__), "..", "Results", "res_vis")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Per-run accuracy heatmap and bar chart.")
+    parser.add_argument("--image-type", default="color",
+                        choices=["color", "greyscale", "inverted_greyscale"])
+    parser.add_argument("--blur-level", default="no_blur",
+                        choices=["no_blur", "med_blur", "heavy_blur"])
+    parser.add_argument("--reasoning-mode", default="medium",
+                        choices=["low", "medium", "high"],
+                        help="Reasoning effort (gpt-4o is always included regardless of this setting).")
+    parser.add_argument("--skills-mode", default="no_skills",
+                        choices=["skills", "no_skills"])
+    args = parser.parse_args()
+
+    df = load_results_df()
+    if df.empty:
+        print("No data found in Results/dashboard_data/")
+        return
+
+    df["Correct"] = df["Correct"].astype(float)
+
+    # For gpt-5.x: filter by reasoning_mode; for gpt-4o: always include.
+    base_mask = (
+        (df["image_type"] == args.image_type)
+        & (df["blur_level"] == args.blur_level)
+        & (df["skills_mode"] == args.skills_mode)
+    )
+    if "reasoning_mode" in df.columns:
+        reasoning_mask = (df["reasoning_mode"] == args.reasoning_mode) | (df["Model"] == "gpt-4o")
+        mask = base_mask & reasoning_mask
+    else:
+        mask = base_mask
+    sub = df[mask].drop_duplicates(subset=["image_num", "question_num", "Model"])
+
+    if sub.empty:
+        print(f"No data for: image_type={args.image_type}, blur={args.blur_level}, "
+              f"reasoning={args.reasoning_mode}, skills={args.skills_mode}")
+        return
+
+    models = sorted(sub["Model"].unique())
+    tag = f"{args.image_type}_{args.blur_level}_{args.reasoning_mode}_{args.skills_mode}"
+    out_dir = os.path.normpath(os.path.join(OUT_BASE, tag))
+    os.makedirs(out_dir, exist_ok=True)
+
+    # Accuracy bar chart
+    accuracies = {}
+    for model in models:
+        valid = sub[sub["Model"] == model]["Correct"].dropna()
+        accuracies[model] = valid.mean() if len(valid) > 0 else 0.0
+
+    colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"]
+    plt.figure(figsize=(max(6, len(models) * 2), 5))
+    plt.bar(list(accuracies.keys()), list(accuracies.values()),
+            color=colors[:len(models)])
+    plt.title(f"MS Paint Accuracy\n({args.image_type}, {args.blur_level}, "
+              f"reasoning={args.reasoning_mode}, {args.skills_mode})")
+    plt.ylabel("Accuracy")
+    plt.ylim(0, 1.1)
+    for i, (m, acc) in enumerate(accuracies.items()):
+        plt.text(i, acc + 0.02, f"{acc * 100:.1f}%", ha="center")
+    plt.tight_layout()
+    bar_path = os.path.join(out_dir, "model_accuracy.png")
+    plt.savefig(bar_path)
+    plt.close()
+    print(f"Saved: {bar_path}")
+
+    # Per-model correctness heatmap
+    imgs = sorted(sub["image_num"].unique())
+    qs = sorted(sub["question_num"].unique())
+    for model in models:
+        mdf = sub[sub["Model"] == model]
+        hmap = np.full((len(imgs), len(qs)), np.nan)
+        for i, img in enumerate(imgs):
+            for j, q in enumerate(qs):
+                row = mdf[(mdf["image_num"] == img) & (mdf["question_num"] == q)]
+                if not row.empty:
+                    hmap[i, j] = row["Correct"].values[0]
+
+        fig, ax = plt.subplots(figsize=(len(qs) + 2, len(imgs)))
+        cmap = plt.cm.Greens.copy()
+        cmap.set_bad(color="black")
+        ax.imshow(np.ma.masked_invalid(hmap), cmap=cmap, vmin=0, vmax=1)
+        ax.set_title(f"{model} Correctness\n({args.image_type}, {args.blur_level}, "
+                     f"reasoning={args.reasoning_mode}, {args.skills_mode})")
+        ax.set_xlabel("Question #")
+        ax.set_ylabel("Image #")
+        ax.set_xticks(np.arange(len(qs)))
+        ax.set_xticklabels([str(q) for q in qs])
+        ax.set_yticks(np.arange(len(imgs)))
+        ax.set_yticklabels([str(img) for img in imgs])
+        for i in range(len(imgs)):
+            for j in range(len(qs)):
+                v = hmap[i, j]
+                if not np.isnan(v):
+                    ax.text(j, i, str(int(v)), ha="center", va="center", color="black")
+        ax.legend(
+            handles=[
+                Patch(facecolor="green", edgecolor="black", label="Correct (1)"),
+                Patch(facecolor="white", edgecolor="black", label="Incorrect (0)"),
+                Patch(facecolor="black", edgecolor="black", label="No answer"),
+            ],
+            loc="upper right", bbox_to_anchor=(1.15, 1),
+        )
+        plt.tight_layout()
+        safe_model = model.replace("/", "_")
+        hmap_path = os.path.join(out_dir, f"{safe_model}_heatmap.png")
+        plt.savefig(hmap_path)
+        plt.close()
+        print(f"Saved: {hmap_path}")
+
+
+if __name__ == "__main__":
+    main()

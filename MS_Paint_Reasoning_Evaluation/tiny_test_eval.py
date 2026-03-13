@@ -208,7 +208,11 @@ def main():
         print("\nElapsed Time (s):\n", round(parsed.get("elapsed_time", elapsed_time_measured), 3))
         if model_used:
             print("\n[INFO] Model used (from response metadata):", model_used)
-        out_path = os.path.join(os.path.dirname(__file__), f"tiny_test_debug_skills.txt")
+        logs_dir = os.path.join(os.path.dirname(__file__), "logs")
+        os.makedirs(logs_dir, exist_ok=True)
+        import datetime
+        ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        out_path = os.path.join(logs_dir, f"debug_{image_type}_{blur_type}_img{img_index}_q{q_index}_{model_name}_skills_{ts}.txt")
         with open(out_path, "w") as f:
             f.write("--- Tiny Test Eval Result ---\n")
             f.write(f"Image: {image_path}\n")
@@ -306,7 +310,11 @@ def main():
         import json as _json
         print("\nToken Usage:\n", _json.dumps(parsed.get("token_usage", "n/a")))
         print("\nElapsed Time (s):\n", round(parsed.get("elapsed_time", elapsed_time_measured), 3))
-        out_path = os.path.join(os.path.dirname(__file__), f"tiny_test_debug_noskills.txt")
+        logs_dir = os.path.join(os.path.dirname(__file__), "logs")
+        os.makedirs(logs_dir, exist_ok=True)
+        import datetime
+        ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        out_path = os.path.join(logs_dir, f"debug_{image_type}_{blur_type}_img{img_index}_q{q_index}_{model_name}_noskills_{ts}.txt")
         with open(out_path, "w") as f:
             f.write("--- Tiny Test Eval Result (No Skills) ---\n")
             f.write(f"Image: {image_path}\n")
