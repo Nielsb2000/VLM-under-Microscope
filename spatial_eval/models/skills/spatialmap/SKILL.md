@@ -1,3 +1,8 @@
+---
+name: spatialmap
+description: Answer spatial map questions about direction, object identity, or object count given a top-down map image.
+---
+
 # Spatial Map Skill
 
 ## Task Description

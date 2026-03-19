@@ -1,3 +1,8 @@
+---
+name: spatialgrid
+description: Answer questions about a 5x5 grid of animal images: count occurrences or identify the animal at a specific position.
+---
+
 # Spatial Grid Skill
 
 ## Task Description

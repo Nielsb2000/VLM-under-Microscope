@@ -1,3 +1,8 @@
+---
+name: mazenav
+description: Counts right turns, left turns, or total turns along the solution path of a maze from S to E.
+---
+
 # Maze Navigation Skill
 
 ## Task Description

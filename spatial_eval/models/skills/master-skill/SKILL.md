@@ -1,3 +1,8 @@
+---
+name: master-skill
+description: Routes spatial reasoning questions to the correct task skill for mazenav, spatialgrid, and spatialmap.
+---
+
 # Spatial Reasoning Master Skill
 
 ## Purpose
