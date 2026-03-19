@@ -35,14 +35,17 @@ TASK_DISPLAY = {
 }
 
 VARIANTS = [
-    ("baseline",    "Baseline\n(no skills)",     "#7f7f7f"),
-    ("img-only",    "Image Only",                 "#5B8DB8"),
-    ("img-qa",      "Image + Q&A\n(biased)",      "#F28C38"),
-    ("img-context", "Image + Context\n(unbiased)","#2ca02c"),
+    ("baseline",       "Baseline\n(no skills)",                "#7f7f7f"),
+    ("img-only",       "Image Only",                           "#5B8DB8"),
+    ("img-qa",         "Image + Q&A\n(biased)",                "#F28C38"),
+    ("img-context",    "Image + Context\n(unbiased)",           "#2ca02c"),
+    ("img-qa-val-v2",  "Preload v2\n(tool lookup, same imgs)",  "#1a7a1a"),
 ]
 
 
 def _classify(fname: str) -> str:
+    if "_skills_img-qa-val-v2_" in fname:
+        return "img-qa-val-v2"
     if "_skills_img-only_" in fname:
         return "img-only"
     if "_skills_img-qa_" in fname:
@@ -84,7 +87,7 @@ def _file_accuracy(path, check_fn) -> float:
 def collect_mc_accuracies(jsonl_dir: str, dates: list[str] | None) -> dict[str, list[float]]:
     """
     Returns {variant_key: [acc_run0, acc_run1, …]} for all MC files in jsonl_dir.
-    Non-MC files (no _mc…_ tag) are ignored.
+    Non-MC files are included for 'img-qa-val-v2' (single validation run).
     If dates is given, only files containing at least one of the YYYYMMDD strings are included.
     """
     check = _load_check_answer()
@@ -93,15 +96,19 @@ def collect_mc_accuracies(jsonl_dir: str, dates: list[str] | None) -> dict[str, 
     if not os.path.isdir(jsonl_dir):
         return result
 
+    # Keys that are allowed without an MC tag (single-run validation results)
+    _single_run_variants = {"img-qa-val-v2"}
+
     for fname in sorted(os.listdir(jsonl_dir)):
         if not fname.endswith(".jsonl"):
             continue
-        if not _is_mc_file(fname):
-            continue
-        if dates and not any(d in fname for d in dates):
-            continue
         variant = _classify(fname)
         if variant not in result:
+            continue
+        # For regular MC variants, require the MC tag; for v2, accept any
+        if variant not in _single_run_variants and not _is_mc_file(fname):
+            continue
+        if dates and not any(d in fname for d in dates):
             continue
         acc = _file_accuracy(os.path.join(jsonl_dir, fname), check)
         result[variant].append(acc)
