@@ -109,7 +109,12 @@ spatial_eval/
 │   ├── outputs_week3/            # Week 3 multi-model outputs (historical)
 │   └── eval_summary_week6_presentation/ # Round 1 results (week 6 presentation)
 ├── models/                       # Model wrappers (gpt4, deepagent, bunny, llava)
-│   └── skills/                   # Skill files for DeepAgent (master, mazenav, …)
+│   ├── skills/                   # Skill files for DeepAgent (master, mazenav, …)
+│   ├── skills_img_only/          # --skills_variant img-only
+│   ├── skills_img_qa/            # --skills_variant img-qa
+│   ├── skills_img_context/       # --skills_variant img-context
+│   ├── deepagent_preload_model.py # --skills_variant img-qa-val-v2 (preload architecture)
+│   └── skills_img_qa_val_v2/     # 10 example txt+png per task for preload variant
 ├── outputs/                      # Canonical: gpt-5.2 skills vs baseline, 100 samples
 │   └── MilaWang__SpatialEval/{vqa,vtqa}/{task}/m-*.jsonl
 ├── scripts/
@@ -138,7 +143,10 @@ Data flow: **Inference** → load dataset → format prompt → call LLM API →
 | [spatial_eval/configs/inference_configs.py](spatial_eval/configs/inference_configs.py) | CLI argument parser for inference |
 | [spatial_eval/models/gpt4_model.py](spatial_eval/models/gpt4_model.py) | GPT-4/5 model wrapper |
 | [spatial_eval/models/deepagent_model.py](spatial_eval/models/deepagent_model.py) | GPT-5.2 + DeepAgent spatial skills wrapper |
+| [spatial_eval/models/deepagent_preload_model.py](spatial_eval/models/deepagent_preload_model.py) | Preload architecture: agent calls `read_example(n)` tool at inference time |
 | [spatial_eval/eval_summary/compute_and_plot.py](spatial_eval/eval_summary/compute_and_plot.py) | Batch accuracy computation + plot generation |
+| [spatial_eval/eval_summary/plot_mc_results.py](spatial_eval/eval_summary/plot_mc_results.py) | MC run mean ± SD bar chart (4 skill variants) |
+| [spatial_eval/eval_summary/plot_validation_test.py](spatial_eval/eval_summary/plot_validation_test.py) | Contamination validation: 4-bar chart (baseline → img-qa → img-qa-val → img-qa-val-v2) |
 | [spatial_eval/models/skills/](spatial_eval/models/skills/) | Spatial reasoning skill files for DeepAgent |
 | [spatial_eval/scripts/](spatial_eval/scripts/) | Active scripts: `smoke_test.sh`, `run_experiment.sh`, `run_experiment_rounds.sh` |
 | [spatial_eval/TESTING_GUIDE.md](spatial_eval/TESTING_GUIDE.md) | Step-by-step CLI reference |
@@ -147,9 +155,10 @@ Data flow: **Inference** → load dataset → format prompt → call LLM API →
 ### Conventions
 
 - **Result filenames**: `m-{model}_{variant}_{timestamp}.jsonl` (e.g., `m-gpt-5.2_bare_20260306_135320.jsonl`)
-- **Variant labels**: `_bare_` = no skills (baseline); `_bare_skills_` = with DeepAgent spatial skills
+- **Variant labels**: `_bare_` = no skills (baseline); `_bare_skills_` = with DeepAgent spatial skills; `_bare_skills_img-qa-val-v2_` = preload validation (single run only, no MC tag)
 - **Week labeling**: Week 3 = multi-model comparison (bunny/llava/gpt-4o/gpt-5.1, no timestamps); Week 6 = gpt-5.2 skills vs baseline (timestamped, `_bare_` prefix)
 - **Skill files**: Markdown with YAML frontmatter (`name`, `description`), stored in `spatial_eval/models/skills/<skill-name>/SKILL.md`
+- **Preload architecture** (`img-qa-val-v2`): examples stored as `example_N.txt` + `example_N.png` under `models/skills_img_qa_val_v2/examples/{task}/`. The agent calls `read_example(n)` at inference time — no static answer embedding in SKILL.md.
 - **Answer extraction**: Regex-based in `evals/evaluation.py`; patterns are model-specific
 - **Data I/O**: JSONL (one JSON object per line) for inference results; JSON/CSV for evaluation output
 - **Reasoning modes**: `none`, `low`, `medium`, `high` — only GPT-5.x supports non-`none` modes

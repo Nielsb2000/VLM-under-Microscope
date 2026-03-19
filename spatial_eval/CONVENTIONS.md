@@ -36,6 +36,8 @@ Examples:
 ### Variant suffixes
 - `_bare_` — no special flags (baseline)
 - `_bare_skills_` — DeepAgent spatial skills enabled (`--use_skills`)
+- `_bare_skills_img-only_` / `_bare_skills_img-qa_` / `_bare_skills_img-context_` — MC variant runs
+- `_bare_skills_img-qa-val-v2_` — preload-architecture validation run (no MC tag; single run)
 - `_w_reason_` — step-by-step reasoning prompt (`--w_reason`)
 
 ### Week labeling
@@ -88,6 +90,24 @@ Examples:
 2. Add model-specific answer extraction patterns in `evals/evaluation.py`.
 3. Test accuracy extraction with `--first_k 5` before a full run.
 4. If adding a DeepAgent-compatible model, also add a skill wrapper in `models/`.
+
+---
+
+## Skill Variants
+
+| `--skills_variant` | Description | Files |
+|--------------------|-------------|-------|
+| *(omitted)* | Baseline `models/skills/` — original DeepAgent skills | `models/skills/` |
+| `img-only` | Image paths embedded in SKILL.md | `models/skills_img_only/` |
+| `img-qa` | Images + worked Q&A embedded in SKILL.md | `models/skills_img_qa/` |
+| `img-context` | Images + domain context (no Q&A answers) | `models/skills_img_context/` |
+| `img-qa-val-v2` | Preload architecture: agent calls `read_example(n)` tool at inference time | `models/deepagent_preload_model.py`, `models/skills_img_qa_val_v2/examples/` |
+
+### Preload architecture (`img-qa-val-v2`)
+- Each example is stored as `example_N.txt` (questions + answers) and `example_N.png` (image) under `models/skills_img_qa_val_v2/examples/{task}/`.
+- `example_N.txt` begins with `# Image identifier: S(start/green)=<pos>, E(exit/red)=<pos>` (mazenav) or equivalent unique positional descriptor. These descriptors were extracted via numpy pixel analysis to guarantee uniqueness.
+- The model is **never shown the answers in a static skill file** — it must call the tool and match the example using visual features of the test image.
+- This variant is a **contamination validation** run only; do not use MC tags with it. Results are single-run, no SD.
 
 ---
 

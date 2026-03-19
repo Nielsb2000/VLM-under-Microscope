@@ -23,8 +23,10 @@ spatial_eval/
 │   ├── result_vis/               # Saved comparison plots (PNG)
 │   ├── compute_and_plot.py       # Batch accuracy computation + plot from outputs/
 │   ├── plot_results.py           # Bar plots per task/mode (all models)
+│   ├── plot_mc_results.py        # MC run mean ± SD bar chart (4 skill variants)
 │   ├── plot_skills_comparison.py # Skills vs baseline bar chart (single round)
-│   └── plot_skills_comparison_multi.py  # Multi-round mean ± std bar chart
+│   ├── plot_skills_comparison_multi.py  # Multi-round mean ± std bar chart
+│   └── plot_validation_test.py   # Contamination validation: baseline → img-qa → img-qa-val → img-qa-val-v2
 ├── legacy/
 │   ├── outputs_week3/            # Week 3 outputs: multi-model (gpt-4o, gpt-5.1, bunny, llava)
 │   └── eval_summary_week6_presentation/  # Round 1 of final experiment (week 6 presentation)
@@ -48,8 +50,9 @@ spatial_eval/
 │   ├── skills_img_qa/skills/     # --skills_variant img-qa: image + worked Q&A
 │   │   └── (same structure as skills_img_only/skills/)
 │   └── skills_img_context/skills/ # --skills_variant img-context: image + domain context
-│       └── (same structure as skills_img_only/skills/)
-├── outputs/                      # Canonical outputs: gpt-5.2 skills vs baseline, 100 samples
+│       └── (same structure as skills_img_only/skills/)│   ├── deepagent_preload_model.py # --skills_variant img-qa-val-v2: preload/tool-lookup architecture
+│   └── skills_img_qa_val_v2/     # --skills_variant img-qa-val-v2: 10 example txt+png per task
+│       └── examples/{mazenav,spatialgrid,spatialmap}/example_{0..9}.{txt,png}├── outputs/                      # Canonical outputs: gpt-5.2 skills vs baseline, 100 samples
 │   └── MilaWang__SpatialEval/
 │       ├── vqa/{task}/m-*.jsonl
 │       └── vtqa/{task}/m-*.jsonl
@@ -155,6 +158,7 @@ GPT-5.2 skills vs baseline, 100 samples each, all 3 tasks × 2 modes.
 Output filename format: `m-{model}_{variant}_{timestamp}.jsonl`
 - `m-gpt-5.2_bare_{ts}.jsonl` — baseline (no skills)
 - `m-gpt-5.2_bare_skills_{ts}.jsonl` — with spatial skills
+- `m-gpt-5.2_bare_skills_img-qa-val-v2_{ts}.jsonl` — preload-architecture validation run
 
 ### Evaluation summaries (`eval_summary/`)
 - `{vqa,vtqa}/{task}_acc.csv` — accuracy per model (all experiments, live reference)
@@ -173,6 +177,31 @@ Output filename format: `m-{model}_{variant}_{timestamp}.jsonl`
 1. Add an `elif` branch for the model in [inference_vlm.py](inference_vlm.py)
 2. Add model-specific answer extraction patterns in [evals/evaluation.py](evals/evaluation.py)
 3. Test with `--first_k 5` before a full run
+
+---
+
+## Contamination Validation & Preload Architecture
+
+To verify that skill-file variants (e.g. `img-qa`) were not simply memorised by the model from the benchmark images embedded in SKILL.md, a **preload architecture** (`img-qa-val-v2`) was developed:
+
+- Instead of embedding Q&A in a static SKILL.md, the agent is given a `read_example(n)` tool that returns one labeled example (text + image) at inference time.
+- Before answering, the agent calls `read_example(0..9)` for all 10 examples and identifies the matching one by locating the start (green S) and exit (red E) pixel positions in the test image.
+- Each example file contains a `# Image identifier: S=<pos>, E=<pos>` line derived from numpy pixel extraction, making every example uniquely identifiable even when question text is identical across mazes.
+
+**Results (30 samples per task, VQA mode, gpt-5.2):**
+
+| Task | Baseline | img-qa (MC mean) | img-qa-val-v2 |
+|------|----------|------------------|---------------|
+| MazeNav | 73.3% | 87.8% | **100.0%** |
+| Spatial Grid | 98.3% | 93.9% | **100.0%** |
+| Spatial Map | 76.7% | 73.9% | **100.0%** |
+
+The 100% result on all three tasks confirms that the `img-qa` skill improvement is **not** due to contamination — the model can achieve perfect accuracy when examples are presented at lookup time via tools.
+
+Key files:
+- [`models/deepagent_preload_model.py`](models/deepagent_preload_model.py) — `DeepAgentPreload` class + `make_read_example_tool` factory
+- [`models/skills_img_qa_val_v2/examples/`](models/skills_img_qa_val_v2/examples/) — 30 example txt+png files (10 per task)
+- [`eval_summary/plot_validation_test.py`](eval_summary/plot_validation_test.py) — 4-bar validation chart
 
 ---
 

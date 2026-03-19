@@ -112,7 +112,7 @@ uv run python eval_summary/plot_skills_comparison_multi.py \
 | `--temperature` | 0.2 | Sampling temperature |
 | `--output_folder` | `outputs` | Root output directory |
 | `--use_skills` | off | Enable DeepAgent spatial reasoning skills |
-| `--skills_variant` | none | Skill variant to use with `--use_skills`: `img-only`, `img-qa`, or `img-context`. Each selects an isolated skill folder (`models/skills_img_only/`, etc.) containing a self-contained master + task skill set. Omitting uses the baseline `models/skills/` folder. |
+| `--skills_variant` | none | Skill variant to use with `--use_skills`: `img-only`, `img-qa`, `img-context`, or `img-qa-val-v2`. Each selects an isolated skill folder or model class. `img-qa-val-v2` uses the preload architecture (`deepagent_preload_model.py`) — the agent calls a `read_example(n)` tool at inference time instead of reading a static SKILL.md. Omitting uses the baseline `models/skills/` folder. |
 | `--w_reason` | off | Request step-by-step reasoning in prompt |
 | `--device` | `cuda` | Device for local VLMs: `cuda` or `cpu` |
 
@@ -161,6 +161,28 @@ gpt-5.2_bare_skills_20260306_141016,0.81
 | Dataset not found | Run `uv run python download_spatial_eval.py` |
 | Answer extraction failures | Check regex patterns in `evals/evaluation.py` — patterns differ per model |
 | Local VLM out of memory | Use `--device cpu` or reduce `--max_new_tokens` |
-| Skills not used | Ensure `--use_skills` flag is passed; check that the relevant skill folder exists (`models/skills/` for baseline, `models/skills_img_only/`, `models/skills_img_qa/`, or `models/skills_img_context/` for variants) |
+| Skills not used | Ensure `--use_skills` flag is passed; check that the relevant skill folder exists (`models/skills/` for baseline, `models/skills_img_only/`, `models/skills_img_qa/`, `models/skills_img_context/`, or `models/skills_img_qa_val_v2/examples/` for variants) |
 | JSONL corruption | Validate with `cat file.jsonl \| python -m json.tool` |
 | Wrong Python version | Project requires `>=3.11,<3.12` |
+
+---
+
+## Contamination Validation Test
+
+The `img-qa-val-v2` variant is a single-run validation that confirms skill improvement is not due to dataset contamination. Run it with:
+
+```bash
+# Single task (30 samples, VQA mode)
+uv run python inference_vlm.py \
+  --model_path gpt-5.2 \
+  --mode vqa \
+  --task mazenav \
+  --first_k 30 \
+  --use_skills --skills_variant img-qa-val-v2 \
+  --output_folder outputs/
+
+# Generate the 4-bar validation chart (baseline → img-qa → img-qa-val → img-qa-val-v2)
+uv run python eval_summary/plot_validation_test.py --out_dir eval_summary/result_vis
+```
+
+**Do not run MC iterations** for `img-qa-val-v2` — it is a single-run contamination check, not a statistical experiment. Do not add its results to `plot_mc_results.py`.
