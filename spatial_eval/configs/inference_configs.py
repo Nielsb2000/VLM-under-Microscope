@@ -42,6 +42,15 @@ class InferenceArgumentParser:
         self.parser.add_argument("--w_reason", action="store_true", help="Add reason prompt.")
         self.parser.add_argument("--first_k", type=int, default=None, help="Test first k samples for each question type. If not specified, test all samples.")
         self.parser.add_argument("--offset_k", type=int, default=0, help="Skip the first offset_k samples before applying first_k. Use for non-overlapping multi-run evaluation.")
+        self.parser.add_argument("--mc_runs", type=int, default=1,
+                                 help="Number of Monte Carlo runs with different random subsets of first_k samples. "
+                                      "Produces mean ± SD accuracy estimate. Requires --first_k.")
+        self.parser.add_argument("--mc_seed", type=int, default=42,
+                                 help="Base random seed for Monte Carlo sampling. Run i uses seed mc_seed+i.")
+        self.parser.add_argument("--workers", type=int, default=1,
+                                 help="Number of parallel workers for API calls. "
+                                      "Values >1 speed up GPT/cloud models significantly (e.g. --workers 8). "
+                                      "Ignored for local GPU models (always runs sequentially). Default: 1.")
     
     def _add_lm_args(self):
         add_model_args(self.parser)
@@ -60,6 +69,19 @@ class InferenceArgumentParser:
         self.parser.add_argument("--model_base", type=str, default=None, help="Base model.")
         self.parser.add_argument("--use_skills", action="store_true", default=False,
                                  help="Use deepagents with spatial reasoning skills instead of plain GPT.")
+        self.parser.add_argument("--skills_variant", type=str, default=None,
+                                 choices=[
+                                     "img-only", "img-qa", "img-context",
+                                     "img-qa-val",
+                                     "img-only-n10", "img-only-n30", "img-only-n50", "img-only-n100",
+                                 ],
+                                 help="Which skill variant to use with --use_skills. "
+                                      "img-only: image-path examples (3 imgs). "
+                                      "img-qa: image + Q&A (biased, 3 imgs). "
+                                      "img-context: image + domain context (unbiased, 3 imgs). "
+                                      "img-qa-val: validation test — 10 images with full Q&A, tested on same images. "
+                                      "img-only-n10/n30/n50/n100: range test — N example images, tested at offset +N. "
+                                      "If omitted uses the baseline models/skills/ folder.")
 
     def parse_args(self):
         return self.parser.parse_args()
