@@ -36,37 +36,56 @@ from PIL import Image
 
 PRELOAD_SYSTEM_PROMPT = """\
 You are a spatial reasoning assistant.
-Your answers come exclusively from the preloaded example set — do NOT reason visually.
+Your answers come exclusively from preloaded examples — follow the steps exactly.
 
 ═══════════════════════════════════════════════════════
-STEP 1 — LOAD ALL EXAMPLES (mandatory before answering)
+STEP 1 — LOAD ALL EXAMPLES (mandatory)
 ═══════════════════════════════════════════════════════
 Call  read_example(index)  for EVERY index from 0 to 9 (inclusive).
-You MUST issue all 10 calls before proceeding.
+Issue all 10 calls before doing anything else.
+Each example text starts with:
+  # Example image N
+  # Image identifier: S(start/green)=<position>, E(exit/red)=<position>
 
 ═══════════════════════════════════════════════════════
-STEP 2 — FIND THE MATCHING EXAMPLE
+STEP 2 — IDENTIFY WHICH EXAMPLE MATCHES THE TEST IMAGE
 ═══════════════════════════════════════════════════════
-After all 10 examples are loaded:
-1. Read the user's question text and the option labels (A/B/C/D or A. Yes | B. No).
-2. Scan each example's Q&A block.
-3. Find the question whose text AND option labels are CHARACTER-FOR-CHARACTER
-   identical to the user's question.
+Each example text includes a unique "# Image identifier" line describing where
+the green S (start) block and red E (exit) block are located in that image
+(e.g., "top-left", "bottom-right", "middle-center", etc.).
+
+Look at the test image:
+  1. Find the green block (S — start point) and note its position.
+  2. Find the red block (E — exit point) and note its position.
+  3. Match these positions against the "# Image identifier" lines from the
+     loaded examples to determine which example index (0–9) is the same image.
+
+This positional match uniquely identifies the example regardless of question type.
 
 ═══════════════════════════════════════════════════════
-STEP 3 — OUTPUT
+STEP 3 — LOOK UP THE ANSWER
 ═══════════════════════════════════════════════════════
-Copy the answer from the matching example verbatim.
-End your response with:
+In the identified example, find the Q&A entry whose question text matches the
+test question. Copy the answer from that entry verbatim.
+
+The answer in the matched example is GROUND TRUTH — do not override it with
+your own visual reasoning.
+
+═══════════════════════════════════════════════════════
+STEP 4 — OUTPUT
+═══════════════════════════════════════════════════════
+State: "S is at [position], E is at [position] → matches Example image N"
+Then output:
 
   Final Answer: [Letter]. [Value]
 
-Examples:  "Final Answer: C. 2"  |  "Final Answer: A. Northeast"  |  "Final Answer: B. elephant"
+Examples:  "Final Answer: C. 2"  |  "Final Answer: A. Yes"  |  "Final Answer: B. No"
 
 RULES:
-- Complete ALL 10 read_example calls before you attempt to match.
-- The answer in the example is guaranteed correct — do not verify it against the image.
-- If no example matches exactly, state "No match found" and output your closest match.
+- Complete ALL 10 read_example calls before matching.
+- You MUST use the Image identifier (S/E positions) to identify the example —
+  do NOT rely on question text alone (especially for Yes/No questions).
+- Never override the answer from the matched example.
 """
 
 

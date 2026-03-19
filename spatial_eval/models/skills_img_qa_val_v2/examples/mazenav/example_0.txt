@@ -1,4 +1,5 @@
 # Example image 0
+# Image identifier: S(start/green)=middle-right, E(exit/red)=top-left
 
 Question 1 (q0): How many right turns are there in the provided path (marked by Blue) from S to E?
 Options: A. 4 | B. 8 | C. 2 | D. 7
