@@ -35,11 +35,20 @@ spatial_eval/
 │   ├── bunny_model.py
 │   ├── llava_model.py
 │   ├── model_utils.py
-│   └── skills/                   # Task-specific skill files for DeepAgent
-│       ├── master-skill/SKILL.md
-│       ├── mazenav/SKILL.md
-│       ├── spatialgrid/SKILL.md
-│       └── spatialmap/SKILL.md
+│   ├── skills/                   # Baseline skill files for DeepAgent (no variant)
+│   │   ├── master-skill/SKILL.md
+│   │   ├── mazenav/SKILL.md
+│   │   ├── spatialgrid/SKILL.md
+│   │   └── spatialmap/SKILL.md
+│   ├── skills_img_only/skills/   # --skills_variant img-only: image-path examples
+│   │   ├── master-skill/SKILL.md
+│   │   ├── mazenav/SKILL.md  (+assets/)
+│   │   ├── spatialgrid/SKILL.md  (+assets/)
+│   │   └── spatialmap/SKILL.md  (+assets/)
+│   ├── skills_img_qa/skills/     # --skills_variant img-qa: image + worked Q&A
+│   │   └── (same structure as skills_img_only/skills/)
+│   └── skills_img_context/skills/ # --skills_variant img-context: image + domain context
+│       └── (same structure as skills_img_only/skills/)
 ├── outputs/                      # Canonical outputs: gpt-5.2 skills vs baseline, 100 samples
 │   └── MilaWang__SpatialEval/
 │       ├── vqa/{task}/m-*.jsonl

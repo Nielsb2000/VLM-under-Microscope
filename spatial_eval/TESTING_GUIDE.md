@@ -50,14 +50,22 @@ bash scripts/run_experiment.sh
 
 ### Manual single inference run
 ```bash
+# Baseline (no skills)
 uv run python inference_vlm.py \
   --model_path gpt-5.2 \
   --mode vqa \
   --task mazenav \
   --first_k 10 \
-  --max_new_tokens 1024 \
   --output_folder outputs/
-# Add --use_skills to enable the spatial DeepAgent
+
+# With skills — choose a variant: img-only | img-qa | img-context
+uv run python inference_vlm.py \
+  --model_path gpt-5.2 \
+  --mode vqa \
+  --task mazenav \
+  --first_k 10 \
+  --use_skills --skills_variant img-only \
+  --output_folder outputs/
 ```
 
 ### Manual evaluation
@@ -104,6 +112,7 @@ uv run python eval_summary/plot_skills_comparison_multi.py \
 | `--temperature` | 0.2 | Sampling temperature |
 | `--output_folder` | `outputs` | Root output directory |
 | `--use_skills` | off | Enable DeepAgent spatial reasoning skills |
+| `--skills_variant` | none | Skill variant to use with `--use_skills`: `img-only`, `img-qa`, or `img-context`. Each selects an isolated skill folder (`models/skills_img_only/`, etc.) containing a self-contained master + task skill set. Omitting uses the baseline `models/skills/` folder. |
 | `--w_reason` | off | Request step-by-step reasoning in prompt |
 | `--device` | `cuda` | Device for local VLMs: `cuda` or `cpu` |
 
@@ -152,6 +161,6 @@ gpt-5.2_bare_skills_20260306_141016,0.81
 | Dataset not found | Run `uv run python download_spatial_eval.py` |
 | Answer extraction failures | Check regex patterns in `evals/evaluation.py` — patterns differ per model |
 | Local VLM out of memory | Use `--device cpu` or reduce `--max_new_tokens` |
-| Skills not used | Ensure `--use_skills` flag is passed; check `models/skills/` exists |
+| Skills not used | Ensure `--use_skills` flag is passed; check that the relevant skill folder exists (`models/skills/` for baseline, `models/skills_img_only/`, `models/skills_img_qa/`, or `models/skills_img_context/` for variants) |
 | JSONL corruption | Validate with `cat file.jsonl \| python -m json.tool` |
 | Wrong Python version | Project requires `>=3.11,<3.12` |
