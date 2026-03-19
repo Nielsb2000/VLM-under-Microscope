@@ -53,15 +53,67 @@ class DeepAgentGPT:
         "- In your response, state which skills and example images you read and why before giving the final answer"
     )
 
-    def __init__(self, model_name: str = "gpt-5.2", max_tokens: int = 1024):
+    # Special lookup-mode prompt for img-qa-val: the skill IS the answer key.
+    _VAL_LOOKUP_PROMPT = (
+        "You are a spatial reasoning assistant. For this task the skill file contains a LOOKUP TABLE "
+        "with the pre-computed correct answer for every question you will receive.\n"
+        "\n"
+        "STEP 1: READ MASTER SKILL\n"
+        "- Call read_file on skills/master-skill/SKILL.md\n"
+        "- Identify the task skill path from the routing table\n"
+        "\n"
+        "STEP 2: READ TASK SKILL\n"
+        "- Call read_file on the task skill (e.g. skills/mazenav/SKILL.md)\n"
+        "- The skill contains two tables at the top: Table 1 (4-option questions) and Table 2 (Yes/No questions)\n"
+        "\n"
+        "STEP 3: LOOK UP YOUR ANSWER\n"
+        "- For 4-option questions (A/B/C/D with numbers):\n"
+        "  a) Copy the EXACT options string from your question: \"A. X | B. Y | C. Z | D. W\"\n"
+        "  b) Find the row in Table 1 whose first column is CHARACTER-FOR-CHARACTER IDENTICAL to your options string\n"
+        "  c) The Answer column of that row IS your final answer — copy it verbatim\n"
+        "  d) DO NOT look at the image. DO NOT reason. Just match and copy.\n"
+        "- For Yes/No questions (A. Yes | B. No):\n"
+        "  a) Find the direction phrase from your question in Table 2\n"
+        "  b) If the phrase is marked DISAMBIGUATION NEEDED, inspect the image to pick the correct row\n"
+        "  c) Copy the Answer from that row\n"
+        "\n"
+        "STEP 4: OUTPUT\n"
+        "- State: \"Table match: [your options string] → [answer]\"\n"
+        "- Then output: Final Answer: [Letter]. [Value]\n"
+        "\n"
+        "CRITICAL RULES:\n"
+        "- For Table 1 entries: the answer is already known — DO NOT verify against the image\n"
+        "- Match the FULL options string including ALL four values (A, B, C AND D must all match)\n"
+        "- Your answer is not valid if it does not end with: Final Answer: [Letter]. [Value]"
+    )
+
+    # Maps --skills_variant CLI value to the self-contained skill folder under models/
+    _VARIANT_SKILL_FOLDERS = {
+        "img-only":      "skills_img_only",
+        "img-qa":        "skills_img_qa",
+        "img-context":   "skills_img_context",
+        # Test 1 — validation (same images in skill and test)
+        "img-qa-val":    "skills_img_qa_val",
+        # Test 2 — img-only range test (N example images, tested at offset N)
+        "img-only-n10":  "skills_img_only_n10",
+        "img-only-n30":  "skills_img_only_n30",
+        "img-only-n50":  "skills_img_only_n50",
+        "img-only-n100": "skills_img_only_n100",
+    }
+
+    def __init__(self, model_name: str = "gpt-5.2", max_tokens: int = None, skills_variant: str = None):
         self.model_name = model_name
         self.max_tokens = max_tokens
-        # root_dir = the directory containing this file (spatial_eval/models/)
-        # skill paths are relative to this root, e.g. skills/master-skill/SKILL.md
-        self._root_dir = os.path.dirname(os.path.abspath(__file__))
+        _models_dir = os.path.dirname(os.path.abspath(__file__))
 
-        self._llm = ChatOpenAI(model=model_name, max_tokens=max_tokens)
-        backend = FilesystemBackend(root_dir=self._root_dir, virtual_mode=False)
+        if skills_variant in self._VARIANT_SKILL_FOLDERS:
+            root_dir = os.path.join(_models_dir, self._VARIANT_SKILL_FOLDERS[skills_variant])
+        else:
+            root_dir = _models_dir
+
+        self._root_dir = root_dir
+        self._llm = ChatOpenAI(model=model_name)
+        backend = FilesystemBackend(root_dir=root_dir, virtual_mode=False)
         self._agent = create_deep_agent(
             model=self._llm,
             system_prompt=self.SYSTEM_PROMPT,

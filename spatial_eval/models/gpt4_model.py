@@ -8,7 +8,7 @@ from langchain_core.messages import HumanMessage
 class GPT4Vision:
     """Wrapper for GPT Vision models (GPT-4o, GPT-5.1, GPT-4 Turbo with vision, etc.)"""
     
-    def __init__(self, model_name="gpt-4o", max_tokens=500):
+    def __init__(self, model_name="gpt-4o", max_tokens=None):
         """
         Initialize GPT Vision model.
         
@@ -19,8 +19,7 @@ class GPT4Vision:
         self.model_name = model_name
         self.max_tokens = max_tokens
         self.llm = ChatOpenAI(
-            model=self.model_name,
-            max_tokens=self.max_tokens
+            model=self.model_name
         )
     
     def _encode_image(self, image):
@@ -50,10 +49,6 @@ class GPT4Vision:
         Returns:
             Tuple of (prompt, answer_text)
         """
-        # Override max_tokens if specified
-        if max_new_tokens is not None:
-            self.llm.max_tokens = max_new_tokens
-        
         # Prepare message content
         if query_images is not None:
             # Encode image to base64
