@@ -33,9 +33,10 @@ TASK_DISPLAY = {
 }
 
 VARIANTS = [
-    ("baseline",    "Baseline\n(no skills)",              "#7f7f7f"),
-    ("img-qa",      "Image + Q&A\n(uncontaminated)",      "#F28C38"),
-    ("img-qa-val",  "Image + Q&A\n(same imgs — cheat)",   "#d62728"),
+    ("baseline",       "Baseline\n(no skills)",                   "#7f7f7f"),
+    ("img-qa",         "Image + Q&A\n(uncontaminated)",            "#F28C38"),
+    ("img-qa-val",     "Image + Q&A\n(same imgs — cheat)",         "#d62728"),
+    ("img-qa-val-v2",  "Preload v2\n(tool-based lookup)",          "#1a7a1a"),
 ]
 
 _OUTPUTS_ROOT = os.path.join(os.path.dirname(__file__), "..", "outputs")
@@ -71,6 +72,8 @@ def _is_mc_file(fname: str) -> bool:
 
 
 def _classify(fname: str) -> str | None:
+    if "_skills_img-qa-val-v2_" in fname:
+        return "img-qa-val-v2"
     if "_skills_img-qa-val_" in fname:
         return "img-qa-val"
     if "_skills_img-qa_" in fname:
@@ -103,8 +106,8 @@ def collect_accuracies(
         variant = _classify(fname)
         if variant is None or variant not in result:
             continue
-        # baseline and img-qa require MC tag; img-qa-val accepts both
-        if variant != "img-qa-val" and not _is_mc_file(fname):
+        # baseline and img-qa require MC tag; img-qa-val and img-qa-val-v2 accept both
+        if variant not in ("img-qa-val", "img-qa-val-v2") and not _is_mc_file(fname):
             continue
         acc = _file_accuracy(os.path.join(jsonl_dir, fname), check_fn)
         result[variant].append(acc)

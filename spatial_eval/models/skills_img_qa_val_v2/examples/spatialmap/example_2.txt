@@ -1,0 +1,13 @@
+# Example image 2
+
+Question 1 (q0): In which direction is Narwhal's Novels relative to Iris's Ice Skates?
+Options: A. Northwest | B. Northeast | C. Southeast | D. Southwest
+Answer: B. Northeast
+
+Question 2 (q1): Which object is in the Southwest of Iris's Ice Skates?
+Options: A. Art Supplies | B. Mordor Supplies | C. Andy's Autos | D. Narwhal's Novels
+Answer: A. Art Supplies
+
+Question 3 (q2): How many objects are in the Southeast of Mordor Supplies?
+Options: A. 0 | B. 4 | C. 2 | D. 5
+Answer: C. 2

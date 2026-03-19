@@ -1,0 +1,13 @@
+# Example image 9
+
+Question 1 (q0): In which direction is Tiger's Tapestries relative to K University?
+Options: A. Southwest | B. Southeast | C. Northwest | D. Northeast
+Answer: A. Southwest
+
+Question 2 (q1): Which object is in the Northeast of K University?
+Options: A. Tiger's Tapestries | B. Bolt Books | C. Safari Supplies | D. Bookmark Bookstore
+Answer: C. Safari Supplies
+
+Question 3 (q2): How many objects are in the Northwest of K University?
+Options: A. 3 | B. 0 | C. 5 | D. 2
+Answer: A. 3

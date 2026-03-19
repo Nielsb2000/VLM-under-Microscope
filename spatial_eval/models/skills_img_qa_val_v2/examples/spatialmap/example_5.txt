@@ -1,0 +1,13 @@
+# Example image 5
+
+Question 1 (q0): In which direction is Hogwarts Magic Supplies relative to Zephyr Zucchini?
+Options: A. Northeast | B. Southeast | C. Northwest | D. Southwest
+Answer: C. Northwest
+
+Question 2 (q1): Which object is in the Northeast of Zephyr Zucchini?
+Options: A. Zorilla's Zero-Waste Goods | B. X-U Souvenirs | C. Factory Finds | D. Hogwarts Magic Supplies
+Answer: C. Factory Finds
+
+Question 3 (q2): How many objects are in the Southeast of Zephyr Zucchini?
+Options: A. 5 | B. 1 | C. 0 | D. 3
+Answer: C. 0

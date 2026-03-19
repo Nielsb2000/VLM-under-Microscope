@@ -1,0 +1,13 @@
+# Example image 0
+
+Question 1 (q0): In which direction is Planetarium Prints relative to Police Supply Store?
+Options: A. Northeast | B. Northwest | C. Southwest | D. Southeast
+Answer: A. Northeast
+
+Question 2 (q1): Which object is in the Southwest of Ice Queen Ice Cream?
+Options: A. Coral Crafts | B. Narwhal's Novelties | C. Planetarium Prints | D. Police Supply Store
+Answer: B. Narwhal's Novelties
+
+Question 3 (q2): How many objects are in the Southeast of Oz Oddities?
+Options: A. 1 | B. 5 | C. 3 | D. 0
+Answer: D. 0

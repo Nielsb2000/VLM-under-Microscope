@@ -1,0 +1,13 @@
+# Example image 3
+
+Question 1 (q0): In which direction is Recycle Center relative to Nightingale Novelties?
+Options: A. Southeast | B. Southwest | C. Northeast | D. Northwest
+Answer: C. Northeast
+
+Question 2 (q1): Which object is in the Southwest of Andy's Autos?
+Options: A. Recycle Center | B. Trail Hiking Gear | C. Sally's Salon | D. Unicorn Umbrellas
+Answer: D. Unicorn Umbrellas
+
+Question 3 (q2): How many objects are in the Southeast of Nightingale Novelties?
+Options: A. 0 | B. 1 | C. 2 | D. 5
+Answer: B. 1

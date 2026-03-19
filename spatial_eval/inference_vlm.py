@@ -339,7 +339,12 @@ if __name__ == "__main__":
     if args.mode != "tqa":
         from utils.load_image import load_image
     
-    if ("gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower()) and getattr(args, 'use_skills', False):
+    if ("gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower()) and getattr(args, 'use_skills', False) and getattr(args, 'skills_variant', None) == "img-qa-val-v2":
+        from models.deepagent_preload_model import DeepAgentPreload
+        model = DeepAgentPreload(model_name=args.model_path, max_tokens=args.max_new_tokens,
+                                 task=args.task)
+        processor = None
+    elif ("gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower()) and getattr(args, 'use_skills', False):
         from models.deepagent_model import DeepAgentGPT
         model = DeepAgentGPT(model_name=args.model_path, max_tokens=args.max_new_tokens,
                              skills_variant=getattr(args, 'skills_variant', None))

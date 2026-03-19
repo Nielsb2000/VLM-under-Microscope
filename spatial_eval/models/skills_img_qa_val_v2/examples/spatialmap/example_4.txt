@@ -1,0 +1,13 @@
+# Example image 4
+
+Question 1 (q0): In which direction is Arctic Apparel relative to Mantis Maternity?
+Options: A. Southwest | B. Northeast | C. Northwest | D. Southeast
+Answer: C. Northwest
+
+Question 2 (q1): Which object is in the Northwest of Peet's Coffee?
+Options: A. Prairie Provisions | B. Arctic Apparel | C. Raven's Records | D. Zodiac Zumba
+Answer: C. Raven's Records
+
+Question 3 (q2): How many objects are in the Northeast of Arctic Apparel?
+Options: A. 1 | B. 3 | C. 2 | D. 0
+Answer: B. 3

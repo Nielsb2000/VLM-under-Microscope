@@ -1,0 +1,13 @@
+# Example image 6
+
+Question 1 (q0): In which direction is Albatross's Astronomy Accessories relative to Lumber's Marketplace?
+Options: A. Northwest | B. Northeast | C. Southwest | D. Southeast
+Answer: D. Southeast
+
+Question 2 (q1): Which object is in the Southwest of Factory Finds?
+Options: A. Wonders Candle Shop | B. Albatross's Astronomy Accessories | C. Fresh Foods | D. Titan Tailoring
+Answer: C. Fresh Foods
+
+Question 3 (q2): How many objects are in the West of Lumber's Marketplace?
+Options: A. 0 | B. 3 | C. 5 | D. 1
+Answer: A. 0

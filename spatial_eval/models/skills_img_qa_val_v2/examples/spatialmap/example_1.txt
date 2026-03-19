@@ -1,0 +1,13 @@
+# Example image 1
+
+Question 1 (q0): In which direction is Wolf's Wardrobe relative to Tremor Toys?
+Options: A. Southwest | B. Northeast | C. Southeast | D. Northwest
+Answer: C. Southeast
+
+Question 2 (q1): Which object is in the Southwest of Fresh Foods?
+Options: A. Wolf's Wardrobe | B. Salmon Sushi | C. Mantis's Maps | D. Tremor Toys
+Answer: D. Tremor Toys
+
+Question 3 (q2): How many objects are in the Southwest of Mantis's Maps?
+Options: A. 5 | B. 3 | C. 2 | D. 1
+Answer: D. 1

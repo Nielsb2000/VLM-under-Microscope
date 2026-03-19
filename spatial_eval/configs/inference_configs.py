@@ -74,6 +74,7 @@ class InferenceArgumentParser:
                                      "img-only", "img-qa", "img-context",
                                      "img-qa-val",
                                      "img-only-n10", "img-only-n30", "img-only-n50", "img-only-n100",
+                                     "img-qa-val-v2",
                                  ],
                                  help="Which skill variant to use with --use_skills. "
                                       "img-only: image-path examples (3 imgs). "
@@ -81,6 +82,7 @@ class InferenceArgumentParser:
                                       "img-context: image + domain context (unbiased, 3 imgs). "
                                       "img-qa-val: validation test — 10 images with full Q&A, tested on same images. "
                                       "img-only-n10/n30/n50/n100: range test — N example images, tested at offset +N. "
+                                      "img-qa-val-v2: preload architecture — agent calls read_example(0..9) before answering. "
                                       "If omitted uses the baseline models/skills/ folder.")
 
     def parse_args(self):
