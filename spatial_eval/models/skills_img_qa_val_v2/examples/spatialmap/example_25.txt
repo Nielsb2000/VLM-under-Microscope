@@ -1,0 +1,13 @@
+# Example image 25
+
+Question 1 (q0): In which direction is Children's Choice Toys relative to Yak Yarns?
+Options: D. Southwest.
+Answer: Northeast. C
+
+Question 2 (q1): Which object is in the Northeast of Yak Yarns?
+Options: D. Children's Choice Toys.
+Answer: Children's Choice Toys. D
+
+Question 3 (q2): How many objects are in the East of Yak Yarns?
+Options: D. 1.
+Answer: 0. A

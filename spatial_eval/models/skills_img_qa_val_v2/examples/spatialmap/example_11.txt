@@ -1,0 +1,13 @@
+# Example image 11
+
+Question 1 (q0): In which direction is Taylor's Tailor relative to Peterson's Pizzeria?
+Options: D. Southwest.
+Answer: Northeast. C
+
+Question 2 (q1): Which object is in the Southeast of Iguana Ice Skates?
+Options: D. Coral Crafts.
+Answer: Coral Crafts. D
+
+Question 3 (q2): How many objects are in the Northwest of Peterson's Pizzeria?
+Options: D. 4.
+Answer: 0. A

@@ -1,0 +1,13 @@
+# Example image 15
+
+Question 1 (q0): In which direction is Campsite Comforts relative to Aardvark's Apparel?
+Options: D. Northwest.
+Answer: Northeast. C
+
+Question 2 (q1): Which object is in the Southwest of Asgard Armory?
+Options: D. Taylor's Tailor.
+Answer: Aardvark's Apparel. B
+
+Question 3 (q2): How many objects are in the Northwest of Aardvark's Apparel?
+Options: D. 0.
+Answer: 0. D

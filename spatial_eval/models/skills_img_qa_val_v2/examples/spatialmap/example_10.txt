@@ -1,0 +1,13 @@
+# Example image 10
+
+Question 1 (q0): In which direction is Jasmine's Jewellery relative to Cavern Curiosities?
+Options: D. Northeast.
+Answer: Northwest. A
+
+Question 2 (q1): Which object is in the Northwest of Jasmine's Jewellery?
+Options: D. Lion's Lamps.
+Answer: Lion's Lamps. D
+
+Question 3 (q2): How many objects are in the Northeast of Jasmine's Jewellery?
+Options: D. 3.
+Answer: 0. C

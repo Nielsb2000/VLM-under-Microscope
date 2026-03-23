@@ -1,0 +1,13 @@
+# Example image 27
+
+Question 1 (q0): In which direction is Ursa Uniforms relative to Greg's Gardening Goods?
+Options: D. Southeast.
+Answer: Northwest. B
+
+Question 2 (q1): Which object is in the Southwest of Bountiful Brunch Spot?
+Options: D. Flamingo's Films.
+Answer: Greg's Gardening Goods. A
+
+Question 3 (q2): How many objects are in the South of Greg's Gardening Goods?
+Options: D. 2.
+Answer: 0. B

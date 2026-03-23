@@ -1,0 +1,13 @@
+# Example image 14
+
+Question 1 (q0): In which direction is Beaver's Bakery relative to Zebra Zen?
+Options: D. Southeast.
+Answer: Northeast. B
+
+Question 2 (q1): Which object is in the Southeast of Eagle's Eclectic Emporium?
+Options: D. Zebra Zen.
+Answer: Buffalo's Books. A
+
+Question 3 (q2): How many objects are in the West of Tundra Treasures?
+Options: D. 5.
+Answer: 0. A

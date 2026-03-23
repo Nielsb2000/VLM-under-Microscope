@@ -1,0 +1,13 @@
+# Example image 23
+
+Question 1 (q0): In which direction is Solarium Sweets relative to Bongo's Books?
+Options: D. Southeast.
+Answer: Southwest. A
+
+Question 2 (q1): Which object is in the Southeast of Skating Rink Resale?
+Options: D. Food Court Frenzy.
+Answer: Bongo's Books. A
+
+Question 3 (q2): How many objects are in the Northeast of Pegasus Pet Supplies?
+Options: D. 0.
+Answer: 3. C

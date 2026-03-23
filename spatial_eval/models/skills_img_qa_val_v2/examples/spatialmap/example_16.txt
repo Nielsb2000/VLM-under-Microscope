@@ -1,0 +1,13 @@
+# Example image 16
+
+Question 1 (q0): In which direction is Unicorn's Utensils relative to Pawn Stars?
+Options: D. Southwest.
+Answer: Northeast. A
+
+Question 2 (q1): Which object is in the Southeast of Tiger's Tapestries?
+Options: D. Unicorn's Utensils.
+Answer: Leopard's Liquor. A
+
+Question 3 (q2): How many objects are in the Northwest of Quokka's Quilts?
+Options: D. 1.
+Answer: 1. D

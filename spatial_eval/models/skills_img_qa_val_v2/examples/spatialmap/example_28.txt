@@ -1,0 +1,13 @@
+# Example image 28
+
+Question 1 (q0): In which direction is Marshland Mart relative to Swamp Supplies?
+Options: D. Northwest.
+Answer: Southeast. B
+
+Question 2 (q1): Which object is in the Southwest of John's Fine Jewellery?
+Options: D. Swamp Supplies.
+Answer: Quasar Quilts. B
+
+Question 3 (q2): How many objects are in the Northwest of Marshland Mart?
+Options: D. 5.
+Answer: 5. D

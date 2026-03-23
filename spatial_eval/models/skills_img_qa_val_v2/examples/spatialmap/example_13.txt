@@ -1,0 +1,13 @@
+# Example image 13
+
+Question 1 (q0): In which direction is Quail's Quilts relative to AquaWorld Aquarium?
+Options: D. Southwest.
+Answer: Southwest. D
+
+Question 2 (q1): Which object is in the Northeast of Bolt Books?
+Options: D. Ocelot's Office Ornaments.
+Answer: Frost Funhouse. B
+
+Question 3 (q2): How many objects are in the Northwest of Bolt Books?
+Options: D. 2.
+Answer: 2. D

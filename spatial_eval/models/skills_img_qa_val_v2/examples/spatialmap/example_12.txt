@@ -1,0 +1,13 @@
+# Example image 12
+
+Question 1 (q0): In which direction is Hippopotamus's Hats relative to Koala's Kitchenware?
+Options: D. Northwest.
+Answer: Northwest. D
+
+Question 2 (q1): Which object is in the Southeast of Koala's Kitchenware?
+Options: D. Fresh Foods.
+Answer: Fresh Foods. D
+
+Question 3 (q2): How many objects are in the North of Koala's Kitchenware?
+Options: D. 2.
+Answer: 0. C
