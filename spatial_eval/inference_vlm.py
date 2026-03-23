@@ -339,10 +339,13 @@ if __name__ == "__main__":
     if args.mode != "tqa":
         from utils.load_image import load_image
     
-    if ("gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower()) and getattr(args, 'use_skills', False) and getattr(args, 'skills_variant', None) == "img-qa-val-v2":
+    if ("gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower()) and getattr(args, 'use_skills', False) and getattr(args, 'skills_variant', None) in ("img-qa-val-v2", "img-qa-val-v2-offset-n3", "img-qa-val-v2-offset", "img-qa-val-v2-offset-n30"):
         from models.deepagent_preload_model import DeepAgentPreload
+        variant = getattr(args, 'skills_variant', None)
+        fewshot = variant != "img-qa-val-v2"
+        n_examples = {"img-qa-val-v2": 10, "img-qa-val-v2-offset-n3": 3, "img-qa-val-v2-offset": 10, "img-qa-val-v2-offset-n30": 30}[variant]
         model = DeepAgentPreload(model_name=args.model_path, max_tokens=args.max_new_tokens,
-                                 task=args.task)
+                                 task=args.task, fewshot=fewshot, n_examples=n_examples)
         processor = None
     elif ("gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower()) and getattr(args, 'use_skills', False):
         from models.deepagent_model import DeepAgentGPT

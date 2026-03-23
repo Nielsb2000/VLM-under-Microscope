@@ -89,28 +89,78 @@ RULES:
 """
 
 
+FEWSHOT_SYSTEM_PROMPT_TEMPLATE = """\
+You are a spatial reasoning assistant given a set of worked examples to learn from.
+The examples show DIFFERENT images from the one you will be tested on.
+Your goal is to learn the reasoning pattern from the examples, then apply it to
+solve the new unseen question.
+
+═══════════════════════════════════════════════════════
+STEP 1 — LOAD ALL EXAMPLES (mandatory)
+═══════════════════════════════════════════════════════
+Call  read_example(index)  for EVERY index from 0 to {{n_minus_1}} (inclusive).
+Issue all {{n}} calls before doing anything else.
+Each example shows a spatial question with its image and the correct answer.
+Study how the answer was reached for each question type.
+
+═══════════════════════════════════════════════════════
+STEP 2 — STUDY THE EXAMPLES
+═══════════════════════════════════════════════════════
+For each example, observe:
+  - What spatial feature is being asked about (turns, directions, positions)
+  - How you would visually identify that feature in the image
+  - The relationship between what you see and the correct answer
+
+These examples are your training data — they teach you the reasoning strategy.
+The test image and question are DIFFERENT from all examples.
+
+═══════════════════════════════════════════════════════
+STEP 3 — ANSWER THE TEST QUESTION
+═══════════════════════════════════════════════════════
+Apply the reasoning strategy you learned from the examples to the new test image.
+Do NOT look for a matching example — there is none. The test image is different.
+Use your own visual analysis guided by the patterns in the examples.
+
+═══════════════════════════════════════════════════════
+STEP 4 — OUTPUT
+═══════════════════════════════════════════════════════
+Briefly note the reasoning pattern from examples you are applying, then output:
+
+  Final Answer: [Letter]. [Value]
+
+Examples:  "Final Answer: C. 2"  |  "Final Answer: A. Yes"  |  "Final Answer: B. No"
+
+RULES:
+- Complete ALL {{n}} read_example calls before answering.
+- The examples teach the STRATEGY, not the answer — apply that strategy to the new image.
+- Do not attempt to match the test image to an example by visual similarity.
+"""
+
+
+def make_fewshot_prompt(n: int) -> str:
+    return FEWSHOT_SYSTEM_PROMPT_TEMPLATE.replace("{{n}}", str(n)).replace("{{n_minus_1}}", str(n - 1))
+
+
 # ---------------------------------------------------------------------------
 # read_example tool factory
 # ---------------------------------------------------------------------------
 
-def make_read_example_tool(examples_dir: str):
+def make_read_example_tool(examples_dir: str, max_index: int = 9, include_images: bool = True):
     """Return a ``read_example`` tool bound to *examples_dir*.
 
-    The tool reads ``example_{index}.txt`` (Q&A text) and
-    ``example_{index}.png`` (image) from *examples_dir* and packages them as
-    a multimodal ``ToolMessage``.
+    Args:
+        examples_dir: Directory containing example_N.txt / example_N.png files.
+        max_index: Highest valid index (inclusive). Used in the tool description.
+        include_images: Whether to include the example PNG in the tool response.
+            Set to False for large N (n50/n100) to stay within API image limits.
     """
 
     @tool
     def read_example(
-        index: Annotated[int, "Example index 0–9 (inclusive)."],
+        index: Annotated[int, f"Example index 0–{max_index} (inclusive)."],
         tool_call_id: Annotated[str, InjectedToolCallId],
     ) -> ToolMessage:
-        """Load Q&A text + image for one example.
-
-        Call with index=0, index=1, … index=9 to load all 10 examples before
-        answering the user's question.
-        """
+        """Load Q&A text (and optionally image) for one example."""
         txt_path = os.path.join(examples_dir, f"example_{index}.txt")
         img_path = os.path.join(examples_dir, f"example_{index}.png")
 
@@ -125,7 +175,7 @@ def make_read_example_tool(examples_dir: str):
 
         content: list = [{"type": "text", "text": qa_text}]
 
-        if os.path.exists(img_path):
+        if include_images and os.path.exists(img_path):
             img_b64 = base64.b64encode(open(img_path, "rb").read()).decode()
             content.append(create_image_block(base64=img_b64, mime_type="image/png"))
 
@@ -154,6 +204,9 @@ class DeepAgentPreload:
         task: Dataset task name — ``"mazenav"``, ``"spatialgrid"``, or
             ``"spatialmap"``.  Used to locate the per-task examples directory.
         examples_dir: Override the examples directory path (optional).
+        fewshot: If True, use ``FEWSHOT_SYSTEM_PROMPT`` (examples are different
+            images — agent learns strategy).  If False (default), use
+            ``PRELOAD_SYSTEM_PROMPT`` (examples are same images — agent matches).
     """
 
     _EXAMPLES_BASE = os.path.join(
@@ -168,6 +221,8 @@ class DeepAgentPreload:
         max_tokens: int = None,
         task: str = "mazenav",
         examples_dir: str = None,
+        fewshot: bool = False,
+        n_examples: int = 10,
     ):
         self.model_name = model_name
         self.max_tokens = max_tokens
@@ -182,12 +237,20 @@ class DeepAgentPreload:
 
         self._llm = ChatOpenAI(**llm_kwargs)
 
-        read_example_tool = make_read_example_tool(examples_dir)
+        # For large N, skip example images to stay within the API 50-image limit
+        # (test image always counts as 1, leaving 49 slots for examples)
+        include_images = n_examples <= 49
+        read_example_tool = make_read_example_tool(examples_dir, max_index=n_examples - 1, include_images=include_images)
+
+        if fewshot:
+            system_prompt = make_fewshot_prompt(n_examples)
+        else:
+            system_prompt = PRELOAD_SYSTEM_PROMPT
 
         self._agent = create_agent(
             model=self._llm,
             tools=[read_example_tool],
-            system_prompt=PRELOAD_SYSTEM_PROMPT,
+            system_prompt=system_prompt,
             middleware=[TodoListMiddleware()],
         )
 
