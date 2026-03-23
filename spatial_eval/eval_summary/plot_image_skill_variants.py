@@ -54,11 +54,12 @@ TASK_CONFIG = {
 }
 
 # ── Label / colour config ──────────────────────────────────────────────────
+# Okabe-Ito colorblind-safe palette
 VARIANTS = [
-    ("baseline",     "Baseline\n(no skills)",    "#7f7f7f"),
-    ("img-only",     "Image Only",                "#5B8DB8"),
-    ("img-qa",       "Image + Q&A\n(biased)",     "#F28C38"),
-    ("img-context",  "Image + Context\n(unbiased)","#2ca02c"),
+    ("baseline",    "Baseline\n(no skills)",       "#555555"),  # dark grey
+    ("img-only",    "Image Only\nskill",            "#56B4E9"),  # sky blue
+    ("img-qa",      "Img+Q&A\nskill (biased)",      "#E69F00"),  # orange
+    ("img-context", "Img+Context\nskill (unbiased)","#009E73"),  # teal
 ]
 
 
@@ -141,7 +142,7 @@ def main(args):
             continue
         delta = accs[key] - baseline_acc
         sign = "+" if delta >= 0 else ""
-        color = "#1a7a1a" if delta >= 0 else "#d62728"
+        color = "#009E73" if delta >= 0 else "#D55E00"  # CB teal / vermillion
         top = values[i] + 5.5
         ax.text(x[i], top, f"Δ {sign}{delta * 100:.1f}%",
                 ha="center", va="bottom", fontsize=10,
@@ -161,6 +162,14 @@ def main(args):
     ax.yaxis.grid(True, linestyle="--", alpha=0.4, zorder=1)
     ax.set_axisbelow(True)
     ax.spines[["top", "right"]].set_visible(False)
+
+    # Legend
+    legend_handles = [
+        mpatches.Patch(color=color, label=label.replace("\n", " "))
+        for _, label, color in VARIANTS
+    ]
+    ax.legend(handles=legend_handles, fontsize=9, loc="upper left",
+              framealpha=0.85, edgecolor="#ccc")
 
     plt.tight_layout()
     out_path = os.path.join(args.out_dir, f"{task}_image_skill_variants.png")

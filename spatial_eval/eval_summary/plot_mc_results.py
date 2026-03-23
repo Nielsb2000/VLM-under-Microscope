@@ -34,11 +34,12 @@ TASK_DISPLAY = {
     "spatialmap":  "Spatial Map",
 }
 
+# Okabe-Ito colorblind-safe palette
 VARIANTS = [
-    ("baseline",    "Baseline\n(no skills)",     "#7f7f7f"),
-    ("img-only",    "Image Only",                 "#5B8DB8"),
-    ("img-qa",      "Image + Q&A\n(biased)",      "#F28C38"),
-    ("img-context", "Image + Context\n(unbiased)","#2ca02c"),
+    ("baseline",    "Baseline\n(no skills)",       "#555555"),  # dark grey
+    ("img-only",    "Image Only\nskill",            "#56B4E9"),  # sky blue
+    ("img-qa",      "Img+Q&A\nskill (biased)",      "#E69F00"),  # orange
+    ("img-context", "Img+Context\nskill (unbiased)","#009E73"),  # teal
 ]
 
 
@@ -194,6 +195,15 @@ def plot_task(task: str, dates: list[str] | None, out_dir: str, jsonl_root: str)
     ax.set_axisbelow(True)
     ax.spines[["top", "right"]].set_visible(False)
 
+    # Legend
+    import matplotlib.patches as mpatches
+    legend_handles = [
+        mpatches.Patch(color=color, label=label.replace("\n", " "))
+        for _, label, color in VARIANTS
+    ]
+    ax.legend(handles=legend_handles, fontsize=9, loc="upper left",
+              framealpha=0.85, edgecolor="#ccc")
+
     plt.tight_layout()
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, f"{task}_mc_skill_variants.png")
@@ -233,14 +243,38 @@ def plot_combined(all_results: dict, out_dir: str, n_runs: int):
             ax.axhline(means[0] * 100, color="#7f7f7f", linestyle="--",
                        linewidth=1.0, alpha=0.5, zorder=2)
 
+        # Delta annotations vs baseline
+        if means[0] is not None:
+            for i, (k, _, _) in enumerate(VARIANTS):
+                if k == "baseline" or means[i] is None:
+                    continue
+                delta = means[i] - means[0]
+                sign = "+" if delta >= 0 else ""
+                col = "#009E73" if delta >= 0 else "#D55E00"  # CB teal / vermillion
+                bar_top = means[i] * 100 + (sds[i] * 100 if sds[i] else 0)
+                ax.text(x[i], bar_top + 5.5,
+                        f"Δ {sign}{delta*100:.1f}%",
+                        ha="center", va="bottom", fontsize=8,
+                        color=col, fontweight="bold")
+
         ax.set_xticks(x)
         ax.set_xticklabels(labels, fontsize=8.5)
         ax.set_ylabel("Accuracy (%)", fontsize=10)
-        ax.set_ylim(0, 120)
+        ax.set_ylim(0, 130)
         ax.set_title(display, fontsize=12, fontweight="bold")
         ax.yaxis.grid(True, linestyle="--", alpha=0.35, zorder=1)
         ax.set_axisbelow(True)
         ax.spines[["top", "right"]].set_visible(False)
+
+    # Shared legend below the panels
+    import matplotlib.patches as mpatches
+    legend_handles = [
+        mpatches.Patch(color=color, label=label.replace("\n", " "))
+        for _, label, color in VARIANTS
+    ]
+    fig.legend(handles=legend_handles, loc="lower center", ncol=4,
+               fontsize=9, framealpha=0.85, edgecolor="#ccc",
+               bbox_to_anchor=(0.5, -0.06))
 
     fig.suptitle(
         f"Image Skill Variants — All Tasks (GPT-5.2, VQA, {n_runs} MC runs)\n"
