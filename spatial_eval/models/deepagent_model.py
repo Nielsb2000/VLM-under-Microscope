@@ -95,6 +95,7 @@ class DeepAgentGPT:
         # Test 1 — validation (same images in skill and test)
         "img-qa-val":    "skills_img_qa_val",
         # Test 2 — img-only range test (N example images, tested at offset N)
+        "img-only-n3":   "skills_img_only_n3",
         "img-only-n10":  "skills_img_only_n10",
         "img-only-n30":  "skills_img_only_n30",
         "img-only-n50":  "skills_img_only_n50",
@@ -113,7 +114,7 @@ class DeepAgentGPT:
 
         self._root_dir = root_dir
         self._llm = ChatOpenAI(model=model_name)
-        backend = FilesystemBackend(root_dir=root_dir, virtual_mode=False)
+        backend = FilesystemBackend(root_dir=root_dir, virtual_mode=True)
         self._agent = create_deep_agent(
             model=self._llm,
             system_prompt=self.SYSTEM_PROMPT,

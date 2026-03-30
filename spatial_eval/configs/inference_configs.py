@@ -73,11 +73,14 @@ class InferenceArgumentParser:
                                  choices=[
                                      "img-only", "img-qa", "img-context",
                                      "img-qa-val",
-                                     "img-only-n10", "img-only-n30", "img-only-n50", "img-only-n100",
+                                     "img-only-n3", "img-only-n10", "img-only-n30", "img-only-n50", "img-only-n100",
                                      "img-qa-val-v2",
                                      "img-qa-val-v2-offset-n3",
                                      "img-qa-val-v2-offset",
                                      "img-qa-val-v2-offset-n30",
+                                     "img-only-tool-n3",
+                                     "img-only-tool-n10",
+                                     "img-only-tool-n30",
                                  ],
                                  help="Which skill variant to use with --use_skills. "
                                       "img-only: image-path examples (3 imgs). "
@@ -87,6 +90,8 @@ class InferenceArgumentParser:
                                       "img-only-n10/n30/n50/n100: range test — N example images, tested at offset +N. "
                                       "img-qa-val-v2: preload architecture — agent calls read_example(0..9) before answering (same images, contamination upper-bound). "
                                       "img-qa-val-v2-offset-n3/n10/n30: few-shot preload with N examples + images, test offset by N*3 samples. "
+                                      "img-only-tool-n3/n10/n30: image-only preload via tool — agent sees N example images (no answers). "
+                                      "offset_k is auto-computed as N×mc_runs (e.g. n30+mc3→offset=90) unless --offset_k is set explicitly. "
                                       "If omitted uses the baseline models/skills/ folder.")
 
     def parse_args(self):
