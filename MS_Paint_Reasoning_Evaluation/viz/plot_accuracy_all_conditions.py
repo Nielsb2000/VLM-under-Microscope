@@ -8,16 +8,25 @@ Usage (from project root):
 """
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "evaluation"))
 
 import argparse
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 
 from json_results_to_df import load_results_df
 
 OUT_BASE = os.path.join(os.path.dirname(__file__), "..", "Results", "res_vis")
 BLUR_LEVELS = ["no_blur", "med_blur", "heavy_blur"]
+
+MODEL_COLORS = {
+    "gpt-4o":  "#56B4E9",
+    "gpt-5.1": "#E69F00",
+    "gpt-5.2": "#009E73",
+}
 
 
 def main():
@@ -59,33 +68,42 @@ def main():
         return
 
     labels = [f"{model}\n({blur})" for blur, model, _ in accuracies]
-    values = [0.0 if np.isnan(acc) else acc for _, _, acc in accuracies]
-    colors = ["#1f77b4", "#ff7f0e", "#2ca02c"] * len(BLUR_LEVELS)
+    values = [0.0 if np.isnan(acc) else acc * 100 for _, _, acc in accuracies]
+    bar_colors = [MODEL_COLORS.get(model, "#0072B2") for _, model, _ in accuracies]
+    unique_models = list(dict.fromkeys(model for _, model, _ in accuracies))
 
-    plt.figure(figsize=(max(10, len(labels) * 0.9), 6))
-    bars = plt.bar(labels, values, color=colors[:len(labels)], alpha=0.85)
-    plt.title(
-        f"Overall Model Accuracy — All Blur Levels\n"
-        f"({args.image_type}, reasoning={args.reasoning_mode}, {args.skills_mode})",
+    fig, ax = plt.subplots(figsize=(max(10, len(labels) * 0.9), 6))
+    bars = ax.bar(labels, values, color=bar_colors, alpha=0.85)
+    ax.set_title(
+        f"MS Paint Accuracy — All Blur Levels\n"
+        f"({args.image_type}, reasoning: {args.reasoning_mode}, {args.skills_mode})",
+        fontsize=12, fontweight="bold",
     )
-    plt.ylabel("Accuracy")
-    plt.ylim(0, 1.1)
+    ax.set_ylabel("Accuracy (%)", fontsize=12)
+    ax.set_ylim(0, 115)
+    ax.yaxis.grid(True, linestyle="--", alpha=0.4, zorder=1)
+    ax.set_axisbelow(True)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.legend(
+        handles=[Patch(color=MODEL_COLORS.get(m, "#0072B2"), label=m) for m in unique_models],
+        title="Model", fontsize=10, title_fontsize=11,
+    )
     for bar, (_, _, acc) in zip(bars, accuracies):
         if not np.isnan(acc):
-            plt.text(bar.get_x() + bar.get_width() / 2, acc + 0.02,
-                     f"{acc * 100:.1f}%", ha="center", fontsize=9)
+            ax.text(bar.get_x() + bar.get_width() / 2, acc * 100 + 1.5,
+                    f"{acc * 100:.1f}%", ha="center", fontsize=9, fontweight="bold")
 
     for b in range(1, len(BLUR_LEVELS)):
-        plt.axvline(x=b * len(models) - 0.5, color="red", linestyle=":", linewidth=2)
+        ax.axvline(x=b * len(models) - 0.5, color="red", linestyle=":", linewidth=2)
 
-    plt.tight_layout()
+    fig.tight_layout()
     out_dir = os.path.normpath(
         os.path.join(OUT_BASE, f"{args.image_type}_{args.reasoning_mode}_{args.skills_mode}")
     )
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, "accuracy_all_blur.png")
-    plt.savefig(out_path)
-    plt.close()
+    fig.savefig(out_path, dpi=150)
+    plt.close(fig)
     print(f"Saved: {out_path}")
 
 
