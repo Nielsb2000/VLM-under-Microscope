@@ -1,11 +1,13 @@
 import os
 import base64
+import time
 import uuid
 from io import BytesIO
 from PIL import Image
 from langchain_openai import ChatOpenAI
 from deepagents import create_deep_agent
 from deepagents.backends.filesystem import FilesystemBackend
+from .gpt4_model import MAX_RETRIES, RETRY_DELAY, _is_retryable
 
 
 class DeepAgentGPT:
@@ -98,19 +100,24 @@ class DeepAgentGPT:
         "img-only-n3":   "skills_img_only_n3",
         "img-only-n10":  "skills_img_only_n10",
         "img-only-n30":  "skills_img_only_n30",
-        "img-only-n50":  "skills_img_only_n50",
-        "img-only-n100": "skills_img_only_n100",
+        "img-only-annotated": "skills_img_only_annotated",
+        "img-annotated-context": "skills_img_annotated_context",
     }
 
-    def __init__(self, model_name: str = "gpt-5.2", max_tokens: int = None, skills_variant: str = None):
+    def __init__(self, model_name: str = "gpt-5.2", max_tokens: int = None, skills_variant: str = None, debug_log_path: str = None):
         self.model_name = model_name
         self.max_tokens = max_tokens
+        self._debug_log_path = debug_log_path
+        self._debug_item_count = 0
         _models_dir = os.path.dirname(os.path.abspath(__file__))
 
         if skills_variant in self._VARIANT_SKILL_FOLDERS:
             root_dir = os.path.join(_models_dir, self._VARIANT_SKILL_FOLDERS[skills_variant])
         else:
-            root_dir = _models_dir
+            raise ValueError(
+                f"skills_variant={skills_variant!r} is not recognised. "
+                f"Valid options: {list(self._VARIANT_SKILL_FOLDERS)}"
+            )
 
         self._root_dir = root_dir
         self._llm = ChatOpenAI(model=model_name)
@@ -158,8 +165,82 @@ class DeepAgentGPT:
         # Use a unique thread_id per call to avoid state leakage between questions
         config = {"configurable": {"thread_id": str(uuid.uuid4())}}
 
-        response = self._agent.invoke(agent_input, config=config)
+        for attempt in range(1, MAX_RETRIES + 1):
+            try:
+                response = self._agent.invoke(agent_input, config=config)
+                break
+            except Exception as exc:
+                if attempt < MAX_RETRIES and _is_retryable(exc):
+                    print(f"[retry {attempt}/{MAX_RETRIES}] {type(exc).__name__}: {exc} — retrying in {RETRY_DELAY}s")
+                    time.sleep(RETRY_DELAY)
+                    # New thread_id so the agent starts fresh on retry
+                    config = {"configurable": {"thread_id": str(uuid.uuid4())}}
+                else:
+                    raise
+
         messages = response.get("messages", [])
         answer_text = messages[-1].content.strip() if messages else ""
 
+        if self._debug_log_path and messages:
+            self._debug_item_count += 1
+            self._write_debug_log(messages)
+
         return query_text, answer_text
+
+    def _write_debug_log(self, messages):
+        """Append a structured trace of all agent messages to the debug log file."""
+        import json as _json
+        import hashlib as _hashlib
+        import base64 as _base64
+
+        def _image_fingerprint(block: dict) -> str:
+            """Return size + short SHA256 so we can verify images are distinct."""
+            # base64 data may live at different keys depending on deepagents version
+            raw_b64 = (
+                block.get("base64")
+                or block.get("data")
+                or (block.get("image_url") or {}).get("url", "").split(",")[-1]
+            )
+            if not raw_b64:
+                return "size=unknown  sha256=unknown"
+            try:
+                img_bytes = _base64.b64decode(raw_b64)
+            except Exception:
+                img_bytes = raw_b64.encode()
+            size = len(img_bytes)
+            digest = _hashlib.sha256(img_bytes).hexdigest()[:12]
+            return f"size={size}B  sha256={digest}"
+
+        os.makedirs(os.path.dirname(self._debug_log_path), exist_ok=True)
+        with open(self._debug_log_path, "a", encoding="utf-8") as f:
+            f.write(f"\n{'='*80}\n")
+            f.write(f"ITEM #{self._debug_item_count}  ({len(messages)} messages)\n")
+            f.write(f"{'='*80}\n")
+            for i, msg in enumerate(messages):
+                msg_type = type(msg).__name__
+                f.write(f"\n--- [{i}] {msg_type} ---\n")
+                # Tool calls attached to AIMessage
+                tool_calls = getattr(msg, "tool_calls", None)
+                if tool_calls:
+                    f.write("  tool_calls:\n")
+                    for tc in tool_calls:
+                        f.write(f"    name: {tc.get('name', tc)}\n")
+                        args = tc.get("args", {})
+                        f.write(f"    args: {_json.dumps(args, ensure_ascii=False)[:2000]}\n")
+                # Content: may be str or list of content blocks
+                content = msg.content
+                if isinstance(content, list):
+                    for block in content:
+                        if isinstance(block, dict):
+                            btype = block.get("type", "unknown")
+                            if btype == "text":
+                                f.write(f"  [text] {block.get('text', '')[:2000]}\n")
+                            elif btype in ("image", "image_url"):
+                                fp = _image_fingerprint(block)
+                                f.write(f"  [image block – {fp}]\n")
+                            else:
+                                f.write(f"  [{btype}] {str(block)[:500]}\n")
+                        else:
+                            f.write(f"  {str(block)[:500]}\n")
+                elif content:
+                    f.write(f"  {str(content)[:3000]}\n")

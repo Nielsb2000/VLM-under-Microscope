@@ -141,11 +141,65 @@ def make_fewshot_prompt(n: int) -> str:
     return FEWSHOT_SYSTEM_PROMPT_TEMPLATE.replace("{{n}}", str(n)).replace("{{n_minus_1}}", str(n - 1))
 
 
+IMG_ONLY_TOOL_SYSTEM_PROMPT_TEMPLATE = """\
+You are a spatial reasoning assistant given a set of example images to study.
+The examples are DIFFERENT images from the one you will be tested on.
+No answers are provided — the examples show you what the task looks like visually.
+Your goal is to understand the visual format, then answer the test question using
+your own spatial reasoning.
+
+═══════════════════════════════════════════════════════
+STEP 1 — LOAD ALL EXAMPLE IMAGES (mandatory)
+═══════════════════════════════════════════════════════
+Call  read_example(index)  for EVERY index from 0 to {{n_minus_1}} (inclusive).
+Issue all {{n}} calls before doing anything else.
+Each example provides only the image — no answer is given.
+
+═══════════════════════════════════════════════════════
+STEP 2 — STUDY THE VISUAL FORMAT
+═══════════════════════════════════════════════════════
+For each example image, observe:
+  - How the spatial task is presented visually
+  - Key visual elements (colours, structures, markers, layout)
+  - How to read and interpret this type of image
+
+These examples teach you the visual format only — no answers are embedded.
+
+═══════════════════════════════════════════════════════
+STEP 3 — ANSWER THE TEST QUESTION
+═══════════════════════════════════════════════════════
+Apply your visual understanding to the test image.
+Use your own spatial reasoning to determine the correct answer.
+
+═══════════════════════════════════════════════════════
+STEP 4 — OUTPUT
+═══════════════════════════════════════════════════════
+Briefly note the key visual feature(s) you identified, then output:
+
+  Final Answer: [Letter]. [Value]
+
+Examples:  "Final Answer: C. 2"  |  "Final Answer: A. Yes"  |  "Final Answer: B. No"
+
+RULES:
+- Complete ALL {{n}} read_example calls before answering.
+- No answers are in the examples — you must reason from the test image yourself.
+"""
+
+
+def make_img_only_tool_prompt(n: int) -> str:
+    return IMG_ONLY_TOOL_SYSTEM_PROMPT_TEMPLATE.replace("{{n}}", str(n)).replace("{{n_minus_1}}", str(n - 1))
+
+
 # ---------------------------------------------------------------------------
 # read_example tool factory
 # ---------------------------------------------------------------------------
 
-def make_read_example_tool(examples_dir: str, max_index: int = 9, include_images: bool = True):
+def make_read_example_tool(
+    examples_dir: str,
+    max_index: int = 9,
+    include_images: bool = True,
+    include_text: bool = True,
+):
     """Return a ``read_example`` tool bound to *examples_dir*.
 
     Args:
@@ -153,6 +207,8 @@ def make_read_example_tool(examples_dir: str, max_index: int = 9, include_images
         max_index: Highest valid index (inclusive). Used in the tool description.
         include_images: Whether to include the example PNG in the tool response.
             Set to False for large N (n50/n100) to stay within API image limits.
+        include_text: Whether to include the Q&A text in the response.
+            Set to False for img-only-tool variants (images only, no answers).
     """
 
     @tool
@@ -160,24 +216,31 @@ def make_read_example_tool(examples_dir: str, max_index: int = 9, include_images
         index: Annotated[int, f"Example index 0–{max_index} (inclusive)."],
         tool_call_id: Annotated[str, InjectedToolCallId],
     ) -> ToolMessage:
-        """Load Q&A text (and optionally image) for one example."""
+        """Load image (and optionally Q&A text) for one example."""
         txt_path = os.path.join(examples_dir, f"example_{index}.txt")
         img_path = os.path.join(examples_dir, f"example_{index}.png")
 
-        try:
-            qa_text = open(txt_path).read()
-        except OSError as exc:
-            return ToolMessage(
-                content=f"Error reading example {index}: {exc}",
-                tool_call_id=tool_call_id,
-                name="read_example",
-            )
+        content: list = []
 
-        content: list = [{"type": "text", "text": qa_text}]
+        if include_text:
+            try:
+                qa_text = open(txt_path).read()
+            except OSError as exc:
+                return ToolMessage(
+                    content=f"Error reading example {index}: {exc}",
+                    tool_call_id=tool_call_id,
+                    name="read_example",
+                )
+            content.append({"type": "text", "text": qa_text})
 
         if include_images and os.path.exists(img_path):
             img_b64 = base64.b64encode(open(img_path, "rb").read()).decode()
             content.append(create_image_block(base64=img_b64, mime_type="image/png"))
+        elif include_images:
+            content.append({"type": "text", "text": f"(Image for example {index} not found)"})
+
+        if not content:
+            content = [{"type": "text", "text": f"Example {index}: no content loaded."}]
 
         return ToolMessage(
             content=content,
@@ -205,8 +268,11 @@ class DeepAgentPreload:
             ``"spatialmap"``.  Used to locate the per-task examples directory.
         examples_dir: Override the examples directory path (optional).
         fewshot: If True, use ``FEWSHOT_SYSTEM_PROMPT`` (examples are different
-            images — agent learns strategy).  If False (default), use
+            images — agent learns strategy from Q&A).  If False (default), use
             ``PRELOAD_SYSTEM_PROMPT`` (examples are same images — agent matches).
+        img_only: If True, use ``IMG_ONLY_TOOL_SYSTEM_PROMPT`` and suppress Q&A
+            text in the tool response — agent sees example images only, no answers.
+            Requires ``fewshot=False``.
     """
 
     _EXAMPLES_BASE = os.path.join(
@@ -223,6 +289,7 @@ class DeepAgentPreload:
         examples_dir: str = None,
         fewshot: bool = False,
         n_examples: int = 10,
+        img_only: bool = False,
     ):
         self.model_name = model_name
         self.max_tokens = max_tokens
@@ -240,9 +307,16 @@ class DeepAgentPreload:
         # For large N, skip example images to stay within the API 50-image limit
         # (test image always counts as 1, leaving 49 slots for examples)
         include_images = n_examples <= 49
-        read_example_tool = make_read_example_tool(examples_dir, max_index=n_examples - 1, include_images=include_images)
+        read_example_tool = make_read_example_tool(
+            examples_dir,
+            max_index=n_examples - 1,
+            include_images=include_images,
+            include_text=not img_only,
+        )
 
-        if fewshot:
+        if img_only:
+            system_prompt = make_img_only_tool_prompt(n_examples)
+        elif fewshot:
             system_prompt = make_fewshot_prompt(n_examples)
         else:
             system_prompt = PRELOAD_SYSTEM_PROMPT
