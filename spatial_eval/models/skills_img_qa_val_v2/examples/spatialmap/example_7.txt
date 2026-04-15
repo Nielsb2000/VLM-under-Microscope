@@ -1,0 +1,13 @@
+# Example image 7
+
+Question 1 (q0): In which direction is Hummingbird Hats relative to Arctic Apparel?
+Options: A. Southwest | B. Northeast | C. Southeast | D. Northwest
+Answer: D. Northwest
+
+Question 2 (q1): Which object is in the Southwest of Arctic Apparel?
+Options: A. Xenopus's Xylophones | B. Hummingbird Hats | C. Junkyard Jewels | D. Pool Hall Provisions
+Answer: A. Xenopus's Xylophones
+
+Question 3 (q2): How many objects are in the Northwest of Xenopus's Xylophones?
+Options: A. 4 | B. 3 | C. 0 | D. 2
+Answer: D. 2

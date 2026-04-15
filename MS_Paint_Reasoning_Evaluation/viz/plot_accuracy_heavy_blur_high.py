@@ -9,15 +9,24 @@ Usage (from project root):
 """
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "evaluation"))
 
 import argparse
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 
 from json_results_to_df import load_results_df
 
 OUT_BASE = os.path.join(os.path.dirname(__file__), "..", "Results", "res_vis")
+
+MODEL_COLORS = {
+    "gpt-4o":  "#56B4E9",
+    "gpt-5.1": "#E69F00",
+    "gpt-5.2": "#009E73",
+}
 
 
 def main():
@@ -62,26 +71,33 @@ def main():
         return
 
     labels = [f"{model}\n({mode})" for model, mode, _ in results]
-    values = [0.0 if np.isnan(acc) else acc for _, _, acc in results]
-    # Alternate colors per model across both mode groups
-    model_colors = {"gpt-5.1": "#ff7f0e", "gpt-5.2": "#2ca02c"}
-    bar_colors = [model_colors.get(model, "#1f77b4") for model, _, _ in results]
+    values = [0.0 if np.isnan(acc) else acc * 100 for _, _, acc in results]
+    bar_colors = [MODEL_COLORS.get(model, "#0072B2") for model, _, _ in results]
+    unique_models = list(dict.fromkeys(m for m, _, _ in results))
 
-    plt.figure(figsize=(max(8, len(labels) * 1.5), 6))
-    bars = plt.bar(labels, values, color=bar_colors, alpha=0.85)
-    plt.title(
+    fig, ax = plt.subplots(figsize=(max(8, len(labels) * 1.5), 6))
+    bars = ax.bar(labels, values, color=bar_colors, alpha=0.85)
+    ax.set_title(
         f"Heavy Blur: {args.mode_a} vs {args.mode_b} Reasoning\n"
         f"({args.image_type}, {args.skills_mode})",
+        fontsize=12, fontweight="bold",
     )
-    plt.ylabel("Accuracy")
-    plt.ylim(0, 1.1)
+    ax.set_ylabel("Accuracy (%)", fontsize=12)
+    ax.set_ylim(0, 115)
+    ax.yaxis.grid(True, linestyle="--", alpha=0.4, zorder=1)
+    ax.set_axisbelow(True)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.legend(
+        handles=[Patch(color=MODEL_COLORS.get(m, "#0072B2"), label=m) for m in unique_models],
+        title="Model", fontsize=10,
+    )
     for bar in bars:
         h = bar.get_height()
-        plt.text(bar.get_x() + bar.get_width() / 2, h + 0.02,
-                 f"{h * 100:.1f}%", ha="center")
+        ax.text(bar.get_x() + bar.get_width() / 2, h + 1.5,
+                f"{h:.1f}%", ha="center", fontsize=10, fontweight="bold")
     # Separator between mode groups
-    plt.axvline(x=len(args.models) - 0.5, color="red", linestyle=":", linewidth=2)
-    plt.tight_layout()
+    ax.axvline(x=len(args.models) - 0.5, color="red", linestyle=":", linewidth=2)
+    fig.tight_layout()
 
     out_dir = os.path.normpath(os.path.join(
         OUT_BASE,
@@ -89,8 +105,8 @@ def main():
     ))
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, "heavy_blur_reasoning_comparison.png")
-    plt.savefig(out_path)
-    plt.close()
+    fig.savefig(out_path, dpi=150)
+    plt.close(fig)
     print(f"Saved: {out_path}")
 
 

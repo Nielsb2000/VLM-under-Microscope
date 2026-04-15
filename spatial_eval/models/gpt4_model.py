@@ -1,8 +1,37 @@
 import base64
+import time
 from io import BytesIO
 from PIL import Image
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
+
+
+MAX_RETRIES = 3
+RETRY_DELAY = 5  # seconds between retries
+
+_RETRYABLE_CODES = {
+    # OpenAI server-side errors
+    500, 502, 503, 504,
+    # Rate limit
+    429,
+}
+
+
+def _is_retryable(exc: Exception) -> bool:
+    """Return True if the exception is worth retrying."""
+    name = type(exc).__name__
+    msg = str(exc)
+    # BadRequestError with invalid_prompt — transient false-positive flagging
+    if "invalid_prompt" in msg:
+        return True
+    # Any OpenAI error carrying a retryable HTTP status code
+    status = getattr(exc, "status_code", None)
+    if status in _RETRYABLE_CODES:
+        return True
+    # APIConnectionError, APITimeoutError (no status_code)
+    if name in ("APIConnectionError", "APITimeoutError", "InternalServerError"):
+        return True
+    return False
 
 
 class GPT4Vision:
@@ -73,8 +102,15 @@ class GPT4Vision:
             # Text-only message
             message = HumanMessage(content=query_text)
         
-        # Get response from GPT-4
-        response = self.llm.invoke([message], temperature=temperature)
-        answer_text = response.content.strip()
-        
-        return query_text, answer_text
+        # Get response from GPT-4 (with retry for transient errors)
+        for attempt in range(1, MAX_RETRIES + 1):
+            try:
+                response = self.llm.invoke([message], temperature=temperature)
+                answer_text = response.content.strip()
+                return query_text, answer_text
+            except Exception as exc:
+                if attempt < MAX_RETRIES and _is_retryable(exc):
+                    print(f"[retry {attempt}/{MAX_RETRIES}] {type(exc).__name__}: {exc} — retrying in {RETRY_DELAY}s")
+                    time.sleep(RETRY_DELAY)
+                else:
+                    raise

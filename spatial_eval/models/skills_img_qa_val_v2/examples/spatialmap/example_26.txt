@@ -1,0 +1,13 @@
+# Example image 26
+
+Question 1 (q0): In which direction is Vulture's Vinyl Records relative to Star Tech Store?
+Options: A. Northwest | B. Southeast | C. Northeast | D. Southwest
+Answer: D. Southwest
+
+Question 2 (q1): Which object is in the Northwest of Salmon Sushi?
+Options: A. Vulture's Vinyl Records | B. Pool Hall Provisions | C. Children's Choice Toys | D. Sea Breeze Seafood
+Answer: A. Vulture's Vinyl Records
+
+Question 3 (q2): How many objects are in the Southwest of Children's Choice Toys?
+Options: A. 5 | B. 2 | C. 3 | D. 1
+Answer: C. 3

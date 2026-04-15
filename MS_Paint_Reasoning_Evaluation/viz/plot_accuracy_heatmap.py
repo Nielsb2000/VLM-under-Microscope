@@ -8,16 +8,24 @@ Usage (from project root):
 """
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "evaluation"))
 
 import argparse
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 
 from json_results_to_df import load_results_df
 
 OUT_BASE = os.path.join(os.path.dirname(__file__), "..", "Results", "res_vis")
+
+MODEL_COLORS = {
+    "gpt-4o":  "#56B4E9",
+    "gpt-5.1": "#E69F00",
+    "gpt-5.2": "#009E73",
+}
 
 
 def main():
@@ -67,22 +75,28 @@ def main():
     accuracies = {}
     for model in models:
         valid = sub[sub["Model"] == model]["Correct"].dropna()
-        accuracies[model] = valid.mean() if len(valid) > 0 else 0.0
+        accuracies[model] = valid.mean() * 100 if len(valid) > 0 else 0.0
 
-    colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"]
-    plt.figure(figsize=(max(6, len(models) * 2), 5))
-    plt.bar(list(accuracies.keys()), list(accuracies.values()),
-            color=colors[:len(models)])
-    plt.title(f"MS Paint Accuracy\n({args.image_type}, {args.blur_level}, "
-              f"reasoning={args.reasoning_mode}, {args.skills_mode})")
-    plt.ylabel("Accuracy")
-    plt.ylim(0, 1.1)
+    bar_colors = [MODEL_COLORS.get(m, "#0072B2") for m in models]
+    fig, ax = plt.subplots(figsize=(max(6, len(models) * 2), 5))
+    ax.bar(list(accuracies.keys()), list(accuracies.values()),
+           color=bar_colors, edgecolor="white", linewidth=1.2)
+    ax.set_title(
+        f"MS Paint Accuracy — {args.image_type}, {args.blur_level}\n"
+        f"reasoning: {args.reasoning_mode}, {args.skills_mode}",
+        fontsize=12, fontweight="bold",
+    )
+    ax.set_ylabel("Accuracy (%)", fontsize=12)
+    ax.set_ylim(0, 110)
+    ax.yaxis.grid(True, linestyle="--", alpha=0.4, zorder=1)
+    ax.set_axisbelow(True)
+    ax.spines[["top", "right"]].set_visible(False)
     for i, (m, acc) in enumerate(accuracies.items()):
-        plt.text(i, acc + 0.02, f"{acc * 100:.1f}%", ha="center")
-    plt.tight_layout()
+        ax.text(i, acc + 1.5, f"{acc:.1f}%", ha="center", fontsize=10, fontweight="bold")
+    fig.tight_layout()
     bar_path = os.path.join(out_dir, "model_accuracy.png")
-    plt.savefig(bar_path)
-    plt.close()
+    fig.savefig(bar_path, dpi=150)
+    plt.close(fig)
     print(f"Saved: {bar_path}")
 
     # Per-model correctness heatmap
@@ -125,7 +139,7 @@ def main():
         plt.tight_layout()
         safe_model = model.replace("/", "_")
         hmap_path = os.path.join(out_dir, f"{safe_model}_heatmap.png")
-        plt.savefig(hmap_path)
+        plt.savefig(hmap_path, dpi=150)
         plt.close()
         print(f"Saved: {hmap_path}")
 

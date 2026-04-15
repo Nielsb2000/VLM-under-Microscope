@@ -1,0 +1,13 @@
+# Example image 17
+
+Question 1 (q0): How many right turns are there in the provided path (marked by Blue) from S to E?
+Options: A. 1 | B. 5 | C. 8 | D. 2
+Answer: A. 1
+
+Question 2 (q1): How many total turns are there in the provided path (marked by Blue) from S to E?
+Options: A. 3 | B. 9 | C. 4 | D. 6
+Answer: C. 4
+
+Question 3 (q2): Is the exit (E) directly to the right of the starting point (S), with no vertical displacement?
+Options: A. Yes | B. No
+Answer: A. Yes

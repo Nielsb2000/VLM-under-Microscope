@@ -1,0 +1,13 @@
+# Example image 17
+
+Question 1 (q0): In which direction is Dingo's Drones relative to Swamp Supplies?
+Options: A. Northeast | B. Southeast | C. Southwest | D. Northwest
+Answer: D. Northwest
+
+Question 2 (q1): Which object is in the Southeast of Dingo's Drones?
+Options: A. Flamingo's Films | B. Swamp Supplies | C. Iris's Ice Skates | D. Unicorn's Utensils
+Answer: B. Swamp Supplies
+
+Question 3 (q2): How many objects are in the Southeast of Flamingo's Films?
+Options: A. 2 | B. 5 | C. 1 | D. 4
+Answer: C. 1

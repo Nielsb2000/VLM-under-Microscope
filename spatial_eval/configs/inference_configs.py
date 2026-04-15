@@ -42,15 +42,19 @@ class InferenceArgumentParser:
         self.parser.add_argument("--w_reason", action="store_true", help="Add reason prompt.")
         self.parser.add_argument("--first_k", type=int, default=None, help="Test first k samples for each question type. If not specified, test all samples.")
         self.parser.add_argument("--offset_k", type=int, default=0, help="Skip the first offset_k samples before applying first_k. Use for non-overlapping multi-run evaluation.")
-        self.parser.add_argument("--mc_runs", type=int, default=1,
-                                 help="Number of Monte Carlo runs with different random subsets of first_k samples. "
-                                      "Produces mean ± SD accuracy estimate. Requires --first_k.")
+        self.parser.add_argument("--runs", type=int, default=1,
+                     help="Number of repeated runs with the same images (no random sampling). Use for deterministic multi-run evaluation.")
+        self.parser.add_argument("--mc_runs", type=int, default=0,
+                     help="Number of Monte Carlo runs with different random subsets of first_k samples. If >0, enables randomized MC evaluation. Requires --first_k.")
         self.parser.add_argument("--mc_seed", type=int, default=42,
-                                 help="Base random seed for Monte Carlo sampling. Run i uses seed mc_seed+i.")
+                     help="Base random seed for Monte Carlo sampling. Run i uses seed mc_seed+i. Only used if --mc_runs > 0.")
         self.parser.add_argument("--workers", type=int, default=1,
                                  help="Number of parallel workers for API calls. "
                                       "Values >1 speed up GPT/cloud models significantly (e.g. --workers 8). "
                                       "Ignored for local GPU models (always runs sequentially). Default: 1.")
+        self.parser.add_argument("--debug", action="store_true", default=False,
+                                 help="Enable debug logging of all agent intermediate messages (tool calls, responses). "
+                                      "Log is written to spatial_eval/logs/debug_<model>_<variant>_<timestamp>.log.")
     
     def _add_lm_args(self):
         add_model_args(self.parser)
@@ -73,14 +77,29 @@ class InferenceArgumentParser:
                                  choices=[
                                      "img-only", "img-qa", "img-context",
                                      "img-qa-val",
-                                     "img-only-n10", "img-only-n30", "img-only-n50", "img-only-n100",
+                                     "img-only-n3", "img-only-n10", "img-only-n30", "img-only-n50", "img-only-n100",
+                                     "img-qa-val-v2",
+                                     "img-qa-val-v2-offset-n3",
+                                     "img-qa-val-v2-offset",
+                                     "img-qa-val-v2-offset-n30",
+                                     "img-only-tool-n3",
+                                     "img-only-tool-n10",
+                                     "img-only-tool-n30",
+                                     "img-only-annotated",
+                                     "img-annotated-context",
+                                     "sam3",
                                  ],
                                  help="Which skill variant to use with --use_skills. "
                                       "img-only: image-path examples (3 imgs). "
                                       "img-qa: image + Q&A (biased, 3 imgs). "
                                       "img-context: image + domain context (unbiased, 3 imgs). "
                                       "img-qa-val: validation test — 10 images with full Q&A, tested on same images. "
-                                      "img-only-n10/n30/n50/n100: range test — N example images, tested at offset +N. "
+                                      "img-only-n10/n30/n50/n100: range test — N example images taken from the tail of the dataset (no overlap with test set when --first_k ≤ 100). "
+                                      "img-qa-val-v2: preload architecture — agent calls read_example(0..9) before answering (same images, contamination upper-bound). "
+                                      "img-qa-val-v2-offset-n3/n10/n30: few-shot preload with N examples + images, test offset by N*3 samples. "
+                                      "img-only-tool-n3/n10/n30: image-only preload via tool — agent sees N example images (no answers). "
+                                      "offset_k is auto-computed as N×mc_runs (e.g. n30+mc3→offset=90) unless --offset_k is set explicitly. "
+                                      "sam3: SAM 3 segmentation tool — agent autonomously decides what to segment based on the question; task-agnostic. "
                                       "If omitted uses the baseline models/skills/ folder.")
 
     def parse_args(self):

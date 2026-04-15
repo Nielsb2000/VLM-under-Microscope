@@ -7,22 +7,22 @@ import re
 from typing import Optional, Tuple, List, Dict
 
 def extract_model_name(filename: str, suffix: str = None) -> Optional[str]:
-    """Extracts the model name from the filename."""
+    """Extracts the model name (without .jsonl extension) from the filename.
+
+    Handles both legacy filenames (no timestamp) and the current timestamped
+    format: ``m-{model}_{variant}_{YYYYMMDD_HHMMSS}.jsonl``.
+    """
     prefix = "m-"
-    
-    # List of possible suffixes
-    possible_suffixes = ["_w_reason.jsonl", "_bare.jsonl", "_completion.jsonl", 
-                         "_random_image.jsonl", "_noise_image.jsonl", ".jsonl"]
-    
+
     if not filename.startswith(prefix):
         return None
-    
-    # Try each suffix
-    for suf in possible_suffixes:
-        if filename.endswith(suf):
-            return filename[len(prefix):-len(suf)]
-    
-    return None
+
+    if not filename.endswith(".jsonl"):
+        return None
+
+    # Strip prefix and .jsonl suffix — return the whole body as the model-name
+    # key so that accuracy CSVs use the full unique identifier.
+    return filename[len(prefix):-len(".jsonl")]
 
 def remove_redundancy(text: str) -> str:
     """Removes redundant characters from the text."""

@@ -1,7 +1,16 @@
 import os
 import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
+
+# Okabe-Ito model colors
+MODEL_COLORS = {
+    "gpt-4o":  "#56B4E9",
+    "gpt-5.1": "#E69F00",
+    "gpt-5.2": "#009E73",
+}
 
 
 TASKS = ["mazenav", "spatialmap", "spatialgrid"]#, "spatialreal"]
@@ -51,23 +60,29 @@ def read_accuracy_csv(path: str):
 
 
 def plot_bar(models, accs, title, out_path):
-    plt.figure(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(10, 6))
     x = np.arange(len(models))
-    bars = plt.bar(x, accs, color='tab:blue')
-    plt.xticks(x, models, rotation=45, ha='right')
-    plt.ylim(0, 100)
-    plt.ylabel('Accuracy (%)')
-    plt.title(title)
-    plt.tight_layout()
+    colors = [MODEL_COLORS.get(m, "#555555") for m in models]
+    bars = ax.bar(x, accs, color=colors)
+    ax.set_xticks(x)
+    ax.set_xticklabels(models, rotation=45, ha='right')
+    ax.set_ylim(0, 110)
+    ax.set_ylabel('Accuracy (%)')
+    ax.set_title(title)
+    ax.yaxis.grid(True, linestyle="--", alpha=0.4, zorder=1)
+    ax.set_axisbelow(True)
+    ax.spines[["top", "right"]].set_visible(False)
+    fig.tight_layout()
 
     # Annotate bars
     for bar, acc in zip(bars, accs):
         h = bar.get_height()
-        plt.annotate(f'{acc:.1f}%', xy=(bar.get_x() + bar.get_width() / 2, h),
-                     xytext=(0, 3), textcoords='offset points', ha='center', va='bottom', fontsize=9)
+        ax.annotate(f'{acc:.1f}%', xy=(bar.get_x() + bar.get_width() / 2, h),
+                     xytext=(0, 3), textcoords='offset points',
+                     ha='center', va='bottom', fontsize=9, fontweight='bold')
 
-    plt.savefig(out_path, dpi=150)
-    plt.close()
+    fig.savefig(out_path, dpi=150)
+    plt.close(fig)
 
 
 def main():
@@ -79,7 +94,6 @@ def main():
 
 
     created = []
-    filter_models = {"gpt-4o", "gpt-5.1"}
     for mode in MODES:
         for task in TASKS:
             csv_path = os.path.join(summary_dir, mode, f"{task}_acc.csv")
@@ -93,14 +107,14 @@ def main():
                 continue
 
             models, accs = data
-            # Filter for only gpt-4o and gpt-5.1
-            filtered = [(m, a) for m, a in zip(models, accs) if m in filter_models]
+            # Show all models present in the CSV
+            filtered = list(zip(models, accs))
             if not filtered:
                 print(f"No gpt-4o or gpt-5.1 results in {csv_path}, skipping plot.")
                 continue
             models_filt, accs_filt = zip(*filtered)
-            title = f"{task.capitalize()} — {mode.upper()} Accuracy by Model (GPT-4o/5.1)"
-            out_filename = f"{task}_{mode}_gpt.png"
+            title = f"{task.capitalize()} — {mode.upper()} Accuracy by Model"
+            out_filename = f"{task}_{mode}_results.png"
             out_path = os.path.join(result_dir, out_filename)
             plot_bar(models_filt, accs_filt, title, out_path)
             created.append(out_path)

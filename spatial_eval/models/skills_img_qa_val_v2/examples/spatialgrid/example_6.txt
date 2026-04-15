@@ -1,0 +1,13 @@
+# Example image 6
+
+Question 1 (q0): How many blocks contain cat?
+Options: A. 1 | B. 4 | C. 3 | D. 2
+Answer: D. 2
+
+Question 2 (q1): What is the animal of the block located at the top-left corner (the first row and the first column) of the grid?
+Options: A. giraffe | B. cat | C. elephant | D. dog
+Answer: D. dog
+
+Question 3 (q2): What is the animal of the block located at the first row, second column of the grid?
+Options: A. giraffe | B. dog | C. cat | D. elephant
+Answer: D. elephant

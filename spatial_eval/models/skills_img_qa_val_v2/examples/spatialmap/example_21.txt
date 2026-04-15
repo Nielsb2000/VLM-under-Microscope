@@ -1,0 +1,13 @@
+# Example image 21
+
+Question 1 (q0): In which direction is Marina Market relative to Stingray Shoes?
+Options: A. Northeast | B. Northwest | C. Southeast | D. Southwest
+Answer: C. Southeast
+
+Question 2 (q1): Which object is in the Southwest of Hummingbird Hats?
+Options: A. Silo Surprises | B. Wildlife Wonders | C. Buffalo's Books | D. Marina Market
+Answer: D. Marina Market
+
+Question 3 (q2): How many objects are in the Southeast of Buffalo's Books?
+Options: A. 0 | B. 1 | C. 4 | D. 5
+Answer: B. 1

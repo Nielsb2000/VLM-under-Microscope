@@ -1,0 +1,13 @@
+# Example image 22
+
+Question 1 (q0): In which direction is Antique Alley relative to Dragon Dancewear?
+Options: A. Southeast | B. Northeast | C. Southwest | D. Northwest
+Answer: C. Southwest
+
+Question 2 (q1): Which object is in the Southwest of Antique Alley?
+Options: A. Flamingo's Films | B. Dragon Dancewear | C. Hummingbird Hats | D. Taylor's Tailor
+Answer: C. Hummingbird Hats
+
+Question 3 (q2): How many objects are in the South of Flamingo's Films?
+Options: A. 0 | B. 1 | C. 5 | D. 3
+Answer: A. 0

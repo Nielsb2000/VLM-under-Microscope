@@ -1,0 +1,13 @@
+# Example image 29
+
+Question 1 (q0): In which direction is Lighthouse Luminary relative to Oil Rig Outpost?
+Options: A. Northeast | B. Southwest | C. Southeast | D. Northwest
+Answer: C. Southeast
+
+Question 2 (q1): Which object is in the Southeast of Falcon's Florist?
+Options: A. Oil Rig Outpost | B. Xerus's X-mas Decorations | C. Riverbank Relaxation | D. Starry Skies Observatory
+Answer: B. Xerus's X-mas Decorations
+
+Question 3 (q2): How many objects are in the Northeast of Riverbank Relaxation?
+Options: A. 0 | B. 2 | C. 1 | D. 3
+Answer: D. 3

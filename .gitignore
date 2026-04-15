@@ -12,8 +12,8 @@ wheels/
 .env
 
 # Large datasets
-Dataset_images/
-pizza_not_pizza/
+Dataset_images_Unlabeled/
+Dataset_Images_Labeled_W_Metadata/
 spatial_eval/vqa/
 spatial_eval/vtqa/
 spatial_eval/tqa/
@@ -41,9 +41,22 @@ spatial_eval/eval_summary/evaluation_summary_20260211_145420.txt
 # SpatialEval logs
 spatial_eval/logs/
 
+# sam3 tests and generated outputs
+spatial_eval/test_image_chat.py
+spatial_eval/test_sam_agent_result.png
+spatial_eval/test_sam2_agent.py
+spatial_eval/test_sam3_agent.py
+spatial_eval/test_sam3_agent_result.png
+spatial_eval/test_sam2_result.png
+spatial_eval/test_sam3.py
+spatial_eval/test_sam3_agent_outputs/
+
+
+
 # SpatialEval generated skill variants (produced by generate_img_only_range_skills.py / generate_img_qa_val_skill.py)
 # Fully reproducible from the dataset — do not track
-spatial_eval/models/skills_img_only_n*/
+spatial_eval/models/skills_img_only_n50/
+spatial_eval/models/skills_img_only_n100/
 spatial_eval/models/skills_img_qa_val/
 
 # MS Paint Reasoning Evaluation — generated outputs (not Results/dashboard_data/ or skills/)

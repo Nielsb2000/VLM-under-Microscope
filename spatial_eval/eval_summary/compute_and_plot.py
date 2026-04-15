@@ -112,10 +112,10 @@ def plot_task(task: str, eval_summary_dir: str, out_dir: str, first_k: int):
     fig, ax = plt.subplots(figsize=(7, 5))
 
     bars_base  = ax.bar(x - width / 2, baseline_accs, width,
-                        label="GPT-5.2 Baseline", color="#5B8DB8",
+                        label="GPT-5.2 Baseline", color="#555555",
                         edgecolor="white", linewidth=0.8)
     bars_skill = ax.bar(x + width / 2, skills_accs, width,
-                        label="GPT-5.2 + Skills", color="#F28C38",
+                        label="GPT-5.2 + Skills", color="#56B4E9",
                         edgecolor="white", linewidth=0.8)
 
     for bar in bars_base:
@@ -131,7 +131,7 @@ def plot_task(task: str, eval_summary_dir: str, out_dir: str, first_k: int):
         delta = results[mode]["skills"] - results[mode]["baseline"]
         sign  = "+" if delta >= 0 else ""
         y_pos = max(baseline_accs[i], skills_accs[i]) + 5.5
-        color = "#2ca02c" if delta >= 0 else "#d62728"
+        color = "#009E73" if delta >= 0 else "#D55E00"
         ax.text(i, y_pos, f"Δ {sign}{delta * 100:.1f}%",
                 ha="center", va="bottom", fontsize=10, color=color, fontweight="bold")
 

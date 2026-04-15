@@ -1,0 +1,13 @@
+# Example image 8
+
+Question 1 (q0): In which direction is Umbrella Universe relative to Quokka's Quilts?
+Options: A. Southwest | B. Northwest | C. Southeast | D. Northeast
+Answer: A. Southwest
+
+Question 2 (q1): Which object is in the Southeast of Planetarium Prints?
+Options: A. Umbrella Universe | B. Cheetah's Chocolates | C. Arctic Apparel | D. Quokka's Quilts
+Answer: C. Arctic Apparel
+
+Question 3 (q2): How many objects are in the South of Arctic Apparel?
+Options: A. 5 | B. 2 | C. 3 | D. 0
+Answer: D. 0

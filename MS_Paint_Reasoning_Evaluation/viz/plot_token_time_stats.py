@@ -8,15 +8,23 @@ Usage (from project root):
 """
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "evaluation"))
 
 import argparse
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from json_results_to_df import load_results_df
 
 OUT_BASE = os.path.join(os.path.dirname(__file__), "..", "Results", "res_vis")
+
+MODEL_COLORS = {
+    "gpt-4o":  "#56B4E9",
+    "gpt-5.1": "#E69F00",
+    "gpt-5.2": "#009E73",
+}
 
 # Pricing per token in USD (Feb 2026)
 PRICING = {
@@ -94,9 +102,9 @@ def main():
 
     bar_width = 0.25
     x = np.arange(n)
-    token_types = [("Input", input_mat, "#1f77b4"),
-                   ("Output", output_mat, "#ff7f0e"),
-                   ("Total", total_mat, "#2ca02c")]
+    token_types = [("Input",  input_mat,  "#56B4E9"),
+                   ("Output", output_mat, "#E69F00"),
+                   ("Total",  total_mat,  "#009E73")]
 
     fig, axes = plt.subplots(2, 1, figsize=(max(14, n * 1.2), 12), sharex=True)
 
@@ -127,7 +135,8 @@ def main():
     axes[0].legend(fontsize=8)
 
     for i, model in enumerate(models):
-        axes[1].bar(x + i * bar_width, time_mat[:, i], width=bar_width, label=model)
+        axes[1].bar(x + i * bar_width, time_mat[:, i], width=bar_width,
+                    label=model, color=MODEL_COLORS.get(model, "#0072B2"))
     axes[1].set_ylabel("Elapsed Time (s)")
     axes[1].set_title("Elapsed Time per Image/Question")
     axes[1].set_xticks(x + bar_width)
@@ -140,7 +149,7 @@ def main():
     out_dir = os.path.normpath(os.path.join(OUT_BASE, tag))
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, "token_time_stats.png")
-    plt.savefig(out_path)
+    plt.savefig(out_path, dpi=150)
     plt.close()
     print(f"Saved: {out_path}")
 

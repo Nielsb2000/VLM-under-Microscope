@@ -24,6 +24,8 @@ import re
 import statistics
 import sys
 
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -39,12 +41,11 @@ TASK_DISPLAY = {
 
 # Ordered variants for x-axis
 VARIANTS = [
-    ("baseline",       "Baseline\n(no skills)",    "#7f7f7f"),
-    ("img-only",       "img-only\n(3 imgs)",        "#9ecae1"),
-    ("img-only-n10",   "img-only\n(n=10)",          "#4292c6"),
-    ("img-only-n30",   "img-only\n(n=30)",          "#2171b5"),
-    ("img-only-n50",   "img-only\n(n=50)",          "#084594"),
-    ("img-only-n100",  "img-only\n(n=100)",         "#08306b"),
+    ("baseline",            "Baseline\n(no skills)",    "#555555"),  # dark grey
+    ("img-only",            "Img n-3",                  "#56B4E9"),  # sky blue
+    ("img-only-annotated",  "Img Only\nn3 Annotated",  "#CC79A7"),  # pink
+    ("img-only-n10",        "Img-Only\n(n=10)",         "#0072B2"),  # deep blue
+    ("img-only-n30",        "Img-Only\n(n=30)",         "#332288"),  # indigo
 ]
 
 _OUTPUTS_ROOT = os.path.join(os.path.dirname(__file__), "..", "outputs")
@@ -81,9 +82,11 @@ def _is_mc_file(fname: str) -> bool:
 
 def _classify(fname: str) -> str | None:
     # Order matters: check more specific patterns first
-    for n in ("n100", "n50", "n30", "n10"):
+    for n in ("n30", "n10", "n3"):
         if f"_skills_img-only-{n}_" in fname:
             return f"img-only-{n}"
+    if "_skills_img-only-annotated_" in fname:
+        return "img-only-annotated"
     if "_skills_img-only_" in fname:
         return "img-only"
     if "_skills_" in fname:
@@ -105,8 +108,7 @@ def collect_accuracies(
     for fname in sorted(os.listdir(jsonl_dir)):
         if not fname.endswith(".jsonl"):
             continue
-        if not _is_mc_file(fname):
-            continue  # require MC tag for statistical estimates
+        # Removed MC tag requirement: include all .jsonl files
         if dates and not any(d in fname for d in dates):
             continue
         variant = _classify(fname)
@@ -190,7 +192,7 @@ def plot_task(
                 continue
             delta = means[i] - means[0]
             sign = "+" if delta >= 0 else ""
-            col = "#1a7a1a" if delta >= 0 else "#d62728"
+            col = "#009E73" if delta >= 0 else "#D55E00"
             bar_top = means[i] * 100 + (sds[i] * 100 if sds[i] else 0)
             ax.text(x[i], bar_top + 10,
                     f"Δ {sign}{delta*100:.1f}%",
