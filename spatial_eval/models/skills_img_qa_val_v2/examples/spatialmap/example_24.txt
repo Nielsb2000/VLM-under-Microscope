@@ -1,13 +1,13 @@
 # Example image 24
 
 Question 1 (q0): In which direction is Yak's Yarns relative to Fred's Fishing Supplies?
-Options: D. Northeast.
-Answer: Northeast. D
+Options: A. Southeast | B. Northwest | C. Southwest | D. Northeast
+Answer: D. Northeast
 
 Question 2 (q1): Which object is in the Northwest of Old Town Artisanal Bakery?
-Options: D. Yak's Yarns.
-Answer: Mordor Supplies. B
+Options: A. Fred's Fishing Supplies | B. Mordor Supplies | C. Safari Supplies | D. Yak's Yarns
+Answer: B. Mordor Supplies
 
 Question 3 (q2): How many objects are in the Northwest of Mordor Supplies?
-Options: D. 3.
-Answer: 1. B
+Options: A. 4 | B. 1 | C. 5 | D. 3
+Answer: B. 1

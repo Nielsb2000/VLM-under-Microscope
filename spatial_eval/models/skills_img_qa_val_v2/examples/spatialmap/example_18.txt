@@ -1,13 +1,13 @@
 # Example image 18
 
 Question 1 (q0): In which direction is Central Park Pet Store relative to Shire Wines?
-Options: D. Southeast.
-Answer: Northeast. B
+Options: A. Southwest | B. Northeast | C. Northwest | D. Southeast
+Answer: B. Northeast
 
 Question 2 (q1): Which object is in the Southeast of Ursa Uniforms?
-Options: D. Water Park Wares.
-Answer: Water Park Wares. D
+Options: A. Leopard's Liquor | B. Shire Wines | C. Central Park Pet Store | D. Water Park Wares
+Answer: D. Water Park Wares
 
 Question 3 (q2): How many objects are in the West of Leopard's Liquor?
-Options: D. 1.
-Answer: 0. A
+Options: A. 0 | B. 3 | C. 4 | D. 1
+Answer: A. 0

@@ -1,13 +1,13 @@
 # Example image 20
 
 Question 1 (q0): In which direction is Trail Hiking Gear relative to K University?
-Options: D. Southwest.
-Answer: Northeast. C
+Options: A. Southeast | B. Northwest | C. Northeast | D. Southwest
+Answer: C. Northeast
 
 Question 2 (q1): Which object is in the Northwest of Flamingo's Films?
-Options: D. K University.
-Answer: Mantis Maternity. B
+Options: A. Nightingale Novelties | B. Mantis Maternity | C. Penguin's Paintings | D. K University
+Answer: B. Mantis Maternity
 
 Question 3 (q2): How many objects are in the Southeast of Flamingo's Films?
-Options: D. 5.
-Answer: 0. C
+Options: A. 3 | B. 1 | C. 0 | D. 5
+Answer: C. 0

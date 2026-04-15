@@ -1,13 +1,13 @@
 # Example image 19
 
 Question 1 (q0): In which direction is Safari Supplies relative to Dolphin's Dresses?
-Options: D. Northeast.
-Answer: Northwest. B
+Options: A. Southeast | B. Northwest | C. Southwest | D. Northeast
+Answer: B. Northwest
 
 Question 2 (q1): Which object is in the Southeast of Gotham City Games?
-Options: D. Bookmark Bookstore.
-Answer: Titan Tailoring. B
+Options: A. Zebra's Zen Zone | B. Titan Tailoring | C. Safari Supplies | D. Bookmark Bookstore
+Answer: B. Titan Tailoring
 
 Question 3 (q2): How many objects are in the North of Bookmark Bookstore?
-Options: D. 0.
-Answer: 0. D
+Options: A. 1 | B. 2 | C. 3 | D. 0
+Answer: D. 0
