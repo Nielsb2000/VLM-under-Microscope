@@ -69,9 +69,9 @@ def main(args):
     fig, ax = plt.subplots(figsize=(7, 5))
 
     bars_base  = ax.bar(x - width / 2, baseline_accs, width, label="GPT-5.2 Baseline",
-                        color="#5B8DB8", edgecolor="white", linewidth=0.8)
+                        color="#555555", edgecolor="white", linewidth=0.8)
     bars_skill = ax.bar(x + width / 2, skills_accs,   width, label="GPT-5.2 + Skills",
-                        color="#F28C38", edgecolor="white", linewidth=0.8)
+                        color="#56B4E9", edgecolor="white", linewidth=0.8)
 
     # Value labels on bars
     for bar in bars_base:
@@ -88,7 +88,7 @@ def main(args):
         delta = results[mode]["skills"] - results[mode]["baseline"]
         sign = "+" if delta >= 0 else ""
         y_pos = max(baseline_accs[i], skills_accs[i]) + 5.5
-        color = "#2ca02c" if delta >= 0 else "#d62728"
+        color = "#009E73" if delta >= 0 else "#D55E00"
         ax.text(i, y_pos, f"Δ {sign}{delta * 100:.1f}%",
                 ha="center", va="bottom", fontsize=10, color=color, fontweight="bold")
 
@@ -106,16 +106,17 @@ def main(args):
     plt.tight_layout()
     out_path = os.path.join(args.out_dir, f"{args.task}_skills_comparison.png")
     plt.savefig(out_path, dpi=150)
+    plt.close()
     print(f"\nPlot saved → {out_path}")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--eval_summary_dir", default="eval_summary_mini",
+    parser.add_argument("--eval_summary_dir", default="eval_summary",
                         help="Directory containing {mode}/{task}_acc.csv files")
     parser.add_argument("--task", default="mazenav",
                         choices=["mazenav", "spatialgrid", "spatialmap", "spatialreal"])
-    parser.add_argument("--out_dir", default="eval_summary_mini",
+    parser.add_argument("--out_dir", default="eval_summary/result_vis",
                         help="Where to save the PNG")
     parser.add_argument("--first_k", type=int, default=10,
                         help="Used only for the plot title (informational)")

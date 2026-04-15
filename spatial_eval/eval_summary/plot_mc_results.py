@@ -97,8 +97,7 @@ def collect_mc_accuracies(jsonl_dir: str, dates: list[str] | None) -> dict[str, 
     for fname in sorted(os.listdir(jsonl_dir)):
         if not fname.endswith(".jsonl"):
             continue
-        if not _is_mc_file(fname):
-            continue
+
         if dates and not any(d in fname for d in dates):
             continue
         variant = _classify(fname)
@@ -174,7 +173,7 @@ def plot_task(task: str, dates: list[str] | None, out_dir: str, jsonl_root: str)
                 continue
             delta = means[i] - means[0]
             sign = "+" if delta >= 0 else ""
-            col = "#1a7a1a" if delta >= 0 else "#d62728"
+            col = "#009E73" if delta >= 0 else "#D55E00"
             bar_top = means[i] * 100 + (sds[i] * 100 if sds[i] else 0)
             ax.text(x[i], bar_top + 10,
                     f"Δ {sign}{delta*100:.1f}%",
@@ -187,7 +186,7 @@ def plot_task(task: str, dates: list[str] | None, out_dir: str, jsonl_root: str)
     ax.set_ylabel("Accuracy (%)", fontsize=12)
     ax.set_ylim(0, 120)
     ax.set_title(
-        f"{display} — Image Skill Variants (GPT-5.2, VQA, {n_runs} MC runs × {{}}/q-type imgs)\n"
+        f"{display} — Image Skill Variants (GPT-5.2, VQA, {n_runs} MC runs)\n"
         "Bars: mean ± 1 SD across Monte Carlo subsets",
         fontsize=11, fontweight="bold", pad=8,
     )

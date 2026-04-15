@@ -21,6 +21,8 @@ import re
 import statistics
 import sys
 
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -36,13 +38,14 @@ TASK_DISPLAY = {
 
 # Okabe-Ito colorblind-safe palette (consistent with other plots)
 VARIANTS = [
-    ("baseline",      "Baseline\n(no skills)",        "#555555"),  # dark grey
-    ("img-qa",        "Img+Q&A\nskill (biased)",       "#E69F00"),  # orange — same as mc_results
-    ("img-qa-val",    "Img+Q&A-val\n(contaminated)",   "#D55E00"),  # vermillion
-    ("img-qa-val-v2", "Preload-tool\n(contaminated)",  "#CC79A7"),  # reddish purple
+    ("baseline",      "Baseline\n(no skills)",          "#555555"),  # dark grey
+    ("img-qa-val",    "Img+Q&A skill\nvalidation",    "#D55E00"),  # vermillion
+    ("img-qa-val-v2", "Img+Q&A tool\nvalidation",    "#CC79A7"),  # reddish purple
 ]
 
 _OUTPUTS_ROOT = os.path.join(os.path.dirname(__file__), "..", "outputs")
+
+MIN_STAT_ITEMS = 20  # fewer evaluated items → smoke-test run → excluded from plots
 
 
 # ---------------------------------------------------------------------------
@@ -68,6 +71,19 @@ def _file_accuracy(path, check_fn) -> float:
             correct += c
             total += 1
     return correct / total if total > 0 else 0.0
+
+
+def _item_count(path: str) -> int:
+    """Count valid JSON lines in a JSONL file."""
+    n = 0
+    with open(path) as f:
+        for line in f:
+            try:
+                json.loads(line)
+                n += 1
+            except json.JSONDecodeError:
+                pass
+    return n
 
 
 def _is_mc_file(fname: str) -> bool:
@@ -118,7 +134,10 @@ def collect_accuracies(
             continue
         if variant == "img-qa-val-v2" and _is_mc_file(fname):
             continue  # v2 is contamination single-run only
-        acc = _file_accuracy(os.path.join(jsonl_dir, fname), check_fn)
+        fpath = os.path.join(jsonl_dir, fname)
+        if _item_count(fpath) < MIN_STAT_ITEMS:
+            continue  # smoke-test run — too few items to be meaningful
+        acc = _file_accuracy(fpath, check_fn)
         result[variant].append(acc)
 
     return result
@@ -181,9 +200,6 @@ def plot_task(
         label_y = m * 100 + (s * 100 if s else 0) + 1.5
         ax.text(x[i], label_y, f"{m*100:.1f}%",
                 ha="center", va="bottom", fontsize=10, fontweight="bold")
-        if s and s > 0:
-            ax.text(x[i], label_y + 5.5, f"\u00b1{s*100:.1f}%",
-                    ha="center", va="bottom", fontsize=8.5, color="#555")
 
     # Baseline reference line
     if means[0] is not None:
@@ -197,10 +213,9 @@ def plot_task(
                 continue
             delta = means[i] - means[0]
             sign = "+" if delta >= 0 else ""
-            col = "#009E73" if delta >= 0 else "#D55E00"  # CB teal / vermillion
+            col = "#009E73" if delta >= 0 else "#CC0000"  # green / red
             bar_top = means[i] * 100 + (sds[i] * 100 if sds[i] else 0)
-            sd_gap = 5.5 if (sds[i] and sds[i] > 0) else 0
-            ax.text(x[i], bar_top + 1.5 + sd_gap + 6,
+            ax.text(x[i], bar_top + 1.5 + 6,
                     f"\u0394 {sign}{delta*100:.1f}%",
                     ha="center", va="bottom", fontsize=9, color=col,
                     fontweight="bold")
@@ -210,8 +225,8 @@ def plot_task(
     ax.set_ylabel("Accuracy (%)", fontsize=12)
     ax.set_ylim(0, 148)
     ax.set_title(
-        f"{display} — Contamination Validation (GPT-5.2, VQA, 30 samples)\n"
-        "Red: contaminated (same images in skill & test, expected ~100%)",
+        f"{display} — Img+Q&A Contamination Validation (GPT-5.2, VQA, 30 samples)\n"
+        "Pink/Red: read_example tool/skill returned same images+answers as test set → direct lookup (expected ~100%)",
         fontsize=11, fontweight="bold", pad=8,
     )
     ax.yaxis.grid(True, linestyle="--", alpha=0.4, zorder=1)
@@ -229,7 +244,7 @@ def plot_task(
     plt.tight_layout()
     plt.subplots_adjust(bottom=0.18)
     os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, f"{task}_validation_test.png")
+    out_path = os.path.join(out_dir, f"{task}_img_qa_validation.png")
     plt.savefig(out_path, dpi=150, bbox_inches="tight")
     plt.close()
     print(f"  Saved → {out_path}")
@@ -294,14 +309,14 @@ def plot_combined(all_results: dict, out_dir: str):
                bbox_to_anchor=(0.5, -0.06))
 
     fig.suptitle(
-        "Contamination Validation (GPT-5.2, VQA, 30 samples)\n"
-        "Red: contaminated (same images in skill & test, expected ~100%)",
+        "Img+Q&A Contamination Validation — All Tasks (GPT-5.2, VQA, 30 samples)\n"
+        "Pink/Red: read_example tool/skill returned same images+answers as test set → direct lookup (expected ~100%)",
         fontsize=12, fontweight="bold", y=1.01,
     )
     plt.tight_layout()
     plt.subplots_adjust(bottom=0.2, wspace=0.3)
     os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, "all_tasks_validation_test.png")
+    out_path = os.path.join(out_dir, "all_tasks_img_qa_validation.png")
     plt.savefig(out_path, dpi=150, bbox_inches="tight")
     plt.close()
     print(f"  Saved combined → {out_path}")

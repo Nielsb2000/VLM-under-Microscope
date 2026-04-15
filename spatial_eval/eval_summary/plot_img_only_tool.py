@@ -1,28 +1,19 @@
-"""
-Plot accuracy vs number of preload examples (0, 10, 50, 100) for the
-img-qa-val-v2 preload architecture across tasks.
+"""plot_img_only_tool.py — Img-Only-Tool scaling: accuracy vs N example images.
 
-Conditions:
-  baseline          — bare no-skills MC runs  (_bare_mc…_)
-  offset-n3         — img-qa-val-v2-offset-n3
-  offset (n=10)     — img-qa-val-v2-offset  (no -nXX suffix)
-  offset-n30        — img-qa-val-v2-offset-n30
+Compares:
+  baseline          — bare no-skills MC runs
+  img-only-tool-n3  — 3 example images via read_example tool (images only, no Q&A)
+  img-only-tool-n10 — 10 example images via tool
+  img-only-tool-n30 — 30 example images via tool
 
-All non-baseline conditions use the preload tool (agent calls read_example(n)
-at inference time). The baseline condition uses normal bare MC runs.
-
-Each bar shows mean accuracy ± 1 SD across MC runs (n=3 each; n=1 shown as a
-single point).  Delta annotations (vs baseline) are shown in green/red.
+All conditions use offset_k=30 so no test sample overlaps with any example.
+Each bar shows mean accuracy ± 1 SD across MC runs.  Δ annotations vs baseline.
 
 Usage (from spatial_eval/):
-    uv run python eval_summary/plot_preload_scaling.py \\
+    uv run python eval_summary/plot_img_only_tool.py \\
         --out_dir eval_summary/result_vis \\
-        [--baseline_dates 20260316 20260317]
-
-Or per task:
-    uv run python eval_summary/plot_preload_scaling.py \\
-        --task mazenav \\
-        --out_dir eval_summary/result_vis
+        [--task mazenav] \\
+        [--baseline_dates 20260323]
 """
 from __future__ import annotations
 
@@ -49,17 +40,15 @@ TASK_DISPLAY = {
     "spatialmap":  "Spatial Map",
 }
 
-# Okabe-Ito colorblind-safe palette; sequential blues signal increasing n
+# Okabe-Ito colorblind-safe palette; sequential blues = increasing N examples
 CONDITIONS = [
-    ("baseline",   "Baseline\n(no skills)",                    "#555555"),  # dark grey
-    ("offset-n3",  "Img+Q&A tool\n(img+answers, n=3)",         "#56B4E9"),  # sky blue
-    ("offset-n10", "Img+Q&A tool\n(img+answers, n=10)",        "#0072B2"),  # deep blue
-    ("offset-n30", "Img+Q&A tool\n(img+answers, n=30)",        "#332288"),  # indigo
+    ("baseline",       "Baseline\n(no skills)",              "#555555"),  # dark grey
+    ("img-only-n3",    "Img-Only tool\n(images only, n=3)",   "#56B4E9"),  # sky blue
+    ("img-only-n10",   "Img-Only tool\n(images only, n=10)",  "#0072B2"),  # deep blue
+    ("img-only-n30",   "Img-Only tool\n(images only, n=30)",  "#332288"),  # indigo
 ]
 
 _OUTPUTS_ROOT = os.path.join(os.path.dirname(__file__), "..", "outputs")
-
-MIN_STAT_ITEMS = 20  # fewer evaluated items → smoke-test run → excluded from plots
 
 
 # ---------------------------------------------------------------------------
@@ -87,35 +76,20 @@ def _file_accuracy(path, check_fn) -> float:
     return correct / total if total > 0 else 0.0
 
 
-def _item_count(path: str) -> int:
-    """Count valid JSON lines in a JSONL file."""
-    n = 0
-    with open(path) as f:
-        for line in f:
-            try:
-                json.loads(line)
-                n += 1
-            except json.JSONDecodeError:
-                pass
-    return n
-
-
 def _is_mc_file(fname: str) -> bool:
     return bool(re.search(r'_mc\d{2}s\d+_', fname))
 
 
 def _classify(fname: str) -> str | None:
     """Map filename to condition key, or None to skip."""
-    # Most specific first
-    if "_skills_img-qa-val-v2-offset-n30_" in fname:
-        return "offset-n30"
-    if "_skills_img-qa-val-v2-offset-n3_" in fname:
-        return "offset-n3"
-    if "_skills_img-qa-val-v2-offset_" in fname:
-        return "offset-n10"
+    if "_skills_img-only-tool-n30_" in fname:
+        return "img-only-n30"
+    if "_skills_img-only-tool-n10_" in fname:
+        return "img-only-n10"
+    if "_skills_img-only-tool-n3_" in fname:
+        return "img-only-n3"
     if "_skills_" in fname:
         return None   # other skill variants — skip
-    # Bare baseline — only MC files
     return "baseline"
 
 
@@ -124,13 +98,6 @@ def collect_accuracies(
     baseline_dates: list[str] | None,
     check_fn,
 ) -> dict[str, list[float]]:
-    """
-    Collect per-file accuracies grouped by condition.
-
-    baseline:    only MC-tagged files, filtered by baseline_dates
-    offset-n3/n10/n30: all .jsonl files matching the pattern (no MC tag required —
-                 each separate timestamped run counts as one MC sample)
-    """
     result: dict[str, list[float]] = {k: [] for k, _, _ in CONDITIONS}
 
     if not os.path.isdir(jsonl_dir):
@@ -145,17 +112,16 @@ def collect_accuracies(
             continue
 
         if cond == "baseline":
-            # baseline: only MC-tagged files, optionally date-filtered
             if not _is_mc_file(fname):
                 continue
             if baseline_dates and not any(d in fname for d in baseline_dates):
                 continue
-        # offset conditions: no MC tag required; every timestamped file = 1 run
+        else:
+            # img-only-tool conditions: require MC tag (these are MC runs)
+            if not _is_mc_file(fname):
+                continue
 
-        fpath = os.path.join(jsonl_dir, fname)
-        if _item_count(fpath) < MIN_STAT_ITEMS:
-            continue  # smoke-test run — too few items to be meaningful
-        acc = _file_accuracy(fpath, check_fn)
+        acc = _file_accuracy(os.path.join(jsonl_dir, fname), check_fn)
         result[cond].append(acc)
 
     return result
@@ -187,16 +153,15 @@ def plot_task(
     labels = [c[1] for c in CONDITIONS]
     colors = [c[2] for c in CONDITIONS]
 
-    means, sds, ns = [], [], []
+    means, sds = [], []
     for k in keys:
         m, s = _mean_sd(accs[k])
         means.append(m)
         sds.append(s)
-        ns.append(len(accs[k]))
         n_str = f"n={len(accs[k])}" if accs[k] else "no data"
         m_str = f"{m*100:.1f}%" if m is not None else "—"
-        s_str = f"±{s*100:.1f}%" if s is not None else ""
-        print(f"  {task:14s} {k:12s}: {m_str} {s_str}  ({n_str})")
+        s_str = f"±{s*100:.1f}%" if (s is not None and s > 0) else ""
+        print(f"  {task:14s} {k:18s}: {m_str} {s_str}  ({n_str})")
 
     if all(m is None for m in means):
         print(f"  [WARN] No data found for {task} — skipping plot.")
@@ -208,7 +173,6 @@ def plot_task(
     for i, (k, label, color) in enumerate(CONDITIONS):
         m, s = means[i], sds[i]
         if m is None:
-            # Draw a hatched placeholder
             ax.bar(x[i], 0, width=0.55, color=color, alpha=0.3,
                    edgecolor=color, linewidth=1.2, hatch="//", zorder=3)
             ax.text(x[i], 3, "no data", ha="center", va="bottom",
@@ -240,7 +204,7 @@ def plot_task(
                 continue
             delta = means[i] - means[0]
             sign = "+" if delta >= 0 else ""
-            col = "#009E73" if delta >= 0 else "#D55E00"  # CB teal / vermillion
+            col = "#009E73" if delta >= 0 else "#D55E00"
             bar_top = means[i] * 100 + (sds[i] * 100 if sds[i] else 0)
             ax.text(x[i], bar_top + 10,
                     f"Δ {sign}{delta*100:.1f}%",
@@ -252,7 +216,7 @@ def plot_task(
     ax.set_ylabel("Accuracy (%)", fontsize=12)
     ax.set_ylim(0, 130)
     ax.set_title(
-        f"{display} — Img+Q&A Tool Scaling: read_example Tool Returns Image + Q&A Answers (GPT-5.2, VQA)\n"
+        f"{display} — Img-Only Tool Scaling: Images via read_example Tool, No Q&A (GPT-5.2, VQA)\n"
         "Bars: mean ± 1 SD across MC runs  |  Δ vs baseline",
         fontsize=11, fontweight="bold", pad=8,
     )
@@ -269,7 +233,7 @@ def plot_task(
 
     plt.tight_layout()
     os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, f"{task}_img_qa_preload.png")
+    out_path = os.path.join(out_dir, f"{task}_img_only_no_qa.png")
     plt.savefig(out_path, dpi=150)
     plt.close()
     print(f"  Saved → {out_path}")
@@ -277,18 +241,25 @@ def plot_task(
 
 
 # ---------------------------------------------------------------------------
-# Combined 3-panel figure
+# Combined multi-task figure (only rendered when all tasks have data)
 # ---------------------------------------------------------------------------
 def plot_combined(all_results: dict, out_dir: str):
-    fig, axes = plt.subplots(1, 3, figsize=(18, 5.5), sharey=False)
+    tasks_with_data = [t for t in TASKS if t in all_results]
+    if not tasks_with_data:
+        return
+
+    n_panels = len(tasks_with_data)
+    fig, axes = plt.subplots(1, n_panels, figsize=(7 * n_panels, 5.5), sharey=False)
+    if n_panels == 1:
+        axes = [axes]
 
     keys   = [c[0] for c in CONDITIONS]
     labels = [c[1] for c in CONDITIONS]
     colors = [c[2] for c in CONDITIONS]
     x = np.arange(len(keys))
 
-    for ax, task in zip(axes, TASKS):
-        means, sds = all_results.get(task, ([None]*4, [None]*4))
+    for ax, task in zip(axes, tasks_with_data):
+        means, sds = all_results[task]
         display = TASK_DISPLAY[task]
 
         for i, (k, _, color) in enumerate(CONDITIONS):
@@ -311,15 +282,12 @@ def plot_combined(all_results: dict, out_dir: str):
         if means[0] is not None:
             ax.axhline(means[0] * 100, color="#7f7f7f", linestyle="--",
                        linewidth=1.0, alpha=0.5, zorder=2)
-
-        # Delta annotations
-        if means[0] is not None:
             for i, (k, _, _) in enumerate(CONDITIONS):
                 if k == "baseline" or means[i] is None:
                     continue
                 delta = means[i] - means[0]
                 sign = "+" if delta >= 0 else ""
-                col = "#009E73" if delta >= 0 else "#D55E00"  # CB teal / vermillion
+                col = "#009E73" if delta >= 0 else "#D55E00"
                 bar_top = means[i] * 100 + (sds[i] * 100 if sds[i] else 0)
                 ax.text(x[i], bar_top + 5.5,
                         f"Δ {sign}{delta*100:.1f}%",
@@ -342,14 +310,13 @@ def plot_combined(all_results: dict, out_dir: str):
     fig.legend(handles=legend_handles, loc="lower center", ncol=4,
                fontsize=9, framealpha=0.85, edgecolor="#ccc",
                bbox_to_anchor=(0.5, -0.06))
-
     fig.suptitle(
-        "Img+Q&A Tool Scaling: read_example Tool Returns Image + Q&A Answers — All Tasks (GPT-5.2, VQA)\n"
+        "Img-Only Tool Scaling: Images via read_example Tool, No Q&A — All Tasks (GPT-5.2, VQA)\n"
         "Bars: mean ± 1 SD  |  Δ vs baseline",
         fontsize=13, fontweight="bold", y=1.02,
     )
     plt.tight_layout()
-    out_path = os.path.join(out_dir, "all_tasks_img_qa_preload.png")
+    out_path = os.path.join(out_dir, "all_tasks_img_only_no_qa.png")
     plt.savefig(out_path, dpi=150, bbox_inches="tight")
     plt.close()
     print(f"\nCombined plot → {out_path}")
@@ -362,17 +329,15 @@ def main(args):
     check_fn = _load_check_answer()
     tasks = [args.task] if args.task else TASKS
     all_results = {}
-    jsonl_root = os.path.join(os.path.dirname(__file__), "..", "outputs")
-
-    baseline_dates = args.baseline_dates  # list or None
+    jsonl_root = _OUTPUTS_ROOT
 
     for task in tasks:
         print(f"\n=== {TASK_DISPLAY[task]} ===")
-        result = plot_task(task, baseline_dates, args.out_dir, jsonl_root, check_fn)
+        result = plot_task(task, args.baseline_dates, args.out_dir, jsonl_root, check_fn)
         if result is not None:
             all_results[task] = result
 
-    if not args.task and len(all_results) >= 1:
+    if len(all_results) > 1:
         plot_combined(all_results, args.out_dir)
 
 
@@ -380,9 +345,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--out_dir", default="eval_summary/result_vis")
     parser.add_argument("--task", default=None, choices=TASKS,
-                        help="Single task to plot; omit for all 3 + combined.")
-    parser.add_argument("--baseline_dates", default=["20260316", "20260317"],
-                        nargs="+",
-                        help="Dates to filter bare MC baseline files "
-                             "(default: 20260316 20260317).")
+                        help="Single task to plot; omit for all available + combined.")
+    parser.add_argument("--baseline_dates", default=None, nargs="+",
+                        help="Date strings to filter bare MC baseline files "
+                             "(e.g. 20260323). Omit to use all available MC files.")
     main(parser.parse_args())
