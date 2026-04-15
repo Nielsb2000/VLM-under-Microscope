@@ -134,6 +134,8 @@ def main(args, model, processor, dataset, output_file_path):
         sliced = [it for it in items if int(it['id'].split('.')[2]) in selected_indices]
         flat_items.extend(sliced)
 
+    _image_cache = {}
+
     # ── Parallelism: only safe for cloud GPT models (I/O-bound HTTP calls) ─
     workers = getattr(args, 'workers', 1)
     is_gpt = "gpt" in args.model_path.lower()
@@ -165,14 +167,14 @@ def main(args, model, processor, dataset, output_file_path):
         if args.mode == "tqa":
             image = None
         else:
-            image = load_image(image_path)
+            image = _image_cache.get(image_path) if (isinstance(image_path, str) and image_path in _image_cache) else load_image(image_path)
 
         if "bunny" in args.model_path.lower() and "merged" not in args.model_path.lower():
             if args.mode == "tqa":
                 prompt = format_bunny_tqa_prompt_hf(item['text'], args)
             else:
                 prompt = format_bunny_vqa_prompt_hf(item['text'], args)
-        elif "qwen" or "cog" or "instructblip" or "llava" in args.model_path.lower() or "merged" in args.model_path.lower():
+        elif any(k in args.model_path.lower() for k in ("qwen", "cog", "instructblip", "llava", "merged", "gpt")):
             if args.w_reason:
                 prompt = f"{item['text']}\nFirst, provide a concise answer in one sentence. Then, elaborate on the reasoning behind your answer in a detailed, step-by-step explanation."
             elif args.completion:
@@ -301,8 +303,6 @@ def main(args, model, processor, dataset, output_file_path):
         for result in results:
             if result is not None:
                 outfile.write(json.dumps(result) + '\n')
-        outfile.flush()
-        os.fsync(outfile.fileno())
 
     print(f"Results saved to {output_file_path}")
 
@@ -329,15 +329,12 @@ def _compute_run_accuracy(jsonl_path) -> float:
 
 if __name__ == "__main__":
     args = InferenceArgumentParser("vlm").parse_args()
+
     dataset = load_dataset(args.dataset_id, args.mode, split="test")
-    
     if args.task != "all":
         dataset = dataset.filter(lambda x: args.task in x['id'])
-    else:
-        dataset = dataset
-        
-    if args.mode != "tqa":
-        from utils.load_image import load_image
+
+    from utils.load_image import load_image
     
     _PRELOAD_VARIANTS = (
         "img-qa-val-v2",
@@ -368,10 +365,27 @@ if __name__ == "__main__":
                                  task=args.task, fewshot=fewshot, n_examples=n_examples,
                                  img_only=img_only)
         processor = None
+    elif ("gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower()) and getattr(args, 'use_skills', False) and getattr(args, 'skills_variant', None) == "sam3":
+        from models.deepagent_sam3_model import DeepAgentSAM3
+        model = DeepAgentSAM3(model_name=args.model_path, max_tokens=args.max_new_tokens)
+        processor = None
     elif ("gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower()) and getattr(args, 'use_skills', False):
         from models.deepagent_model import DeepAgentGPT
+        _debug_log_path = None
+        if getattr(args, 'debug', False):
+            import datetime as _dt
+            _variant_tag = getattr(args, 'skills_variant', None) or 'default'
+            _model_tag = args.model_path.replace('/', '-')
+            _ts = _dt.datetime.now().strftime('%Y%m%d_%H%M%S')
+            _debug_log_path = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "logs",
+                f"debug_{_model_tag}_{_variant_tag}_{args.task}_{args.mode}_{_ts}.log",
+            )
+            print(f"[debug] Agent message trace will be written to: {_debug_log_path}")
         model = DeepAgentGPT(model_name=args.model_path, max_tokens=args.max_new_tokens,
-                             skills_variant=getattr(args, 'skills_variant', None))
+                             skills_variant=getattr(args, 'skills_variant', None),
+                             debug_log_path=_debug_log_path)
         processor = None
     elif "gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower():
         from models.gpt4_model import GPT4Vision
@@ -410,46 +424,46 @@ if __name__ == "__main__":
     else:
         raise ValueError(f"Model {args.model_path} is not supported.")
 
-    mc_runs = getattr(args, 'mc_runs', 1)
-    if mc_runs > 1 and args.first_k is None:
-        raise ValueError("--mc_runs requires --first_k to be set")
 
-    import random as _random
+    # --- Support both deterministic runs and MC randomized runs ---
     import statistics as _statistics
+    mc_runs = getattr(args, 'mc_runs', 0)
+    runs = getattr(args, 'runs', 1)
 
-    run_accuracies = []
-    run_times = []
-    for run_i in range(mc_runs):
-        if mc_runs > 1:
+    if mc_runs > 0:
+        if args.first_k is None:
+            raise ValueError("--mc_runs requires --first_k to be set")
+        import random as _random
+        run_accuracies = []
+        run_times = []
+        for run_i in range(mc_runs):
             args._mc_run_idx = run_i
             args._mc_seed_i = args.mc_seed + run_i
             args._mc_rng = _random.Random(args._mc_seed_i)
             print(f"\n=== MC run {run_i + 1}/{mc_runs} (seed={args._mc_seed_i}) ===")
 
-        output_path = format_output_path_vlm(args)
-        t_start = time.perf_counter()
-        main(args, model, processor, dataset, output_path)
-        elapsed = time.perf_counter() - t_start
-        run_times.append(elapsed)
+            output_path = format_output_path_vlm(args)
+            t_start = time.perf_counter()
+            main(args, model, processor, dataset, output_path)
+            elapsed = time.perf_counter() - t_start
+            run_times.append(elapsed)
 
-        # Write timing sidecar alongside the JSONL
-        timing_path = str(output_path).replace('.jsonl', '.timing.json')
-        with open(timing_path, 'w') as _tf:
-            json.dump({
-                "run_i": run_i,
-                "seed": getattr(args, '_mc_seed_i', args.mc_seed),
-                "elapsed_seconds": round(elapsed, 2),
-                "n_items": getattr(args, 'first_k', None),
-                "task": args.task,
-                "variant": getattr(args, 'skills_variant', None),
-            }, _tf, indent=2)
+            # Write timing sidecar alongside the JSONL
+            timing_path = str(output_path).replace('.jsonl', '.timing.json')
+            with open(timing_path, 'w') as _tf:
+                json.dump({
+                    "run_i": run_i,
+                    "seed": getattr(args, '_mc_seed_i', args.mc_seed),
+                    "elapsed_seconds": round(elapsed, 2),
+                    "n_items": getattr(args, 'first_k', None),
+                    "task": args.task,
+                    "variant": getattr(args, 'skills_variant', None),
+                }, _tf, indent=2)
 
-        if mc_runs > 1:
             acc = _compute_run_accuracy(output_path)
             run_accuracies.append(acc)
             print(f"  Run {run_i + 1} accuracy: {acc:.2%}  time: {elapsed:.1f}s")
 
-    if mc_runs > 1:
         mean_acc = _statistics.mean(run_accuracies)
         std_acc = _statistics.stdev(run_accuracies) if len(run_accuracies) > 1 else 0.0
         print(f"\n=== MC Summary ({mc_runs} runs, first_k={args.first_k} per q-type) ===")
@@ -463,5 +477,49 @@ if __name__ == "__main__":
         total_t = sum(run_times)
         mean_t = _statistics.mean(run_times)
         print(f"  Total: {total_t:.1f}s  Mean: {mean_t:.1f}s")
-    elif run_times:
-        print(f"\n  Elapsed: {run_times[0]:.1f}s")
+    elif runs > 1:
+        run_accuracies = []
+        run_times = []
+        for run_i in range(runs):
+            args._run_idx = run_i
+            print(f"\n=== Run {run_i + 1}/{runs} ===")
+
+            output_path = format_output_path_vlm(args)
+            t_start = time.perf_counter()
+            main(args, model, processor, dataset, output_path)
+            elapsed = time.perf_counter() - t_start
+            run_times.append(elapsed)
+
+            # Write timing sidecar alongside the JSONL
+            timing_path = str(output_path).replace('.jsonl', '.timing.json')
+            with open(timing_path, 'w') as _tf:
+                json.dump({
+                    "run_i": run_i,
+                    "elapsed_seconds": round(elapsed, 2),
+                    "n_items": getattr(args, 'first_k', None),
+                    "task": args.task,
+                    "variant": getattr(args, 'skills_variant', None),
+                }, _tf, indent=2)
+
+            acc = _compute_run_accuracy(output_path)
+            run_accuracies.append(acc)
+            print(f"  Run {run_i + 1} accuracy: {acc:.2%}  time: {elapsed:.1f}s")
+
+        mean_acc = _statistics.mean(run_accuracies)
+        std_acc = _statistics.stdev(run_accuracies) if len(run_accuracies) > 1 else 0.0
+        print(f"\n=== Run Summary ({runs} runs, first_k={args.first_k} per q-type) ===")
+        print(f"  Mean accuracy : {mean_acc:.2%}")
+        print(f"  Std deviation : {std_acc:.2%}")
+        print(f"  Per-run accs  : {', '.join(f'{a:.2%}' for a in run_accuracies)}")
+        print(f"\n=== Timing Summary ===")
+        for i, t in enumerate(run_times):
+            print(f"  Run {i + 1}: {t:.1f}s")
+        total_t = sum(run_times)
+        mean_t = _statistics.mean(run_times)
+        print(f"  Total: {total_t:.1f}s  Mean: {mean_t:.1f}s")
+    elif runs == 1:
+        t_start = time.perf_counter()
+        output_path = format_output_path_vlm(args)
+        main(args, model, processor, dataset, output_path)
+        elapsed = time.perf_counter() - t_start
+        print(f"\n  Elapsed: {elapsed:.1f}s")
