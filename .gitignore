@@ -10,6 +10,8 @@ wheels/
 .venv
 # Environment variables
 .env
+# Temporary agent session log
+agent_session.log
 
 # Large datasets
 Dataset_images_Unlabeled/
@@ -24,6 +26,7 @@ spatial_eval/outputs_smoke_test/
 spatial_eval/outputs_round2/
 spatial_eval/outputs_round3/
 spatial_eval/legacy/
+legacy/
 
 # SpatialEval eval_summary data (keep Python scripts, ignore data files)
 spatial_eval/eval_summary/vqa/
