@@ -1,5 +1,6 @@
 import os
 import time
+from datetime import datetime
 from typing import Dict, Any, List
 from agent_sandbox import Sandbox
 from sandbox_browser_functions import (
@@ -20,13 +21,13 @@ def run_visible_browser_steps(
     screenshot_dir: str = "/workspace/screenshots",
     settle_seconds: float = 0.8,
 ) -> Dict[str, Any]:
-    # Always use /workspace/screenshots for screenshot_dir
-    screenshot_dir = "/workspace/screenshots"
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    session_dir = f"/workspace/screenshots/steps_{timestamp}"
     results = []
     client = get_sandbox_client()
 
-    # Ensure dir exists *in the sandbox*
-    client.shell.exec_command(command=f"mkdir -p '{screenshot_dir}'")
+    # Ensure session dir exists and is writable by gem user
+    client.shell.exec_command(command=f"mkdir -p '{session_dir}' && chmod 777 '/workspace/screenshots' '{session_dir}'")
 
     for i, step in enumerate(steps, start=1):
         op = step.get("op")
@@ -63,7 +64,7 @@ def run_visible_browser_steps(
             return {"success": False, "results": results, "error": res.get("error")}
 
         # Screenshot after each step (after sleep, only if step succeeded)
-        shot_path = os.path.join(screenshot_dir, f"{i:02d}_{op}.png")
+        shot_path = os.path.join(session_dir, f"screenshot{i:02d}_{op}.png")
 
         screenshot_data = client.browser.screenshot()
         png_bytes = b"".join(screenshot_data)
@@ -79,3 +80,5 @@ def run_visible_browser_steps(
                 "write": write_res,
             },
         })
+
+    return {"success": True, "results": results, "screenshot_dir": session_dir}
