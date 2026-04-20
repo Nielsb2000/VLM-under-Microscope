@@ -12,6 +12,8 @@ wheels/
 .env
 # Temporary agent session log
 agent_session.log
+# Browser screenshots (generated at runtime)
+screenshots/
 
 # Large datasets
 Dataset_images_Unlabeled/
