@@ -11,6 +11,7 @@ services:
     environment:
       - WORKSPACE=/workspace
       - SANDBOX_SCREENSHOT_DIR=/workspace/screenshots
+      - PYAUTOGUI_FAILSAFE=false
     security_opt:
       - seccomp:unconfined
     shm_size: "2gb"

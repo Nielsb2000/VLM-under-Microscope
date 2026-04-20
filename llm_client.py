@@ -9,7 +9,7 @@ from agent_tools import (
     call_mcp_tool_in_sandbox,
     run_browser_steps,
 )
-from agent_tools_vision import make_analyze_sandbox_image_tool 
+from agent_tools_vision import make_analyze_sandbox_image_tool, make_screenshot_and_ask_tool, make_move_and_verify_tool
 
 
 def get_default_llm(model_name: str | None = None):
@@ -39,13 +39,17 @@ def get_default_llm(model_name: str | None = None):
 - Workspace: /workspace/
 
 **Available skills:** bash-scripting, python-programming, web-network, file-management, sandbox-browser, sandbox-filesystem, mcp-tools."""
-    analyze_sandbox_image = make_analyze_sandbox_image_tool(llm) # creates a closure tool
+    analyze_sandbox_image = make_analyze_sandbox_image_tool(llm)  # creates a closure tool
+    screenshot_and_ask = make_screenshot_and_ask_tool(llm)          # live browser screenshot → vision model
+    move_and_verify = make_move_and_verify_tool(llm)                # move cursor + self-verify in one step
     # Essential tools for unique functionality (basic ops handled by built-in tools)
     essential_tools = [
         create_skill,
         get_sandbox_info,
         call_mcp_tool_in_sandbox,
         analyze_sandbox_image,
+        screenshot_and_ask,
+        move_and_verify,
         run_browser_steps,
     ]
     
