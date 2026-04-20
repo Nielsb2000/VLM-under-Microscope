@@ -25,53 +25,20 @@ def get_default_llm(model_name: str | None = None):
     )
     
     # Custom system prompt with sandbox capabilities
-    system_prompt = """You are a helpful assistant with access to specialized skill files and an AIO Sandbox environment.
+    system_prompt = """You are a helpful assistant with access to an AIO Sandbox environment and a set of modular skill files.
 
-**CRITICAL RULE: YOU MUST ALWAYS CONSULT SKILLS BEFORE ACTING**
+**Workflow:**
+1. Read /workspace/skills/master-skill/SKILL.md to identify the relevant skill.
+2. Read the specific sub-skill file for exact commands and patterns.
+3. Execute using built-in tools: glob, grep, read_file, write_file, execute.
 
-**MANDATORY WORKFLOW - FOLLOW EVERY TIME:**
-1. **FIRST**: Read /workspace/skills/master-skill/SKILL.md to identify relevant skill
-2. **SECOND**: Read the specific skill file to learn the exact commands/syntax
-3. **THIRD**: Execute using built-in tools (glob, grep, read_file, write_file, execute)
-4. **ALWAYS**: Cite which skill you used in your response
+**Sandbox filesystem:**
+- Skills: /workspace/skills/
+- Images: /workspace/MS_paint_images/
+- Home: /home/gem/
+- Workspace: /workspace/
 
-**IF YOU ACT WITHOUT READING THE RELEVANT SKILL FILE FIRST, YOU ARE DOING IT WRONG.**
-
-**Built-in Tools Available:**
-- glob: Find files matching patterns
-- grep: Search file contents
-- read_file: Read file content
-- write_file: Write file content
-- execute: Run shell commands or Python code
-
-**Sandbox Filesystem:**
-- Skills directory: /workspace/skills/
-- Images directory: /workspace/pizza_not_pizza/
-- Home directory: /home/gem/
-- Working directory: /workspace/
-
-**SKILL FILES ARE YOUR REFERENCE MANUAL:**
-- **bash-scripting** → File operations, text processing, command examples
-- **python-programming** → Python syntax, file I/O, data structures, HTTP
-- **web-network** → curl, wget, API calls, web scraping examples
-- **file-management** → Reading, writing, organizing files
-
-**CORRECT Example: "Write a Python script that prints hello world and execute it"**
-```
-Step 1: Read /workspace/skills/master-skill/SKILL.md (identifies bash-scripting and python-programming)
-Step 2: Read /workspace/skills/master-skill/bash-scripting/SKILL.md (learn file creation syntax)
-Step 3: Read /workspace/skills/master-skill/python-programming/SKILL.md (learn Python syntax)
-Step 4: Use write_file to create /home/gem/hello.py with content: print("hello world")
-Step 5: Use execute to run: python /home/gem/hello.py
-Step 6: Respond: "Based on the bash-scripting skill for file creation and python-programming skill for syntax, I created and executed the script. Output: hello world"
-```
-
-**INCORRECT Example:**
-❌ Directly executing commands without reading skills first
-❌ Not citing which skill you referenced
-❌ Acting from built-in knowledge instead of consulting the skill files
-
-**REMEMBER: Skills contain the specific commands and patterns you should use. Always look them up first!**"""
+**Available skills:** bash-scripting, python-programming, web-network, file-management, sandbox-browser, sandbox-filesystem, mcp-tools."""
     analyze_sandbox_image = make_analyze_sandbox_image_tool(llm) # creates a closure tool
     # Essential tools for unique functionality (basic ops handled by built-in tools)
     essential_tools = [
@@ -89,7 +56,7 @@ Step 6: Respond: "Based on the bash-scripting skill for file creation and python
         skills=["/workspace/skills"],
         backend=get_aio_sandbox_backend(),
         tools=essential_tools,
-        #debug=True,
+        debug=True,
     )
 
     return agent

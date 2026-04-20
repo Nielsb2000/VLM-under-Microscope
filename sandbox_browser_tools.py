@@ -1,9 +1,5 @@
 import os
 import time
-import base64
-import getpass
-from PIL import Image
-from io import BytesIO
 from typing import Dict, Any, List
 from agent_sandbox import Sandbox
 from sandbox_browser_functions import (
@@ -34,18 +30,6 @@ def run_visible_browser_steps(
 
     for i, step in enumerate(steps, start=1):
         op = step.get("op")
-
-        if op == "navigate":
-            res = browser_navigate_gui(
-                step["url"],
-                settle_seconds=step.get("settle_seconds", 2.0),
-            )
-        elif op == "click":
-            res = browser_click(
-                step.get("x"), step.get("y"),
-                num_clicks=step.get("num_clicks", 1),
-                button=step.get("button"),
-            )
 
         if op == "navigate":
             res = browser_navigate_gui(

@@ -6,7 +6,7 @@ services:
       - "8080:8080"
     volumes:
       - ./skills:/workspace/skills
-      - ./MS paint images:/workspace/MS paint images
+      - ./MS_Paint_Reasoning_Evaluation/MS_paint_images:/workspace/MS_paint_images
       - ./screenshots:/workspace/screenshots
     environment:
       - WORKSPACE=/workspace
