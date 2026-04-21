@@ -103,6 +103,23 @@ File organization and manipulation.
 
 ---
 
+## 🖼️ `./paint-service/SKILL.md`
+Paint Service annotation canvas — live browser app at http://localhost:3000.
+
+Use for:
+- Zooming / panning the view in the browser
+- Loading an image into the paint app
+- Drawing annotations (rect, ellipse, arrow, dot, text)
+- Cropping to a bounding box (true pixel zoom)
+- Moving the model cursor on the screen
+- Reading what annotations are currently on the canvas
+- Exporting PNG or JSON from the canvas
+
+**Trigger phrases:** "zoom in on", "draw a box around", "load this image in the paint app",
+"what's on the canvas", "annotate", "crop to", "highlight", "point at"
+
+---
+
 # How To Use
 
 1. Identify the domain.

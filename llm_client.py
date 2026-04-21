@@ -8,6 +8,7 @@ from agent_tools import (
     get_sandbox_info,
     call_mcp_tool_in_sandbox,
     run_browser_steps,
+    paint_canvas,
 )
 from agent_tools_vision import make_analyze_sandbox_image_tool, make_screenshot_and_ask_tool, make_move_and_verify_tool
 
@@ -51,6 +52,7 @@ def get_default_llm(model_name: str | None = None):
         screenshot_and_ask,
         move_and_verify,
         run_browser_steps,
+        paint_canvas,
     ]
     
     agent = create_deep_agent(
