@@ -9,11 +9,49 @@ from agent_sandbox import Sandbox
 from PIL import Image, ImageDraw, ImageFont
 import os
 
+_PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+def _sandbox_path_to_host(image_path: str) -> str | None:
+    """
+    Translates a sandbox path to a host path if the directory is volume-mounted.
+    Returns None if no known mapping exists.
+    Volume mounts (from docker-compose.yml):
+      /workspace/screenshots/ -> {project_root}/screenshots/
+      /workspace/skills/      -> {project_root}/skills/
+    """
+    mappings = {
+        "/workspace/screenshots/": os.path.join(_PROJECT_ROOT, "screenshots") + "/",
+        "/workspace/skills/": os.path.join(_PROJECT_ROOT, "skills") + "/",
+    }
+    for sandbox_prefix, host_prefix in mappings.items():
+        if image_path.startswith(sandbox_prefix):
+            return host_prefix + image_path[len(sandbox_prefix):]
+    return None
+
+
 def sandbox_image_to_data_url(image_path: str) -> dict:
     """
-    Reads an image inside the sandbox filesystem and returns a data: URL.
-    Uses sandbox-side Python to base64 encode the file.
+    Reads an image and returns a data: URL.
+
+    For paths under volume-mounted directories (/workspace/screenshots/, etc.),
+    reads directly on the host to avoid printing base64 to sandbox stdout
+    (which would bloat the conversation history with ~1M tokens).
+    Falls back to sandbox-side execution for other sandbox paths.
     """
+    import mimetypes
+
+    host_path = _sandbox_path_to_host(image_path)
+    if host_path and os.path.isfile(host_path):
+        try:
+            with open(host_path, "rb") as f:
+                data = f.read()
+            mime = mimetypes.guess_type(host_path)[0] or "image/png"
+            b64 = base64.b64encode(data).decode("utf-8")
+            return {"success": True, "mime": mime, "data_url": f"data:{mime};base64,{b64}"}
+        except Exception as e:
+            return {"success": False, "error": f"Host read failed: {e}"}
+
+    # Fallback: read via sandbox execution (avoid for large images — stdout goes to history)
     py = f"""
 import base64, mimetypes, json
 from pathlib import Path
@@ -28,7 +66,6 @@ print(json.dumps({{"mime": mime, "data_url": f"data:{{mime}};base64,{{b64}}"}}))
     if not r.get("success"):
         return {"success": False, "error": r.get("error", "Failed to encode image")}
 
-    # grab last line to be safe if sandbox prints extra lines
     try:
         payload = json.loads(r["output"].strip().splitlines()[-1])
         return {"success": True, **payload}
