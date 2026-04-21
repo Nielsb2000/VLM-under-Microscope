@@ -91,6 +91,12 @@ def paint_canvas(action: str, params: dict = None) -> dict:
                          params: {id, padding(optional)}
       - "reset_viewport" Return to 1:1 zoom at origin. Does NOT alter the image.
       - "viewport"       Return current viewport state.
+      - "set_filters"    Adjust visual appearance of the canvas viewport (does NOT alter the
+                         underlying image — purely a display filter).
+                         params: {brightness, contrast, saturation} — all optional, values are
+                         percentages (100 = normal, 0 = min, 200 = doubled, max 300).
+                         Use to enhance visibility of faint features, improve contrast for
+                         analysis, or boost colour saturation.
 
     Image crop (permanently replaces the background with a new cropped image):
       - "crop"           Slice out a sub-region of the background image and load it as the
@@ -228,6 +234,8 @@ def paint_canvas(action: str, params: dict = None) -> dict:
             return _paint("POST", "/api/viewport/reset")
         case "viewport":
             return _paint("GET", "/api/viewport")
+        case "set_filters":
+            return _paint("POST", "/api/viewport/filters", params)
         # ---- Image crop ----
         case "crop":
             if "shapeId" not in params:

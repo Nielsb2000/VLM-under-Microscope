@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   _setupCanvasEvents();
   _setupFileUpload();
   _setupKeyboard();
+  _setupFilterSliders();
   _setupSSE();
 
   // Fetch initial state
@@ -41,6 +42,13 @@ function _setupToolbar() {
   document.getElementById('btn-clear')?.addEventListener('click', clearCanvas);
   document.getElementById('btn-export-png')?.addEventListener('click', exportPng);
   document.getElementById('btn-export-json')?.addEventListener('click', exportJson);
+  document.getElementById('btn-reset-filters')?.addEventListener('click', () => {
+    fetch(`${API}/viewport/filters`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ brightness: 100, contrast: 100, saturation: 100 }),
+    }).catch(() => {});
+  });
 }
 
 function setTool(tool) {
@@ -440,7 +448,7 @@ function _setupSSE() {
 let _lastBgFilename = null;
 
 async function _applyState(state) {
-  const { canvas: meta, objects, viewport, cursor } = state;
+  const { canvas: meta, objects, viewport, cursor, filters } = state;
 
   _resizeCanvas(meta.width, meta.height);
 
@@ -491,6 +499,9 @@ async function _applyState(state) {
 
   // Model cursor
   if (cursor) _applyCursor(cursor);
+
+  // Filters
+  if (filters) _applyFilters(filters);
 }
 
 // ---- Delete & Clear ----
@@ -587,6 +598,50 @@ window._selectById = function(id) {
   fc.setActiveObject(obj);
   fc.requestRenderAll();
 };
+
+// ---- Filters ----
+
+function _applyFilters(filters) {
+  const wrap = document.getElementById('canvas-wrap');
+  if (!wrap) return;
+  wrap.style.filter =
+    `brightness(${filters.brightness}%) contrast(${filters.contrast}%) saturate(${filters.saturation}%)`;
+  // Sync sliders without triggering input events
+  ['brightness', 'contrast', 'saturation'].forEach(k => {
+    const slider = document.getElementById(`filter-${k}`);
+    const label  = document.getElementById(`filter-${k}-val`);
+    if (slider && slider.value != filters[k]) slider.value = filters[k];
+    if (label) label.textContent = filters[k];
+  });
+}
+
+async function _patchFilter(key, value) {
+  await fetch(`${API}/viewport/filters`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ [key]: Number(value) }),
+  }).catch(() => {});
+}
+
+function _setupFilterSliders() {
+  ['brightness', 'contrast', 'saturation'].forEach(k => {
+    const slider = document.getElementById(`filter-${k}`);
+    const label  = document.getElementById(`filter-${k}-val`);
+    if (!slider) return;
+    slider.addEventListener('input', () => {
+      if (label) label.textContent = slider.value;
+      // Apply locally immediately for responsiveness
+      const wrap = document.getElementById('canvas-wrap');
+      if (wrap) {
+        const b = document.getElementById('filter-brightness')?.value || 100;
+        const c = document.getElementById('filter-contrast')?.value   || 100;
+        const s = document.getElementById('filter-saturation')?.value || 100;
+        wrap.style.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%)`;
+      }
+    });
+    slider.addEventListener('change', () => _patchFilter(k, slider.value));
+  });
+}
 
 // ---- Viewport ----
 

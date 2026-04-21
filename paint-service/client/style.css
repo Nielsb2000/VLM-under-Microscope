@@ -153,6 +153,44 @@ body {
   backdrop-filter: blur(4px);
 }
 
+/* ---- Filter sliders ---- */
+.filter-group {
+  flex-wrap: nowrap;
+  gap: 4px;
+}
+
+.filter-group label {
+  font-size: 14px;
+  cursor: default;
+}
+
+.filter-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 80px;
+  height: 4px;
+  border-radius: 2px;
+  background: #45475a;
+  outline: none;
+  cursor: pointer;
+}
+
+.filter-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #89b4fa;
+  cursor: pointer;
+}
+
+.filter-val {
+  font-size: 11px;
+  color: #a6adc8;
+  min-width: 28px;
+  text-align: left;
+}
+
 /* ---- Sidebar ---- */
 #sidebar {
   width: 200px;

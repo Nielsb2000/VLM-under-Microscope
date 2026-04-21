@@ -29,6 +29,19 @@
       <button id="btn-export-png" class="btn">⬇ PNG</button>
       <button id="btn-export-json" class="btn">⬇ JSON</button>
     </div>
+
+    <div class="topbar-group filter-group">
+      <label for="filter-brightness" title="Brightness">☀</label>
+      <input type="range" id="filter-brightness" min="0" max="300" value="100" class="filter-slider" />
+      <span id="filter-brightness-val" class="filter-val">100</span>
+      <label for="filter-contrast" title="Contrast">◑</label>
+      <input type="range" id="filter-contrast" min="0" max="300" value="100" class="filter-slider" />
+      <span id="filter-contrast-val" class="filter-val">100</span>
+      <label for="filter-saturation" title="Saturation">🎨</label>
+      <input type="range" id="filter-saturation" min="0" max="300" value="100" class="filter-slider" />
+      <span id="filter-saturation-val" class="filter-val">100</span>
+      <button class="btn" id="btn-reset-filters" title="Reset filters">↺</button>
+    </div>
   </header>
 
   <div id="workspace">

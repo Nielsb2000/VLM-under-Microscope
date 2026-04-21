@@ -6,7 +6,7 @@ const fs = require('fs');
 const UPLOADS_DIR = path.join(__dirname, '..', 'uploads');
 
 async function renderToPng(state) {
-  const { canvas: meta, objects } = state;
+  const { canvas: meta, objects, filters } = state;
   const width = meta.width || 1200;
   const height = meta.height || 800;
 
@@ -28,6 +28,16 @@ async function renderToPng(state) {
         console.error('Background image load failed:', e.message);
       }
     }
+  }
+
+  // Apply brightness / contrast / saturation filters to the background pixels
+  // before drawing annotations, so annotations remain unaffected.
+  const brightness  = (filters?.brightness  ?? 100) / 100;
+  const contrast    = (filters?.contrast    ?? 100) / 100;
+  const saturation  = (filters?.saturation  ?? 100) / 100;
+  const needsFilter = brightness !== 1 || contrast !== 1 || saturation !== 1;
+  if (needsFilter) {
+    _applyPixelFilters(ctx, width, height, brightness, contrast, saturation);
   }
 
   // Draw objects in insertion order
@@ -190,3 +200,43 @@ function drawSvgPath(ctx, pathStr) {
 }
 
 module.exports = { renderToPng };
+
+// ---- Pixel-level filter implementation ----
+// Simulates CSS brightness/contrast/saturation on an existing canvas context.
+// brightness: 1.0 = normal, <1 darker, >1 brighter
+// contrast:   1.0 = normal, 0 = grey, >1 more contrast
+// saturation: 1.0 = normal, 0 = greyscale, >1 more vivid
+function _applyPixelFilters(ctx, width, height, brightness, contrast, saturation) {
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const data = imageData.data;
+  // Contrast intercept: shift so mid-grey stays mid-grey
+  const cIntercept = 127 * (1 - contrast);
+
+  for (let i = 0; i < data.length; i += 4) {
+    let r = data[i], g = data[i + 1], b = data[i + 2];
+
+    // Brightness (multiply)
+    r *= brightness; g *= brightness; b *= brightness;
+
+    // Saturation (interpolate toward luminance)
+    if (saturation !== 1) {
+      const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      r = lum + saturation * (r - lum);
+      g = lum + saturation * (g - lum);
+      b = lum + saturation * (b - lum);
+    }
+
+    // Contrast (linear scale around mid-grey)
+    if (contrast !== 1) {
+      r = r * contrast + cIntercept;
+      g = g * contrast + cIntercept;
+      b = b * contrast + cIntercept;
+    }
+
+    data[i]     = Math.max(0, Math.min(255, r));
+    data[i + 1] = Math.max(0, Math.min(255, g));
+    data[i + 2] = Math.max(0, Math.min(255, b));
+    // alpha unchanged
+  }
+  ctx.putImageData(imageData, 0, 0);
+}

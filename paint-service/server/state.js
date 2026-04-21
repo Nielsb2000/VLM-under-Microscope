@@ -6,6 +6,7 @@ let state = {
   objects: [],
   viewport: { zoom: 1, panX: 0, panY: 0 },
   cursor: { x: null, y: null, visible: false, label: '' },
+  filters: { brightness: 100, contrast: 100, saturation: 100 },
 };
 
 const sseClients = new Set();
@@ -128,6 +129,16 @@ function resetViewport() {
   broadcast();
 }
 
+function setFilters({ brightness, contrast, saturation } = {}) {
+  state.filters = {
+    brightness: Math.max(0, Math.min(brightness ?? state.filters.brightness, 300)),
+    contrast:   Math.max(0, Math.min(contrast   ?? state.filters.contrast,   300)),
+    saturation: Math.max(0, Math.min(saturation ?? state.filters.saturation, 300)),
+  };
+  broadcast();
+  return state.filters;
+}
+
 function broadcast() {
   const data = JSON.stringify(state);
   for (const client of sseClients) {
@@ -155,4 +166,5 @@ module.exports = {
   setCursor,
   zoomToRegion,
   resetViewport,
+  setFilters,
 };

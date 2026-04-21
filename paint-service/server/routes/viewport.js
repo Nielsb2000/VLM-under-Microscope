@@ -105,4 +105,18 @@ router.delete('/cursor', (req, res) => {
   res.json({ ok: true });
 });
 
+// POST /api/viewport/filters  { brightness, contrast, saturation }
+// All values are percentages: 100 = normal, 0 = min, 200 = doubled.
+// Omit a field to leave it unchanged.
+router.post('/filters', (req, res) => {
+  const { brightness, contrast, saturation } = req.body || {};
+  const filters = state.setFilters({ brightness, contrast, saturation });
+  res.json({ ok: true, filters });
+});
+
+// GET /api/viewport/filters
+router.get('/filters', (req, res) => {
+  res.json(state.getState().filters);
+});
+
 module.exports = router;
