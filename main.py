@@ -27,6 +27,16 @@ def _setup_logging() -> logging.Logger:
     return logger
 
 
+def _invoke_agent(agent, content, thread_id, logger):
+    """Invoke the agent with a message and return the last reply text."""
+    result = agent.invoke(
+        {"messages": [{"role": "user", "content": content}]},
+        config={"configurable": {"thread_id": thread_id}},
+    )
+    messages = result.get("messages", [])
+    return messages[-1].content if messages else ""
+
+
 def main():
     logger = _setup_logging()
     print("Ask questions to the LLM (type 'quit' to exit)")
@@ -34,25 +44,25 @@ def main():
     print("   - Python code: runs in sandbox, output appears in sandbox terminal")
     print("   - Shell commands: executed in sandbox environment")
     print("   - Files: read/write in sandbox at /workspace/\n")
-    
+
     # Discover and display available skills
     skills = discover_skills(Path("./skills"))
     if skills:
         print(get_skills_summary(skills))
         print()
-    
+
     agent = get_default_llm()
-    
+
     while True:
         question = input("You: ").strip()
-        
+
         if question.lower() in ['quit', 'exit', 'q']:
             print("Goodbye!")
             break
-            
+
         if not question:
             continue
-        
+
         try:
             logger.info("USER: %s", question)
             result = agent.invoke(
@@ -66,7 +76,6 @@ def main():
                 },
                 config={"configurable": {"thread_id": "default"}},
             )
-
             print("\n--- INTERMEDIATE STEPS ---")
             for key, value in result.items():
                 if key != "messages":
