@@ -1,0 +1,16 @@
+{
+  "name": "paint-service",
+  "version": "1.0.0",
+  "description": "Human + model collaborative annotation tool",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "dependencies": {
+    "canvas": "^2.11.2",
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^9.0.0"
+  }
+}
