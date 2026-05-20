@@ -99,6 +99,47 @@ HTTP 200 with Content-Type: image/png
 
 ---
 
+# Visual Awareness: Screenshot + Vision Query
+
+To understand what is currently visible in the browser before acting, use the `screenshot_and_ask` tool.
+
+This tool:
+- Captures a live PNG screenshot of the sandbox browser
+- Base64-encodes it and sends it directly to the vision model
+- Returns the model's answer as a string
+
+Use it to locate elements by visual appearance before issuing move/click steps.
+
+## Tool Signature
+
+screenshot_and_ask(question: str) -> dict
+
+Returns: { success: bool, answer: str, width: int, height: int }
+
+## Typical Workflow
+
+1. Call screenshot_and_ask to get coordinates of a visual target:
+
+answer = screenshot_and_ask(
+    question="What are the pixel (x, y) coordinates of the duck in this image?"
+)
+# answer["answer"] → "The duck is at approximately (312, 245)"
+
+2. Parse the coordinates from the answer.
+
+3. Use run_browser_steps to move or click:
+
+run_browser_steps([{"op": "move", "x": 312, "y": 245}])
+
+## Important Notes
+
+- The model is told the image dimensions and that (0,0) is top-left automatically.
+- Prefer specific questions: "What are the pixel coordinates of X?" over vague ones.
+- screenshot_and_ask is read-only — it does NOT interact with the browser.
+- Always call screenshot_and_ask BEFORE acting when you need visual context.
+
+---
+
 # Supported Operations
 
 The step dispatcher supports:

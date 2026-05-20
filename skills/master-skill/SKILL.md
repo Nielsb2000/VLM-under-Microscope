@@ -103,6 +103,46 @@ File organization and manipulation.
 
 ---
 
+## � `./sem-service/SKILL.md`
+SEM Service annotation canvas — live browser app at http://localhost:3000.
+
+Use for:
+- Zooming / panning the view in the browser
+- Loading an image into the paint app
+- Drawing annotations (rect, ellipse, arrow, dot, text)
+- Cropping to a bounding box (true pixel zoom)
+- Moving the model cursor on the screen
+- Reading what annotations are currently on the canvas
+- Exporting PNG or JSON from the canvas
+- Randomising image filters for a case-study run (`randomize_filters`)
+- Adjusting brightness / contrast / saturation (`set_filters`)
+
+**Trigger phrases:** "zoom in on", "draw a box around", "load this image in the paint app",
+"what's on the canvas", "annotate", "crop to", "highlight", "point at",
+"randomize", "adjust brightness", "refine image quality"
+
+---
+
+## 📊 `./sem-histogram-eval/SKILL.md`
+SEM image quality evaluation via brightness histogram comparison.
+
+Use for:
+- Computing the objective SEM Histogram Error score after agent refinement
+- Understanding the Wasserstein + clipping metric formula
+- Running `sem_histogram_error.py` from inside the sandbox
+- Saving result histograms to `/workspace/histograms/result/`
+
+**When to use:** after the agent has finished iteratively adjusting
+brightness/contrast/saturation and declared it is satisfied with the image
+quality — call this as the final evaluation step.
+
+**Script location:** `/workspace/skills/master-skill/sem-histogram-eval/sem_histogram_error.py`
+
+**Trigger phrases:** "evaluate the result", "compute the histogram error",
+"run the evaluation", "how good is the image quality", "score the result"
+
+---
+
 # How To Use
 
 1. Identify the domain.
