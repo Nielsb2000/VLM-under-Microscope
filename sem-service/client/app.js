@@ -1290,11 +1290,14 @@ function _applyUiMode(mode, tileGrid, atlas) {
   const minimap    = document.getElementById('tile-minimap');
   const tileNav    = document.getElementById('tile-nav');
 
+  const btnFit = document.getElementById('btn-fit-image');
+
   if (mode === 'grid') {
     btnImage?.classList.remove('mode-btn-active');
     btnGrid?.classList.add('mode-btn-active');
     if (btnAtlas) btnAtlas.style.display  = '';
     if (atlasBar) atlasBar.style.display  = 'none';
+    if (btnFit)   btnFit.style.display    = '';
     // Restore histogram, remove atlas-nav class
     const histPanel = document.getElementById('live-hist-panel');
     if (histPanel) histPanel.style.display = '';
@@ -1319,6 +1322,7 @@ function _applyUiMode(mode, tileGrid, atlas) {
     btnGrid?.classList.add('mode-btn-active');
     if (btnAtlas) btnAtlas.style.display  = 'none';
     if (atlasBar) atlasBar.style.display  = '';
+    if (btnFit)   btnFit.style.display    = 'none';
     if (minimap)  minimap.style.display   = 'none';
     // Show tile-nav but only with region/fw dropdowns (hide dpad via CSS class)
     if (tileNav) { tileNav.style.display = ''; tileNav.classList.add('atlas-nav-mode'); }
@@ -1347,6 +1351,7 @@ function _applyUiMode(mode, tileGrid, atlas) {
     if (histPanel) histPanel.style.display = '';
     if (btnAtlas) btnAtlas.style.display = 'none';
     if (atlasBar) atlasBar.style.display = 'none';
+    if (btnFit)   btnFit.style.display   = '';
     if (prevMode === 'atlas') _exitAtlasClientState();
   }
 }
