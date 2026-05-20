@@ -2,6 +2,7 @@
 import base64
 import io
 import json
+import urllib.request
 from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage
 from sandbox_core_functions import execute_python_code
@@ -355,7 +356,6 @@ def make_move_and_verify_tool(llm):
             client.shell.exec_command(command=f"mkdir -p '{session_dir}' && chmod 777 '{session_dir}'")
             write_binary_file(client, f"{session_dir}/cursor.png", with_cursor)
             write_binary_file(client, f"{session_dir}/cursor_grid.png", with_grid)
-            with_grid   = _overlay_coordinate_grid(with_cursor)
 
             raw_data_url  = _png_to_data_url(with_cursor)
             grid_data_url = _png_to_data_url(with_grid)
@@ -407,3 +407,121 @@ def make_move_and_verify_tool(llm):
             return {"success": False, "error": str(e), "correct": False}
 
     return move_and_verify
+
+
+def make_segment_viewport_tool(_llm=None):
+    """
+    Returns a tool that runs SAM2 automatic segmentation on the current SEM viewport image.
+
+    The tool is gated: if the Segment panel is not open in the UI
+    (segmentationEnabled == false on the server), the tool refuses and tells the
+    agent to ask the user to enable it first.
+    """
+    _PAINT_BASE = os.environ.get("SEM_SERVICE_URL", "http://localhost:3000")
+    _SEG_BASE   = "http://localhost:3001"
+
+    def _http(method: str, url: str, body: dict | None = None):
+        data = json.dumps(body).encode() if body is not None else None
+        headers = {"Content-Type": "application/json"} if data else {}
+        req = urllib.request.Request(url, data=data, headers=headers, method=method.upper())
+        with urllib.request.urlopen(req, timeout=300) as r:
+            return json.loads(r.read())
+
+    @tool
+    def segment_viewport(
+        centroids: bool = True,
+        bboxes: bool = True,
+        mask: bool = True,
+    ) -> dict:
+        """Run SAM2 automatic segmentation on the image currently shown in the SEM viewport.
+
+        IMPORTANT: This tool only works when the user has enabled the Segment panel
+        in the UI (the ⬡ Segment button must be toggled ON). If segmentation is
+        disabled, return an explanation and ask the user to enable it.
+
+        The tool segments the current background tile and overlays the results on the
+        canvas so they appear in all subsequent exports and VLM image reads.
+
+        Args:
+            centroids: Return centroid [x, y] for each detected region.
+            bboxes: Return bounding box [x, y, w, h] for each detected region.
+            mask: Return and overlay a coloured mask PNG.
+
+        Returns:
+            Dict with: ok, count, centroids (list), bboxes (list), summary.
+        """
+        # --- gate: check UI panel state ---
+        try:
+            state = _http("GET", f"{_PAINT_BASE}/api/canvas/state")
+        except Exception as e:
+            return {"ok": False, "error": f"Could not reach SEM service: {e}"}
+
+        if not state.get("segmentationEnabled", False):
+            return {
+                "ok": False,
+                "error": (
+                    "Segmentation is currently disabled in the UI. "
+                    "Please ask the user to click the ⬡ Segment button in the agent panel header to enable it."
+                ),
+            }
+
+        # --- fetch current background tile ---
+        bg = state.get("canvas", {}).get("backgroundImage")
+        if not bg:
+            return {"ok": False, "error": "No image is currently loaded in the viewport."}
+
+        bg_path = bg if bg.startswith("/") else f"/uploads/{bg}"
+        try:
+            with urllib.request.urlopen(f"{_PAINT_BASE}{bg_path}", timeout=30) as r:
+                img_bytes = r.read()
+        except Exception as e:
+            return {"ok": False, "error": f"Could not fetch viewport image: {e}"}
+
+        image_b64 = "data:image/png;base64," + base64.b64encode(img_bytes).decode()
+
+        # --- run SAM2 ---
+        try:
+            data = _http("POST", f"{_SEG_BASE}/segment", {
+                "image_b64": image_b64,
+                "centroids": centroids,
+                "bboxes": bboxes,
+                "mask": mask,
+            })
+        except Exception as e:
+            return {"ok": False, "error": f"Segmentation call failed: {e}"}
+
+        if not data.get("ok"):
+            return {"ok": False, "error": data.get("error", "Segmentation failed")}
+
+        # --- check whether coordinate text output is enabled in the UI ---
+        text_enabled = state.get("segmentTextEnabled", True)
+
+        # --- sync overlay to sem-service so exports include it ---
+        server_seg = {}
+        if mask      and data.get("mask_png"):  server_seg["mask_png"]  = data["mask_png"]
+        if bboxes    and data.get("bboxes"):    server_seg["bboxes"]    = data["bboxes"]
+        if centroids and data.get("centroids"): server_seg["centroids"] = data["centroids"]
+        if server_seg:
+            try:
+                _http("PUT", f"{_PAINT_BASE}/api/canvas/segmentation", server_seg)
+            except Exception:
+                pass  # non-fatal — segmentation data still returned to agent
+
+        # --- build result (coordinates omitted when text output is disabled) ---
+        count = data.get("count", 0)
+        result: dict = {"ok": True, "count": count}
+        if text_enabled:
+            if centroids and data.get("centroids"):
+                result["centroids"] = data["centroids"]
+            if bboxes and data.get("bboxes"):
+                result["bboxes"] = data["bboxes"]
+        result["summary"] = (
+            f"Found {count} segments in the current viewport.\n"
+            + (f"Bounding boxes (first 20): {data['bboxes'][:20]}\n" if result.get("bboxes") else "")
+            + (f"Centroids (first 20): {data['centroids'][:20]}\n" if result.get("centroids") else "")
+            + ("Coordinate text output is disabled — visual overlay only.\n" if not text_enabled else "")
+            + ("Mask overlay synced to canvas and export." if server_seg.get("mask_png") else "")
+        )
+        return result
+
+    return segment_viewport
