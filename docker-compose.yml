@@ -6,8 +6,9 @@ services:
       - "8080:8080"
     volumes:
       - ./skills:/workspace/skills
-      - ./MS_Paint_Reasoning_Evaluation/MS_paint_images:/workspace/MS_paint_images
       - ./screenshots:/workspace/screenshots
+      - ./Dataset_Images_Labeled_W_Metadata:/workspace/dataset_images:ro
+      - ./sem-service/histograms:/workspace/histograms
     environment:
       - WORKSPACE=/workspace
       - SANDBOX_SCREENSHOT_DIR=/workspace/screenshots
@@ -15,4 +16,42 @@ services:
     security_opt:
       - seccomp:unconfined
     shm_size: "2gb"
+    restart: unless-stopped
+
+  agent-api:
+    image: python:3.11-slim
+    container_name: agent-api
+    ports:
+      - "3001:3001"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+      - /home/nielsbroekhuizen/projects/my-vscode-project:/home/nielsbroekhuizen/projects/my-vscode-project
+      - /home/nielsbroekhuizen/.local/share/uv:/home/nielsbroekhuizen/.local/share/uv
+      - /home/nielsbroekhuizen/.cache/huggingface:/root/.cache/huggingface
+    working_dir: /home/nielsbroekhuizen/projects/my-vscode-project
+    command:
+      - /home/nielsbroekhuizen/projects/my-vscode-project/.venv/bin/python
+      - -m
+      - uvicorn
+      - agent_api:app
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "3001"
+    env_file:
+      - .env
+    environment:
+      - SANDBOX_BASE_URL=http://aio-sandbox:8080
+      - SEM_SERVICE_URL=http://host.docker.internal:3000
+      - LD_LIBRARY_PATH=/home/nielsbroekhuizen/projects/my-vscode-project/.venv/lib/python3.11/site-packages/nvidia/cublas/lib:/home/nielsbroekhuizen/projects/my-vscode-project/.venv/lib/python3.11/site-packages/nvidia/cuda_cupti/lib:/home/nielsbroekhuizen/projects/my-vscode-project/.venv/lib/python3.11/site-packages/nvidia/cuda_nvrtc/lib:/home/nielsbroekhuizen/projects/my-vscode-project/.venv/lib/python3.11/site-packages/nvidia/cuda_runtime/lib:/home/nielsbroekhuizen/projects/my-vscode-project/.venv/lib/python3.11/site-packages/nvidia/cudnn/lib:/home/nielsbroekhuizen/projects/my-vscode-project/.venv/lib/python3.11/site-packages/nvidia/cufft/lib:/home/nielsbroekhuizen/projects/my-vscode-project/.venv/lib/python3.11/site-packages/nvidia/cufile/lib:/home/nielsbroekhuizen/projects/my-vscode-project/.venv/lib/python3.11/site-packages/nvidia/curand/lib:/home/nielsbroekhuizen/projects/my-vscode-project/.venv/lib/python3.11/site-packages/nvidia/cusolver/lib:/home/nielsbroekhuizen/projects/my-vscode-project/.venv/lib/python3.11/site-packages/nvidia/cusparse/lib:/home/nielsbroekhuizen/projects/my-vscode-project/.venv/lib/python3.11/site-packages/nvidia/cusparselt/lib:/home/nielsbroekhuizen/projects/my-vscode-project/.venv/lib/python3.11/site-packages/nvidia/nccl/lib:/home/nielsbroekhuizen/projects/my-vscode-project/.venv/lib/python3.11/site-packages/nvidia/nvjitlink/lib:/home/nielsbroekhuizen/projects/my-vscode-project/.venv/lib/python3.11/site-packages/nvidia/nvshmem/lib:/home/nielsbroekhuizen/projects/my-vscode-project/.venv/lib/python3.11/site-packages/nvidia/nvtx/lib:/home/nielsbroekhuizen/projects/my-vscode-project/.venv/lib/python3.11/site-packages/torch/lib
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - aio-sandbox
     restart: unless-stopped
