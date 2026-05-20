@@ -32,6 +32,26 @@ Read this skill when the user says anything like:
 **Never guess coordinates.** Always read the canvas state first, then compute
 what you need from the data returned.
 
+---
+
+## Verify state after every action — `get_sem_status`
+
+After **every** `paint_canvas`, `segment_viewport`, or camera navigation call,
+you **MUST** call `get_sem_status` before your next action:
+
+```python
+paint_canvas("camera_goto", {"x": 2, "y": 1})
+status = get_sem_status()   # waits 1.5 s, then returns:
+# status["background"]     → current background filename
+# status["filters"]        → {brightness, contrast}
+# status["tile_position"]  → {region, fw, x, y} (grid mode only)
+# status["ui_mode"]        → "grid" | "image" | "atlas"
+# status["segmentation"]   → {enabled, count, ...}
+# status["session"]        → {filterAdjustments, vlmSnapshots}
+```
+
+Do not assume the action succeeded until you have read `get_sem_status`.
+
 ```python
 state = paint_canvas("state")
 # state contains:
@@ -296,6 +316,14 @@ data = paint_canvas("export_json")
 | `camera_goto` | Jump directly to tile by `{x, y}` (optionally `region`, `fw`) |
 | `camera_state` | Read current uiMode and tileGrid position |
 | `set_canvas_mode` | Switch between `"image"` and `"grid"` modes |
+| `set_filters` | Set `{brightness, contrast}` (0–300, 100 = neutral) |
+| `randomize_filters` | Scramble filters and capture reference histogram |
+| `atlas_enter` | Enter stitched atlas view for the current region + fw |
+| `atlas_exit` | Return from atlas view to grid mode |
+| `atlas_state` | Read atlas state including `tile_coords` annotation mapping |
+| `atlas_fit` | Fit the atlas view to the viewport |
+| `segment_viewport` | Run SAM2 segmentation on the current view (requires `segmentationEnabled=true`) |
+| `get_sem_status` | Wait, then return background, filters, tile_position, ui_mode, segmentation, session |
 
 ---
 
@@ -386,3 +414,125 @@ while True:
     if "error" in result:
         break   # hit right boundary
 ```
+
+---
+
+## Atlas Mode
+
+Atlas mode stitches all tiles of the current region + focal width into a single
+overview image. Useful for selecting a structural ROI before zooming into
+individual tiles.
+
+```python
+# Enter atlas (must already be in grid mode with a tile loaded)
+paint_canvas("atlas_enter")
+get_sem_status()   # wait for render; ui_mode → "atlas"
+
+# Fit to viewport
+paint_canvas("atlas_fit")
+
+# Read atlas state — includes tile_coords mapping
+state = paint_canvas("atlas_state")
+# state["tile_coords"] → dict mapping each annotation id → {region, fw, x, y, canvas_x, canvas_y}
+# Lets you find which tile an annotation falls in without manual math.
+
+# Exit atlas — returns to the tile that was active when you entered
+paint_canvas("atlas_exit")
+get_sem_status()   # ui_mode → "grid"
+```
+
+**When to use atlas mode:**
+- Spatial overview of a region before drilling into individual tiles
+- Finding which tile contains a structural feature (use `tile_coords` from `atlas_state`)
+- Case Study 2: map particle annotations back to tile coordinates for counting per-tile
+
+**Atlas + annotation coordinate mapping:**
+
+```python
+paint_canvas("atlas_enter")
+# Draw a dot on the feature of interest
+dot = paint_canvas("dot", {"cx": 540, "cy": 320, "radius": 6,
+                            "fill": "#ff0000", "createdBy": "model"})
+# Get which tile that dot falls in
+state = paint_canvas("atlas_state")
+coords = state["tile_coords"].get(dot["id"])
+# coords → {"region": "Region011", "fw": 120, "x": 3, "y": 1, ...}
+
+# Navigate directly to that tile
+paint_canvas("atlas_exit")
+paint_canvas("camera_goto", {"x": coords["x"], "y": coords["y"],
+                              "region": coords["region"], "fw": coords["fw"]})
+get_sem_status()
+```
+
+---
+
+## Image Filters
+
+```python
+# Set brightness + contrast (0–300, 100 = neutral)
+paint_canvas("set_filters", {"brightness": 130, "contrast": 85})
+get_sem_status()   # verify filters applied
+
+# Randomize (Case Study 1 start — captures reference histogram first)
+paint_canvas("randomize_filters")
+get_sem_status()   # filters now randomised
+```
+
+---
+
+## SAM2 Segmentation
+
+The `segment_viewport` tool calls the `agent-api` SAM2 endpoint and overlays
+the result on the canvas. The human must have `segmentationEnabled = true` in
+the UI (click **▶ Run** panel) before calling.
+
+```python
+result = segment_viewport()
+# result → {ok, count, centroids: [[x,y],...], bboxes: [[x,y,w,h],...], mask_png: "<path>"}
+```
+
+- SAM2 is **deterministic**: same image + same hyperparameters = identical output every run.
+- Only the VLM interpretation varies across runs.
+- Call `get_sem_status()` after to confirm segmentation count in state.
+
+---
+
+## Histogram Evaluation Workflow (Case Study 1)
+
+Goal: restore a randomised SEM image to its reference histogram.
+
+```python
+# 1. Start a run — randomises filters AND saves reference histogram
+paint_canvas("randomize_filters")
+get_sem_status()    # confirm filters changed
+
+# 2. Iteratively adjust filters toward the reference
+for iteration in range(5):
+    # Read the current score
+    score_data = paint_canvas("histogram_score")   # {score, wasserstein, clipping_penalty}
+    if score_data["score"] < 0.05:
+        break   # good enough
+
+    # Adjust based on histogram shape (read reference and current)
+    ref   = paint_canvas("histogram_reference")    # {bins: [...], range: [lo, hi]}
+    cur   = paint_canvas("histogram_current")       # same schema + score
+
+    # Make an informed adjustment
+    paint_canvas("set_filters", {"brightness": <new_b>, "contrast": <new_c>})
+    get_sem_status()
+
+# 3. Capture result once satisfied
+import subprocess
+subprocess.run([
+    "python",
+    "/workspace/skills/master-skill/sem-histogram-eval/sem_histogram_error.py",
+    "--paint-url", "http://host.docker.internal:3000"
+])
+# Output: timestamped result JSON + PNG exports saved to /workspace/screenshots/
+```
+
+**Scoring**: lower is better.
+- `wasserstein` — earth-mover distance between current and reference histogram
+- `clipping_penalty` — penalty for histogram bins clipped at 0 or 255
+- `score` = wasserstein + clipping_penalty
