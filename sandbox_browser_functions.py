@@ -30,53 +30,27 @@ def get_sandbox_client() -> Sandbox:
 
 
 def write_binary_file(client, path: str, data: bytes) -> Dict[str, Any]:
+    from sandbox_core_functions import execute_python_code
     try:
         base_dir = "/workspace/screenshots"
         rel_path = os.path.relpath(path, base_dir)
         safe_path = os.path.join(base_dir, rel_path)
-        # Ensure screenshots directory and subfolders exist
-        client.shell.exec_command(command=f"mkdir -p '{os.path.dirname(safe_path)}'")
-        client.shell.exec_command(command=f"mkdir -p '{base_dir}'")
+
         b64 = base64.b64encode(data).decode("ascii")
-        cmd = (
-            "python3 - <<'PY'\n"
-            "import base64, os\n"
-            f"data = base64.b64decode({b64!r})\n"
-            f"path = {safe_path!r}\n"
-            "os.makedirs(os.path.dirname(path), exist_ok=True)\n"
-            "with open(path, 'wb') as f:\n"
-            "    f.write(data)\n"
-            "print('WROTE', len(data), 'BYTES')\n"
-            "PY"
-        )
-        res = client.shell.exec_command(command=cmd)
-        shell_output = getattr(res, 'output', None)
-        shell_error = getattr(res, 'error', None)
-        # Print and log shell output and error
-        print(f"[write_binary_file] Shell output: {shell_output}")
-        print(f"[write_binary_file] Shell error: {shell_error}")
-        # Ensure log directory exists before writing log
-        client.shell.exec_command(command=f"mkdir -p '{base_dir}'")
-        log_path = os.path.join(base_dir, "write_binary_file_shell.log")
-        try:
-            with open(log_path, "a") as logf:
-                logf.write(f"PATH: {safe_path}\nOUTPUT: {shell_output}\nERROR: {shell_error}\n\n")
-        except Exception as log_exc:
-            print(f"[write_binary_file] Log write exception: {log_exc}")
-        if res and getattr(res, 'success', True):
-            return {"success": True, "method": "shell_base64", "path": safe_path, "bytes_written": len(data), "shell_output": shell_output}
-        else:
-            return {"success": False, "path": safe_path, "bytes_written": len(data), "shell_output": shell_output, "shell_error": shell_error}
+        code = f"""import base64, os
+data = base64.b64decode({b64!r})
+os.makedirs(os.path.dirname({safe_path!r}) or '.', exist_ok=True)
+with open({safe_path!r}, 'wb') as f:
+    f.write(data)
+print('WROTE', len(data), 'BYTES')
+"""
+        res = execute_python_code(code, timeout=30)
+        if res.get("success") and "WROTE" in res.get("output", ""):
+            return {"success": True, "path": safe_path, "bytes_written": len(data)}
+        return {"success": False, "path": safe_path, "error": res.get("error") or res.get("output")}
     except Exception as e:
         print(f"[write_binary_file] Exception: {e}")
-        try:
-            client.shell.exec_command(command=f"mkdir -p '{base_dir}'")
-            log_path = os.path.join(base_dir, "write_binary_file_shell.log")
-            with open(log_path, "a") as logf:
-                logf.write(f"PATH: {path}\nEXCEPTION: {e}\n\n")
-        except Exception as log_exc:
-            print(f"[write_binary_file] Log write exception: {log_exc}")
-        return {"success": False, "path": path, "bytes_written": len(data), "error": str(e)}
+        return {"success": False, "path": path, "error": str(e)}
 
 
 def take_browser_screenshot_png(
@@ -205,7 +179,7 @@ def browser_click(x: Optional[int] = None, y: Optional[int] = None,
     try:
         client = get_sandbox_client()
         res = client.browser.execute_action(
-            request=Action_Click(x=x, y=y, num_clicks=num_clicks, button=button)
+            request=Action_Click(x=x, y=y, num_clicks=num_clicks, button=button or "left")
         )
         return {"success": True, "result": res}
     except Exception as e:

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEM Service — Annotation Tool</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Top bar -->
+  <header id="topbar">
+    <span class="app-title">&#x1F52C; SEM Service</span>
+
+    <div class="topbar-group">
+      <label class="upload-label" title="Load image">
+        📂 Load Image
+        <input type="file" id="file-upload" accept="image/*" hidden />
+      </label>
+      <button class="btn" id="btn-browse-dataset" title="Browse SEM dataset (labeled + unlabeled)">&#x1F50D; Dataset</button>
+    </div>
+
+    <!-- Dataset browser dialog -->
+    <dialog id="dataset-dialog">
+      <div class="dialog-header">
+        <span>Browse SEM Dataset</span>
+        <button id="btn-dataset-close" class="btn btn-sm">✕</button>
+      </div>
+      <div class="dialog-body">
+        <label for="dataset-category-select">Category</label>
+        <select id="dataset-category-select"></select>
+        <label for="dataset-image-select">Image</label>
+        <select id="dataset-image-select" size="12"></select>
+      </div>
+      <div class="dialog-footer">
+        <button id="btn-dataset-load" class="btn">Load Selected</button>
+      </div>
+    </dialog>
+
+    <div class="topbar-group">
+      <label for="color-picker">Color</label>
+      <input type="color" id="color-picker" value="#ff0000" />
+      <label for="stroke-width">Width</label>
+      <input type="number" id="stroke-width" value="2" min="1" max="20" style="width:50px" />
+    </div>
+
+    <div class="topbar-group">
+      <button id="btn-export-png" class="btn">⬇ PNG</button>
+      <button id="btn-export-json" class="btn">⬇ JSON</button>
+    </div>
+
+    <div class="topbar-group filter-group">
+      <label for="filter-brightness" title="Brightness — multiplies each pixel value by (v/100).&#10;v=100 → ×1.0 (unchanged)&#10;v=200 → ×2.0 (twice as bright)&#10;v= 50 → ×0.5 (half as bright)&#10;v=  0 → black&#10;Range 0–300.">☀</label>
+      <input type="range" id="filter-brightness" min="0" max="300" value="100" class="filter-slider" />
+      <input type="number" id="filter-brightness-val" class="filter-val" value="100" min="0" max="300" title="Click to enter a value (0–300)" />
+      <label for="filter-contrast" title="Contrast — scales each pixel linearly around mid-grey (127).&#10;pixel_out = pixel_in × (v/100) + 127 × (1 − v/100)&#10;v=100 → unchanged&#10;v=200 → stretches histogram away from mid-grey (more contrast)&#10;v= 50 → compresses histogram toward mid-grey (washed out)&#10;v=  0 → flat mid-grey&#10;Range 0–300.">◑</label>
+      <input type="range" id="filter-contrast" min="0" max="300" value="100" class="filter-slider" />
+      <input type="number" id="filter-contrast-val" class="filter-val" value="100" min="0" max="300" title="Click to enter a value (0–300)" />
+      <button class="btn" id="btn-reset-filters" title="Reset filters">↺</button>
+      <button class="btn btn-randomize" id="btn-randomize" title="Randomize filters (saves reference histogram)">🎲 Randomize</button>
+    </div>
+
+    <!-- Zoom controls -->
+    <div class="topbar-group zoom-group">
+      <button id="btn-zoom-out" class="btn zoom-btn" title="Zoom out">−</button>
+      <button id="btn-zoom-in"  class="btn zoom-btn" title="Zoom in">+</button>
+    </div>
+
+    <!-- Mode toggle: Image ↔ Grid -->
+    <div class="topbar-group mode-toggle-group">
+      <button id="btn-mode-image" class="mode-btn mode-btn-active" title="Normal image mode">🖼 Image</button>
+      <button id="btn-mode-grid"  class="mode-btn"                 title="Grid dataset mode — Combined New Scans Andrea">⊞ Grid</button>
+    </div>
+
+    <!-- Grid mode status bar (hidden in image mode) -->
+    <div id="grid-status" style="display:none" title="Current tile position">
+      <button id="btn-fit-image" class="btn atlas-btn" title="Fit image to viewport">⊞ Fit</button>
+      <span id="grid-status-label">—</span>
+      <button id="btn-atlas" class="btn atlas-btn" title="View full region as a single explorable Atlas">🗺️ Atlas</button>
+    </div>
+
+    <!-- Atlas mode controls (hidden unless in atlas mode) -->
+    <div id="atlas-bar" style="display:none">
+      <button id="btn-atlas-back" class="btn atlas-btn" title="Return to tile-by-tile grid navigation">← Grid</button>
+      <button id="btn-atlas-fit"  class="btn atlas-btn" title="Zoom to fit whole atlas in view">⊞ Fit</button>
+    </div>
+  </header>
+
+  <div id="workspace">
+    <!-- Left toolbar -->
+    <aside id="toolbar">
+      <button id="tool-select"  class="tool-btn active" title="Select / Move (S)">↖ Select</button>
+      <button id="tool-rect"    class="tool-btn" title="Rectangle (R)">▭ Rect</button>
+      <button id="tool-ellipse" class="tool-btn" title="Ellipse (E)">◯ Ellipse</button>
+      <button id="tool-arrow"   class="tool-btn" title="Arrow (A)">↗ Arrow</button>
+      <button id="tool-dot"     class="tool-btn" title="Dot / Marker (D)">● Dot</button>
+      <button id="tool-pen"     class="tool-btn" title="Freehand pen (P)">✏ Pen</button>
+      <button id="tool-text"    class="tool-btn" title="Text (T)">T Text</button>
+      <hr />
+      <button id="btn-delete"   class="btn btn-danger" title="Delete selected (Del)">🗑 Delete</button>
+      <button id="btn-clear"    class="btn btn-danger" title="Clear all annotations">✕ Clear</button>
+    </aside>
+
+    <div class="resize-handle resize-handle-h" id="resize-toolbar"></div>
+
+    <!-- Canvas area -->
+    <main id="canvas-wrap">
+      <canvas id="main-canvas"></canvas>
+      <!-- Model cursor overlay — absolutely positioned over canvas-wrap -->
+      <div id="model-cursor" class="model-cursor" style="display:none">
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <polygon points="4,2 4,20 9,15 13,22 15,21 11,14 18,14" fill="#00e5ff" stroke="#003d4d" stroke-width="1.2"/>
+        </svg>
+        <span id="model-cursor-label"></span>
+      </div>
+    </main>
+
+    <div class="resize-handle resize-handle-h" id="resize-sidebar"></div>
+
+    <!-- Right sidebar: object list + tile minimap -->
+    <aside id="sidebar">
+      <h3>Objects <span id="obj-count">(0)</span></h3>
+      <div id="object-list"></div>
+
+      <!-- Tile minimap — shown only in grid mode -->
+      <div id="tile-minimap" style="display:none">
+        <div class="resize-handle resize-handle-v" id="resize-minimap"></div>
+        <h3 class="minimap-title">Neighbours</h3>
+        <div id="minimap-grid"></div>
+      </div>
+
+      <!-- Tile navigation controls — shown only in grid mode -->
+      <div id="tile-nav" style="display:none">
+        <h3 class="minimap-title">Navigate</h3>
+
+        <div class="nav-row">
+          <label class="nav-label">Region</label>
+          <select id="nav-region" class="nav-select"></select>
+        </div>
+
+        <div class="nav-row">
+          <label class="nav-label">fw</label>
+          <select id="nav-fw" class="nav-select"></select>
+        </div>
+
+        <div class="nav-dpad">
+          <button id="nav-y-up"    class="nav-arrow-btn dpad-up"    title="y + 1">▲</button>
+          <div class="dpad-middle">
+            <button id="nav-x-left"  class="nav-arrow-btn dpad-left"  title="x − 1">◀</button>
+            <span   id="nav-xy-val"  class="nav-coord-val dpad-center">—</span>
+            <button id="nav-x-right" class="nav-arrow-btn dpad-right" title="x + 1">▶</button>
+          </div>
+          <button id="nav-y-down"  class="nav-arrow-btn dpad-down"  title="y − 1">▼</button>
+        </div>
+      </div>
+
+      <!-- Live brightness histogram — always at the bottom of the sidebar -->
+      <div id="live-hist-panel">
+        <h3>Histogram <span id="live-hist-score"></span></h3>
+        <canvas id="live-hist-canvas" width="440" height="240"></canvas>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Agent terminal panel -->
+  <div id="agent-panel">
+    <div class="resize-handle resize-handle-v" id="resize-agent"></div>
+    <div id="agent-body">
+      <!-- Left: chat + input bar -->
+      <div id="agent-chat-pane">
+        <div id="agent-chat-header">
+          <span id="agent-title">&#x1F916; Agent</span>
+          <div id="agent-status-dot" class="agent-dot agent-dot-off" title="Agent status"></div>
+          <button id="btn-agent-kill"  class="btn btn-agent-kill"  title="Stop current agent run (cancels in-progress response)">⏹ Stop</button>
+          <button id="btn-agent-stop"  class="btn btn-agent-stop"  title="Clear agent memory">&#x25A0; Reset</button>
+          <button id="btn-agent-clear" class="btn btn-agent-clear-btn" title="Clear log output">&#x239A; Clear</button>
+          <span class="btn-divider"></span>
+          <button id="btn-nocode" class="btn btn-nocode" title="Block code execution: when ON, every message is prefixed with an instruction telling the agent not to run any code or scripts">🚫 No&nbsp;Code</button>
+          <button id="tool-segment" class="btn btn-seg-toggle" title="SAM2 automatic segmentation">⬡ Segment</button>
+          <div id="segment-panel">
+            <span class="btn-divider"></span>
+            <button id="seg-opt-centroids" class="seg-opt active" title="Show centroid dots">&#x25CF; Centroids</button>
+            <button id="seg-opt-bboxes"    class="seg-opt active" title="Show bounding boxes">&#x25AD; BBoxes</button>
+            <button id="seg-opt-mask"      class="seg-opt active" title="Show mask overlay">&#x2B21; Mask</button>
+            <button id="seg-opt-text"      class="seg-opt active" title="Return coordinate values as text to the agent — when OFF only the visual overlay is provided">T Text</button>
+            <button id="btn-run-seg"   class="btn btn-seg-run">&#x25B6; Run</button>
+            <button id="btn-clear-seg" class="btn btn-danger btn-sm">&#x2715; Clear</button>
+          </div>
+          <select id="agent-font-size" title="Font size">
+            <option value="small">S</option>
+            <option value="medium" selected>M</option>
+            <option value="large">L</option>
+          </select>
+        </div>
+        <div id="agent-chat"></div>
+        <div id="agent-input-bar">
+          <input id="agent-input" type="text" placeholder="Message to agent… (Enter to send)" autocomplete="off" />
+        </div>
+      </div>
+      <div class="resize-handle resize-handle-h" id="resize-agent-split"></div>
+      <!-- Right: reasoning trace -->
+      <div id="agent-trace">
+        <div id="agent-trace-header">
+          <span>Reasoning Trace</span>
+          <div id="trace-nav">
+            <button id="btn-trace-download" class="btn trace-nav-btn" title="Download current trace as .txt">&#x2913;</button>
+            <button id="btn-trace-prev" class="btn trace-nav-btn" title="Previous prompt trace">&lsaquo;</button>
+            <span id="trace-nav-label">&mdash;</span>
+            <button id="btn-trace-next" class="btn trace-nav-btn" title="Next prompt trace">&rsaquo;</button>
+          </div>
+        </div>
+        <div id="agent-trace-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fabric.js v5 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"
+          crossorigin="anonymous"></script>
+  <script src="app.js"></script>
+</body>
+</html>

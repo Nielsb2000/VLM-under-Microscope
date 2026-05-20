@@ -151,10 +151,24 @@ class AIOSandboxBackend(BaseSandbox):
         return super().ls_info(path)
     
     def read(self, file_path: str, offset: int = 0, limit: int = 2000) -> str:
-        """Read file with path validation."""
+        """Read file with path validation, falling back to shell cat on SDK failures."""
         if not _is_path_allowed(file_path):
             return f"Error: Access denied to '{file_path}'. Only /workspace and /home/gem are accessible."
-        return super().read(file_path, offset, limit)
+        result = super().read(file_path, offset, limit)
+        # BaseSandbox returns an error string (starts with 'Error:') when the SDK
+        # download_files path fails (e.g. false 'file not found'). Fall back to
+        # a direct shell cat which is known to work reliably.
+        if isinstance(result, str) and result.startswith("Error:"):
+            cmd = f"cat '{file_path}'"
+            if offset:
+                cmd = f"tail -n +{offset + 1} '{file_path}'"
+            shell_result = execute_shell_command(cmd)
+            if shell_result.get("success"):
+                output = shell_result.get("output", "")
+                lines = output.splitlines(keepends=True)
+                return "".join(lines[:limit]) if limit else output
+            return result  # return original error if shell also fails
+        return result
     
     def grep_raw(self, pattern: str, path: str | None = None, glob: str | None = None) -> list[GrepMatch] | str:
         """Search with path validation."""
