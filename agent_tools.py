@@ -14,27 +14,68 @@ from urllib.parse import urlencode as _urlencode
 from MCP_functions import call_mcp_tool
 from sandbox_core_functions import get_sandbox_context, create_skill_in_sandbox
 
-_PAINT_BASE = _os.environ.get("PAINT_SERVICE_URL", "http://localhost:3000")
+_PAINT_BASE = _os.environ.get("SEM_SERVICE_URL", "http://localhost:3000")
+
+
+def _annotate_atlas_coords(obj: dict, tw: int, th: int) -> dict:
+    """Add tile_coords to an annotation object, translating atlas pixel coords → tile coords.
+
+    For any point (ax, ay) in atlas pixel space:
+      tile_x   = floor(ax / tw),  pixel_x = ax % tw
+      tile_y   = floor(ay / th),  pixel_y = ay % th
+    """
+    def _pt(ax, ay):
+        if ax is None or ay is None:
+            return None
+        return {
+            "tile_x": int(ax // tw), "tile_y": int(ay // th),
+            "pixel_x": int(ax % tw), "pixel_y": int(ay % th),
+        }
+
+    out = dict(obj)
+    otype = obj.get("type", "")
+    coords = {}
+    if otype in ("rect", "text"):
+        coords["origin"] = _pt(obj.get("x"), obj.get("y"))
+    elif otype == "ellipse":
+        coords["center"] = _pt(obj.get("cx"), obj.get("cy"))
+    elif otype in ("arrow", "line"):
+        coords["start"] = _pt(obj.get("x1"), obj.get("y1"))
+        coords["end"]   = _pt(obj.get("x2"), obj.get("y2"))
+    elif otype == "dot":
+        coords["center"] = _pt(obj.get("cx"), obj.get("cy"))
+    if coords:
+        out["tile_coords"] = coords
+    return out
 
 
 def _paint(method: str, path: str, body: dict | None = None, binary: bool = False):
-    """Internal helper — call the paint-service REST API."""
+    """Internal helper — call the sem-service REST API."""
+    from urllib.error import HTTPError as _HTTPError
     url = f"{_PAINT_BASE}{path}"
     data = _json.dumps(body).encode() if body is not None else None
     headers = {"Content-Type": "application/json"} if data else {}
     req = _Request(url, data=data, headers=headers, method=method.upper())
-    with urlopen(req, timeout=15) as resp:
-        return resp.read() if binary else _json.loads(resp.read())
+    try:
+        with urlopen(req, timeout=15) as resp:
+            return resp.read() if binary else _json.loads(resp.read())
+    except _HTTPError as e:
+        # Return the JSON error body instead of raising, so the agent can read it
+        body_bytes = e.read()
+        try:
+            return _json.loads(body_bytes)
+        except Exception:
+            return {"error": f"HTTP {e.code}: {e.reason}"}
 
 
 @tool
-def paint_canvas(action: str, params: dict = None) -> dict:
-    """Control the paint-service annotation canvas.
+def paint_canvas(action: str, params: dict | str | None = None, **kwargs) -> dict:
+    """Control the sem-service annotation canvas.
 
     Use this tool to programmatically annotate images and export results.
-    The paint-service must be running at http://localhost:3000 (start it with
-    `docker run -p 3000:3000 paint-service` or `docker-compose up -d` inside
-    the paint-service/ folder).
+    The sem-service must be running at http://localhost:3000 (start it with
+    `docker run -p 3000:3000 sem-service` or `docker-compose up -d` inside
+    the sem-service/ folder).
 
     **action** — one of:
 
@@ -68,7 +109,7 @@ def paint_canvas(action: str, params: dict = None) -> dict:
                        base64-encoded PNG data URL. Also saves the PNG to a timestamped
                        folder under screenshots/paint_<timestamp>/ on the host, which is
                        volume-mounted into the sandbox at /workspace/screenshots/paint_<timestamp>/.
-                       Paint-service exports always land in paint_* folders; browser step
+                       Sem-service exports always land in paint_* folders; browser step
                        screenshots land in steps_* folders — they never mix.
                        Returns {saved_to, width, height}.
                        params: {filename} (optional, default "canvas_export.png")
@@ -93,10 +134,17 @@ def paint_canvas(action: str, params: dict = None) -> dict:
       - "viewport"       Return current viewport state.
       - "set_filters"    Adjust visual appearance of the canvas viewport (does NOT alter the
                          underlying image — purely a display filter).
-                         params: {brightness, contrast, saturation} — all optional, values are
-                         percentages (100 = normal, 0 = min, 200 = doubled, max 300).
-                         Use to enhance visibility of faint features, improve contrast for
-                         analysis, or boost colour saturation.
+                         params: {brightness, contrast} — both optional, values are
+                         percentages (0 = min, 300 = max).
+                         Use to enhance visibility of faint features or improve contrast for
+                         analysis.
+
+    Case study — iterative image quality refinement:
+      - "randomize_filters"  Start a case-study run: (1) saves the brightness histogram of the
+                         raw background image as the reference for later evaluation, then
+                         (2) applies a random brightness / contrast combination.
+                         No params required.  Returns {ok, reference_histogram_saved}.
+                         The applied filter values are intentionally not returned.
 
     Image crop (permanently replaces the background with a new cropped image):
       - "crop"           Slice out a sub-region of the background image and load it as the
@@ -134,11 +182,49 @@ def paint_canvas(action: str, params: dict = None) -> dict:
       - "load_image_by_name"  Load a previously uploaded image by filename.
                          params: {filename}
 
+    Grid dataset mode (SEM tile navigation — Combined_New_Scans_Andrea):
+      - "load_tile_grid"  Enter grid mode and load the tile dataset. Scans both train+val
+                         folders. Loads the default first tile as the canvas background.
+                         Clears all annotations. params: {region?: int, fw?: int}
+                         (both optional; omit to use the first available tile)
+                         Example: paint_canvas("load_tile_grid")
+                         Example: paint_canvas("load_tile_grid", {"region": 11, "fw": 120})
+      - "camera_left"    Move to the tile at x-1 (one step left). Clears annotations.
+                         Returns error if no tile exists there.
+      - "camera_right"   Move to the tile at x+1 (one step right).
+      - "camera_up"      Move to the tile at y-1 (one step up).
+      - "camera_down"    Move to the tile at y+1 (one step down).
+      - "camera_move"    Move in a given direction. params: {direction: "left"|"right"|"up"|"down"}
+      - "camera_goto"    Jump to an explicit tile. params: {x: int, y: int, region?: int, fw?: int}
+                         If region/fw omitted, stays in the current region.
+      - "camera_state"   Return current tile position, mode, and region list.
+      - "set_canvas_mode"  Switch UI mode. params: {mode: "image"|"grid"}
+                         Use "image" to return to normal image upload workflow.
+
+    Atlas mode (view and annotate the entire region as one seamless image):
+      - "atlas_enter"   Enter atlas mode — stitches all tiles into a virtual scrollable canvas.
+                         params: {region?: int, fw?: int} (uses current grid region/fw if omitted).
+                         After entering, use normal draw tools (rect, line, arrow, etc.) with
+                         atlas pixel coordinates where x = tile_x * 1920 + pixel_x_within_tile.
+      - "atlas_exit"    Return from atlas mode back to tile-by-tile grid navigation.
+      - "atlas_state"   Returns atlas dimensions, grid layout, and all annotations with
+                         automatic tile coordinate translation (shows which tile each point
+                         falls on and the pixel offset within that tile).
+
     Returns:
         dict with the API response or {saved_to, size_bytes} for PNG export.
     """
     if params is None:
         params = {}
+    # Model sometimes passes params as a JSON string — parse it
+    if isinstance(params, str):
+        try:
+            params = _json.loads(params)
+        except Exception:
+            params = {}
+    # Accept flat kwargs as fallback (model sometimes passes params at top level)
+    if kwargs:
+        params = {**kwargs, **params}
 
     match action:
         case "new":
@@ -187,6 +273,7 @@ def paint_canvas(action: str, params: dict = None) -> dict:
         case "export_png":
             save_to = params.get("save_to", "/tmp/annotated.png")
             png_bytes = _paint("GET", "/api/export/png", binary=True)
+            _os.makedirs(_os.path.dirname(_os.path.abspath(save_to)), exist_ok=True)
             with open(save_to, "wb") as f:
                 f.write(png_bytes)
             return {"saved_to": save_to, "size_bytes": len(png_bytes)}
@@ -259,9 +346,137 @@ def paint_canvas(action: str, params: dict = None) -> dict:
         case "list_images":
             return _paint("GET", "/api/images")
         case "load_image_by_name":
-            return _paint("POST", "/api/images/load", {"filename": params["filename"]})
+            fname = params.get("filename") or params.get("name") or params.get("file")
+            if not fname:
+                return {"error": "load_image_by_name requires a 'filename' param. Call list_images first to see available filenames."}
+            return _paint("POST", "/api/images/load", {"filename": fname})
+        # ---- Tile grid / camera navigation ----
+        case "load_tile_grid":
+            return _paint("POST", "/api/camera/init", params or {})
+        case "camera_left":
+            return _paint("POST", "/api/camera/move", {"direction": "left"})
+        case "camera_right":
+            return _paint("POST", "/api/camera/move", {"direction": "right"})
+        case "camera_up":
+            return _paint("POST", "/api/camera/move", {"direction": "up"})
+        case "camera_down":
+            return _paint("POST", "/api/camera/move", {"direction": "down"})
+        case "camera_move":
+            if "direction" not in params:
+                return {"error": "camera_move requires 'direction' parameter (left/right/up/down)"}
+            return _paint("POST", "/api/camera/move", {"direction": params["direction"]})
+        case "camera_goto":
+            for k in ("x", "y"):
+                if k not in params:
+                    return {"error": f"camera_goto requires '{k}' parameter"}
+            return _paint("POST", "/api/camera/goto", params)
+        case "camera_state":
+            return _paint("GET", "/api/camera/state")
+        case "set_canvas_mode":
+            if "mode" not in params:
+                return {"error": "set_canvas_mode requires 'mode' parameter ('image' or 'grid')"}
+            return _paint("POST", "/api/camera/mode", {"mode": params["mode"]})
+        # ---- Atlas mode ----
+        case "atlas_enter":
+            return _paint("POST", "/api/atlas/enter", params or {})
+        case "atlas_exit":
+            return _paint("POST", "/api/atlas/exit")
+        case "atlas_state":
+            cam = _paint("GET", "/api/camera/state")
+            if cam.get("uiMode") != "atlas":
+                return {"error": "Not in atlas mode. Use camera_state for grid/image state."}
+            atlas = cam.get("atlas", {})
+            tw = atlas.get("tileWidth", 1920)
+            th = atlas.get("tileHeight", 1200)
+            objects = _paint("GET", "/api/objects")
+            if isinstance(objects, list):
+                annotated = [_annotate_atlas_coords(o, tw, th) for o in objects]
+            else:
+                annotated = objects  # error passthrough
+            return {
+                "uiMode": "atlas",
+                "atlas": atlas,
+                "annotations": annotated,
+                "coordinate_note": (
+                    "All annotation coordinates are in atlas pixel space. "
+                    f"atlas_x = tile_x * {tw} + pixel_x_within_tile, "
+                    f"atlas_y = tile_y * {th} + pixel_y_within_tile. "
+                    "tile_coords shows the decomposed tile + pixel offset for each coordinate."
+                ),
+            }
+        case "randomize_filters":
+            # Randomise brightness/contrast AND capture the reference histogram.
+            # Use this to start a case-study run.
+            return _paint("POST", "/api/randomize")
         case _:
             return {"error": f"Unknown action: {action}. See docstring for valid actions."}
+
+
+@tool
+def get_sem_status(settle_seconds: float = 1.5) -> dict:
+    """Wait briefly, then return a compact snapshot of the sem-service state.
+
+    Call this after *every* paint_canvas or segmentation tool call to confirm
+    the canvas has settled before proceeding.  The settle delay gives the
+    browser time to apply state changes (tile load, filter render, etc.).
+
+    Returns a dict with:
+      background      — currently loaded image filename (or null)
+      filters         — {brightness, contrast}
+      tile_position   — {region, fw, x, y} when in grid/tile mode (null in atlas mode)
+      ui_mode         — "grid" | "atlas" | "image"
+      segmentation    — "present" (mask loaded) | "none"
+      session         — {filterAdjustments, vlmSnapshots}
+      ok              — True if sem-service responded
+
+    Example usage:
+        status = get_sem_status()
+        # verify background changed after camera_goto:
+        assert status["background"] == expected_filename
+    """
+    import time as _time
+    if settle_seconds > 0:
+        _time.sleep(settle_seconds)
+
+    try:
+        state = _paint("GET", "/api/canvas/state")
+        cam   = _paint("GET", "/api/camera/state")
+        sess  = _paint("GET", "/api/session")
+
+        bg = state.get("canvas", {}).get("backgroundImage")
+        if bg:
+            bg = _os.path.basename(bg)
+
+        filters = state.get("filters", {})
+
+        tile_pos = None
+        ui_mode = cam.get("uiMode", "unknown")
+        if ui_mode != "atlas":
+            tile_pos = {
+                "region": cam.get("region"),
+                "fw":     cam.get("fw"),
+                "x":      cam.get("x"),
+                "y":      cam.get("y"),
+            }
+
+        seg = state.get("segmentation")
+        seg_status = "present" if (seg and seg.get("mask_png")) else "none"
+
+        return {
+            "ok":           True,
+            "background":   bg,
+            "filters":      {"brightness": filters.get("brightness"), "contrast": filters.get("contrast")},
+            "tile_position": tile_pos,
+            "ui_mode":      ui_mode,
+            "segmentation": seg_status,
+            "session":      {
+                "filterAdjustments": sess.get("filterAdjustments", 0) if isinstance(sess, dict) else 0,
+                "vlmSnapshots":      sess.get("vlmSnapshots", 0)      if isinstance(sess, dict) else 0,
+            },
+        }
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
 
 @tool
 def run_browser_steps(

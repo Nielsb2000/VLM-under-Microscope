@@ -9,8 +9,9 @@ from agent_tools import (
     call_mcp_tool_in_sandbox,
     run_browser_steps,
     paint_canvas,
+    get_sem_status,
 )
-from agent_tools_vision import make_analyze_sandbox_image_tool, make_screenshot_and_ask_tool, make_move_and_verify_tool
+from agent_tools_vision import make_analyze_sandbox_image_tool, make_screenshot_and_ask_tool, make_move_and_verify_tool, make_segment_viewport_tool
 
 
 def get_default_llm(model_name: str | None = None):
@@ -39,10 +40,14 @@ def get_default_llm(model_name: str | None = None):
 - Home: /home/gem/
 - Workspace: /workspace/
 
-**Available skills:** bash-scripting, python-programming, web-network, file-management, sandbox-browser, sandbox-filesystem, mcp-tools."""
+**Available skills:** bash-scripting, python-programming, web-network, file-management, sandbox-browser, sandbox-filesystem, mcp-tools.
+
+**sem-service rule — always verify before acting:**
+After every paint_canvas, segment_viewport, or camera navigation call, you MUST call get_sem_status (default settle_seconds=1.5) before your next action. Check that the returned state matches what you intended (correct background image, filter values, tile position, etc.). Only proceed once the state is confirmed. This ensures the browser has had time to apply and render the change."""
     analyze_sandbox_image = make_analyze_sandbox_image_tool(llm)  # creates a closure tool
     screenshot_and_ask = make_screenshot_and_ask_tool(llm)          # live browser screenshot → vision model
     move_and_verify = make_move_and_verify_tool(llm)                # move cursor + self-verify in one step
+    segment_viewport = make_segment_viewport_tool()                 # SAM2 segmentation (gated on UI panel)
     # Essential tools for unique functionality (basic ops handled by built-in tools)
     essential_tools = [
         create_skill,
@@ -53,6 +58,8 @@ def get_default_llm(model_name: str | None = None):
         move_and_verify,
         run_browser_steps,
         paint_canvas,
+        segment_viewport,
+        get_sem_status,
     ]
     
     agent = create_deep_agent(
