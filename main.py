@@ -1,44 +1,84 @@
+import argparse
 import logging
+import sys
+from datetime import datetime
 from llm_client import get_default_llm
 from pathlib import Path
 from skills_utils import discover_skills, get_skills_summary
 
 LOG_FILE = "agent_session.log"
+LOGS_DIR = Path("logs")
 
 
-def _setup_logging() -> logging.Logger:
-    """Configure root logger to write to both console and a fresh log file."""
-    log_path = Path(LOG_FILE)
-    log_path.unlink(missing_ok=True)
+class _Tee:
+    """Write to both a real stream and a file simultaneously."""
+    def __init__(self, stream, file):
+        self._stream = stream
+        self._file = file
 
+    def write(self, data):
+        self._stream.write(data)
+        self._file.write(data)
+        self._file.flush()
+
+    def flush(self):
+        self._stream.flush()
+        self._file.flush()
+
+    def __getattr__(self, name):
+        return getattr(self._stream, name)
+
+
+def _setup_logging(enable_log_file: bool) -> logging.Logger:
+    """Configure root logger; optionally tee stdout/stderr to a timestamped .txt in logs/."""
     fmt = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s", datefmt="%H:%M:%S")
 
+    root = logging.getLogger()
+    root.setLevel(logging.DEBUG)
+
+    # Always keep the lightweight agent_session.log (DEBUG, overwritten each run)
+    log_path = Path(LOG_FILE)
+    log_path.unlink(missing_ok=True)
     file_handler = logging.FileHandler(log_path, mode="w", encoding="utf-8")
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(fmt)
-
-    # Attach to root so deepagents/langgraph debug output is also captured
-    root = logging.getLogger()
-    root.setLevel(logging.DEBUG)
     root.addHandler(file_handler)
 
+    if enable_log_file:
+        LOGS_DIR.mkdir(exist_ok=True)
+        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+        full_log = LOGS_DIR / f"session_{ts}.txt"
+        # File handler that also captures everything at DEBUG level
+        full_handler = logging.FileHandler(full_log, mode="w", encoding="utf-8")
+        full_handler.setLevel(logging.DEBUG)
+        full_handler.setFormatter(fmt)
+        root.addHandler(full_handler)
+        # Tee stdout and stderr so every print() also lands in the file
+        f = open(full_log, "a", encoding="utf-8", buffering=1)
+        sys.stdout = _Tee(sys.__stdout__, f)
+        sys.stderr = _Tee(sys.__stderr__, f)
+        print(f"[logging] Session log: {full_log.resolve()}")
+
     logger = logging.getLogger("agent")
-    logger.info("Session started — log: %s", log_path.resolve())
+    logger.info("Session started")
     return logger
 
 
-def _invoke_agent(agent, content, thread_id, logger):
-    """Invoke the agent with a message and return the last reply text."""
-    result = agent.invoke(
-        {"messages": [{"role": "user", "content": content}]},
-        config={"configurable": {"thread_id": thread_id}},
+def _parse_args():
+    parser = argparse.ArgumentParser(description="DeepAgent interactive loop")
+    parser.add_argument(
+        "--log",
+        type=lambda v: v.lower() in ("1", "true", "yes"),
+        default=False,
+        metavar="BOOL",
+        help="Write full session log (all output + tool calls) to logs/session_<ts>.txt",
     )
-    messages = result.get("messages", [])
-    return messages[-1].content if messages else ""
+    return parser.parse_args()
 
 
 def main():
-    logger = _setup_logging()
+    args = _parse_args()
+    logger = _setup_logging(args.log)
     print("Ask questions to the LLM (type 'quit' to exit)")
     print("💡 The agent can execute code and commands in the AIO Sandbox")
     print("   - Python code: runs in sandbox, output appears in sandbox terminal")
