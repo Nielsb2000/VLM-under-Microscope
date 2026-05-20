@@ -75,3 +75,17 @@ MS_Paint_Reasoning_Evaluation/*_res.txt
 MS_Paint_Reasoning_Evaluation/logs/
 MS_Paint_Reasoning_Evaluation/Results/dashboard_data/
 MS_Paint_Reasoning_Evaluation/Results/
+
+# Merged tile-grid dataset
+grid_dataset/
+
+# sem-service runtime-generated dirs (uploads and histogram data change per run)
+sem-service/uploads/
+sem-service/histograms/
+
+# Agent runtime files
+.agent_server.pid
+logs/
+
+# sem-service
+sem-service/uploads/logs/
