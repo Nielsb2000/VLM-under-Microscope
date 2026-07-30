@@ -21,12 +21,25 @@ from matplotlib.patches import Patch
 from json_results_to_df import load_results_df
 
 OUT_BASE = os.path.join(os.path.dirname(__file__), "..", "Results", "res_vis")
+MODEL_ORDER = ["gpt-4o", "gpt-5.1", "gpt-5.2", "gpt-5.5"]
 
 MODEL_COLORS = {
     "gpt-4o":  "#56B4E9",
     "gpt-5.1": "#E69F00",
     "gpt-5.2": "#009E73",
+    "gpt-5.5": "#CC79A7",
 }
+
+
+def model_sort_key(model: str) -> tuple[int, str]:
+    try:
+        return (MODEL_ORDER.index(model), model)
+    except ValueError:
+        return (len(MODEL_ORDER), model)
+
+
+def models_in_order(models) -> list[str]:
+    return sorted(set(models), key=model_sort_key)
 
 
 def main():
@@ -42,7 +55,7 @@ def main():
     parser.add_argument("--skills-mode", default="no_skills",
                         choices=["skills", "no_skills"])
     parser.add_argument("--models", nargs="+", default=None,
-                        help="Restrict to specific models (default: all found).")
+                        help="Restrict to specific models (default: all found, ordered as gpt-4o, gpt-5.1, gpt-5.2, gpt-5.5).")
     parser.add_argument("--output-dir", default=None)
     args = parser.parse_args()
 
@@ -52,6 +65,7 @@ def main():
         return
 
     df["Correct"] = df["Correct"].astype(float)
+    requested_models = models_in_order(args.models if args.models else df["Model"].unique())
 
     accuracies = []
     for blur in args.blur_levels:
@@ -59,21 +73,21 @@ def main():
             (df["image_type"] == args.image_type)
             & (df["blur_level"] == blur)
             & (df["skills_mode"] == args.skills_mode)
+            & (df["Model"].isin(requested_models))
         )
         if "reasoning_mode" in df.columns:
             base_mask &= (df["reasoning_mode"] == args.reasoning_mode) | (df["Model"] == "gpt-4o")
         sub = df[base_mask].drop_duplicates(subset=["image_num", "question_num", "Model"])
-        models = args.models if args.models else sorted(sub["Model"].unique())
-        for model in models:
+        for model in requested_models:
             valid = sub[sub["Model"] == model]["Correct"].dropna()
             acc = valid.mean() if len(valid) > 0 else np.nan
             accuracies.append((blur, model, acc))
 
-    if not accuracies:
+    if not any(not np.isnan(acc) for _, _, acc in accuracies):
         print("No accuracy data found. Check that Results/dashboard_data/ is populated.")
         return
 
-    unique_models = list(dict.fromkeys(m for _, m, _ in accuracies))
+    unique_models = requested_models
     model_colors = {m: MODEL_COLORS.get(m, "#0072B2") for m in unique_models}
 
     labels = [f"{model}\n({blur})" for blur, model, _ in accuracies]

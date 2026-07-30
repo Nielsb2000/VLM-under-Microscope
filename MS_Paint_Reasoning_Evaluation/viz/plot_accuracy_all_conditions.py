@@ -1,9 +1,9 @@
 """
-All models × all blur levels accuracy bar chart (with dotted separators between blur groups).
+All models x all blur levels accuracy bar chart (with dotted separators between blur groups).
 Reads from Results/dashboard_data/ via load_results_df().
 
 Usage (from project root):
-    uv run python MS_Paint_Reasoning_Evaluation/viz/plot_accuracy_all_conditions.py \\
+    uv run python MS_Paint_Reasoning_Evaluation/viz/plot_accuracy_all_conditions.py \
         --image-type color --reasoning-mode medium --skills-mode no_skills
 """
 import sys
@@ -21,12 +21,25 @@ from json_results_to_df import load_results_df
 
 OUT_BASE = os.path.join(os.path.dirname(__file__), "..", "Results", "res_vis")
 BLUR_LEVELS = ["no_blur", "med_blur", "heavy_blur"]
+MODEL_ORDER = ["gpt-4o", "gpt-5.1", "gpt-5.2", "gpt-5.5"]
 
 MODEL_COLORS = {
     "gpt-4o":  "#56B4E9",
     "gpt-5.1": "#E69F00",
     "gpt-5.2": "#009E73",
+    "gpt-5.5": "#CC79A7",
 }
+
+
+def model_sort_key(model: str) -> tuple[int, str]:
+    try:
+        return (MODEL_ORDER.index(model), model)
+    except ValueError:
+        return (len(MODEL_ORDER), model)
+
+
+def models_in_order(models) -> list[str]:
+    return sorted(set(models), key=model_sort_key)
 
 
 def main():
@@ -38,6 +51,8 @@ def main():
                         choices=["low", "medium", "high"])
     parser.add_argument("--skills-mode", default="no_skills",
                         choices=["skills", "no_skills"])
+    parser.add_argument("--models", nargs="+", default=None,
+                        help="Restrict to specific models (default: all found, ordered as gpt-4o, gpt-5.1, gpt-5.2, gpt-5.5).")
     args = parser.parse_args()
 
     df = load_results_df()
@@ -46,7 +61,7 @@ def main():
         return
 
     df["Correct"] = df["Correct"].astype(float)
-    models = sorted(df["Model"].unique())
+    models = models_in_order(args.models if args.models else df["Model"].unique())
 
     accuracies = []
     for blur in BLUR_LEVELS:
@@ -54,6 +69,7 @@ def main():
             (df["image_type"] == args.image_type)
             & (df["blur_level"] == blur)
             & (df["skills_mode"] == args.skills_mode)
+            & (df["Model"].isin(models))
         )
         if "reasoning_mode" in df.columns:
             base_mask &= (df["reasoning_mode"] == args.reasoning_mode) | (df["Model"] == "gpt-4o")
@@ -70,12 +86,12 @@ def main():
     labels = [f"{model}\n({blur})" for blur, model, _ in accuracies]
     values = [0.0 if np.isnan(acc) else acc * 100 for _, _, acc in accuracies]
     bar_colors = [MODEL_COLORS.get(model, "#0072B2") for _, model, _ in accuracies]
-    unique_models = list(dict.fromkeys(model for _, model, _ in accuracies))
+    unique_models = models_in_order(model for _, model, _ in accuracies)
 
     fig, ax = plt.subplots(figsize=(max(10, len(labels) * 0.9), 6))
     bars = ax.bar(labels, values, color=bar_colors, alpha=0.85)
     ax.set_title(
-        f"MS Paint Accuracy — All Blur Levels\n"
+        f"MS Paint Accuracy - All Blur Levels\n"
         f"({args.image_type}, reasoning: {args.reasoning_mode}, {args.skills_mode})",
         fontsize=12, fontweight="bold",
     )

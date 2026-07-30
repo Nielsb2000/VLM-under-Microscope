@@ -1,201 +1,205 @@
-# Simple LLM-based answer checker for MS Paint Reasoning Evaluation
+# LLM answer checker for MS Paint Reasoning Evaluation
+#
+# Positional `model_name` is the answer-producing model, used to locate
+# Results/.../answer_<model_name>_<skills>.txt. Use --judge-model to choose the
+# separate grading model. This avoids accidentally using a slow experimental
+# answer model, such as gpt-5.5, as the judge too.
 
-# Usage: python llm_check_answer.py <img_index> <q_index> <model_name> <image_type> <blur_type>
-# Output: 1 (if correct), 0 (otherwise)
-
-
-import sys
-import openai
+import argparse
+import json
 import os
-
-def debug(msg):
-    print(msg, file=sys.stderr)
-
-
-# Usage: python llm_check_answer.py <img_index> <q_index> <model_name> <image_type> <blur_type>
-# - <img_index>: integer 1-8 (corresponds to img1.png, Questions1.txt, Answers1.txt, etc)
-# - <q_index>: integer (1-based, which question in QuestionsX.txt)
-# - <model_name>: gpt-4o, gpt-5.1, or gpt-5.2
-# - <image_type>: color, greyscale, inverted_greyscale
-# - <blur_type>: no_blur, med_blur, heavy_blur
+import re
+import sys
+from typing import Optional
 
 
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-if not OPENAI_API_KEY:
-    debug("[ERROR] No OPENAI_API_KEY found.")
-    print("0")
-    sys.exit(0)
-
-# Read GT answers from file
-
-     # ...existing code...
-
-     # Example usage: python llm_check_answer.py <model_answer> <gt_answers_file> <openai_api_key> [model=gpt-4-turbo] [reasoning=high]
-     # Output: 1 if the model answer is deemed correct by the LLM, 0 otherwise.
+def normalize_text(text: str) -> str:
+    text = text.lower().strip()
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
 
 
-if len(sys.argv) != 6:
-    debug("Usage: python llm_check_answer.py <img_index> <q_index> <model_name> <image_type> <blur_type>")
-    print("0")
-    sys.exit(0)
+def extract_answer_from_output(output: str) -> str:
+    """Extract the final answer from tiny_test_eval.py stdout."""
+    if not output:
+        return ""
 
-img_index = int(sys.argv[1])
-q_index = int(sys.argv[2])
-model_name = sys.argv[3]
-image_type = sys.argv[4]
-blur_type = sys.argv[5]
-
-
-# Compose file paths
-base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-questions_path = os.path.join(base_dir, "MS_paint_images", "MS paint questions", f"Questions{img_index}.txt")
-gt_path = os.path.join(base_dir, "MS_paint_images", "MS paint answers", f"Answers{img_index}.txt")
-
-# Find answer file
-if blur_type == "no_blur":
-    blur_dir = "no_blur"
-else:
-    blur_dir = blur_type
-results_dir = os.path.join(base_dir, "Results", f"{image_type}_{blur_dir}_medium", f"img{img_index}", f"q{q_index}")
-import glob
-# Prefer _skills.txt file if present, else fallback to _noskills.txt, else default
-skills_file = os.path.join(results_dir, f"answer_{model_name}_skills.txt")
-noskills_file = os.path.join(results_dir, f"answer_{model_name}_noskills.txt")
-default_file = os.path.join(results_dir, f"answer_{model_name}.txt")
-if os.path.exists(skills_file):
-    answer_file = skills_file
-elif os.path.exists(noskills_file):
-    answer_file = noskills_file
-elif os.path.exists(default_file):
-    answer_file = default_file
-else:
-    # Fallback: try any matching file
-    answer_file_pattern = os.path.join(results_dir, f"answer_{model_name}_*.txt")
-    answer_files = glob.glob(answer_file_pattern)
-    if answer_files:
-        answer_file = answer_files[0]
-    else:
-        answer_file = default_file
-
-debug(f"[DEBUG] Questions file: {questions_path}")
-debug(f"[DEBUG] GT answers file: {gt_path}")
-debug(f"[DEBUG] Model answer file: {answer_file}")
-
-
-# Read question
-try:
-    with open(questions_path, "r") as f:
-        questions = [line.strip() for line in f if line.strip()]
-    question = questions[q_index - 1]
-    debug(f"[DEBUG] Loaded question: {question}")
-except Exception:
-    debug("[ERROR] Failed to load question.")
-    print("0")
-    sys.exit(0)
-
-
-
-
-# Read model answer: extract after 'Final Answer' if present, else use whole raw output (excluding log/info lines)
-try:
-    with open(answer_file, "r") as f:
-        answer_text = f.read()
-    # Remove log/info/debug lines
-    answer_lines = [line for line in answer_text.splitlines() if line.strip() and not (
-        line.startswith("[INFO]") or line.startswith("[DEBUG]") or line.startswith("[ERROR]") or line.startswith("Answer saved to:")
-    )]
-    filtered_text = "\n".join(answer_lines)
-    # Try to extract after 'Final Answer'
-    import re
-    match = re.search(r"Final Answer\s*[:\-]?\s*(.*)", filtered_text, re.IGNORECASE | re.DOTALL)
+    # Preferred format produced by tiny_test_eval.py.
+    match = re.search(r"Final Answer:\s*\n\s*(.*?)(?:\n\s*Token Usage:|\n\s*Elapsed Time|\nAnswer saved to:|\Z)", output, re.DOTALL | re.IGNORECASE)
     if match:
-        model_answer = match.group(1).strip()
-        # If answer is empty, try to get the next non-empty line
-        if not model_answer:
-            lines = filtered_text.splitlines()
-            for i, line in enumerate(lines):
-                if re.match(r"Final Answer", line, re.IGNORECASE):
-                    for next_line in lines[i+1:]:
-                        if next_line.strip():
-                            model_answer = next_line.strip()
-                            break
-                    break
-        # Remove trailing token usage or elapsed time info if present
-        for marker in ["Token Usage:", "Elapsed Time (s):", "[INFO]", "[DEBUG]", "[ERROR]", "Answer saved to:"]:
-            idx = model_answer.find(marker)
-            if idx != -1:
-                model_answer = model_answer[:idx].strip()
-        debug(f"[DEBUG] Extracted after 'Final Answer': {model_answer}")
-        if not model_answer:
-            model_answer = filtered_text.strip()
-            debug(f"[DEBUG] Fallback to full filtered text: {model_answer}")
-    else:
-        model_answer = filtered_text.strip()
-        debug(f"[DEBUG] No 'Final Answer' found, using full text.")
-    if not model_answer:
-        debug("[ERROR] No model answer found.")
-        print("0")
-        sys.exit(0)
-    debug(f"[DEBUG] Loaded model answer: {model_answer}")
-except Exception:
-    debug("[ERROR] Failed to load model answer.")
-    print("0")
-    sys.exit(0)
+        candidate = match.group(1).strip()
+        if candidate and candidate not in {"[Missing final_answer]", "None"}:
+            return candidate
+
+    # JSON fallback when the model returned a raw JSON object.
+    try:
+        parsed = json.loads(output)
+        if isinstance(parsed, dict):
+            value = parsed.get("final_answer") or parsed.get("answer")
+            if value:
+                return str(value).strip()
+    except Exception:
+        pass
+
+    match = re.search(r"\{.*\}", output, re.DOTALL)
+    if match:
+        try:
+            parsed = json.loads(match.group(0))
+            if isinstance(parsed, dict):
+                value = parsed.get("final_answer") or parsed.get("answer")
+                if value:
+                    return str(value).strip()
+        except Exception:
+            pass
+
+    # Last resort: preserve old behavior.
+    return output.strip()
 
 
+def load_nonempty_lines(path: str) -> list[str]:
+    with open(path, "r", encoding="utf-8") as f:
+        return [line.strip() for line in f if line.strip()]
 
-# Read GT answers from file (only use answer for the specific question index)
-try:
-    with open(gt_path, 'r') as f:
-        gt_lines = [line.strip() for line in f if line.strip()]
-    # Only use the answer line for the current question index
-    if q_index <= len(gt_lines):
-        gt_line = gt_lines[q_index - 1]
-        debug(f"[DEBUG] Loaded GT answer line: {gt_line}")
-    else:
-        debug("[ERROR] GT answer for question index not found.")
-        print("0")
-        sys.exit(0)
-except Exception:
-    debug("[ERROR] Failed to load GT answers.")
-    print("0")
-    sys.exit(0)
 
-# Flatten GT answers: allow 'or' separated answers on a line
-gt_answers = []
-if ' or ' in gt_line:
-    gt_answers.extend([a.strip() for a in gt_line.split(' or ') if a.strip()])
-else:
-    gt_answers.append(gt_line)
+def get_question_and_gt(root_dir: str, img_index: str, q_index: int) -> tuple[str, str, str, str]:
+    questions_file = os.path.join(root_dir, "MS_paint_images", "MS paint questions", f"Questions{img_index}.txt")
+    answers_file = os.path.join(root_dir, "MS_paint_images", "MS paint answers", f"Answers{img_index}.txt")
+    questions = load_nonempty_lines(questions_file)
+    answers = load_nonempty_lines(answers_file)
+    question = questions[q_index - 1]
+    gt_answer = answers[q_index - 1]
+    return question, gt_answer, questions_file, answers_file
 
-system_prompt = (
-    "You are a strict answer checker for MS Paint Reasoning Evaluation. "
-    "Given a question, a model's answer, and a ground truth answer, output 1 if the model's answer is correct (matches the ground truth in meaning), and 0 otherwise. "
-    "Only output a single digit: 1 for correct, 0 for incorrect. Do not explain. Be strict: only output 1 if the answer is clearly correct."
-)
 
-# Check each GT answer with the LLM, output 1 if any match
-
-for gt_answer in gt_answers:
-    user_prompt = f"""
-Question: {question}
-Model Answer: {model_answer}
-Ground Truth Answer: {gt_answer}
-"""
-    client = openai.OpenAI(api_key=OPENAI_API_KEY)
-    response = client.chat.completions.create(
-        model="gpt-5.1",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ],
-        temperature=0.0,
+def answer_file_path(root_dir: str, image_type: str, blur_level: str, reasoning_effort: str, img_index: str, q_index: int, model_name: str, skills: str) -> str:
+    skills_tag = "skills" if skills == "yes" else "noskills"
+    return os.path.join(
+        root_dir,
+        "Results",
+        f"{image_type}_{blur_level}_{reasoning_effort}",
+        f"img{img_index}",
+        f"q{q_index}",
+        f"answer_{model_name}_{skills_tag}.txt",
     )
-    result = response.choices[0].message.content.strip()
-    debug(f"[DEBUG] LLM raw result: {result}")
-    if result == "1":
-        print("1")
-        sys.exit(0)
 
-# If none matched
-print("0")
+
+def quick_heuristic_match(model_answer: str, gt_answer: str) -> Optional[int]:
+    """Cheap exact-ish match before spending a judge call."""
+    a = normalize_text(model_answer)
+    g = normalize_text(re.sub(r"^answer\s*\d+\s*:\s*", "", gt_answer, flags=re.IGNORECASE))
+    if not a or not g:
+        return None
+    if g in a:
+        return 1
+    return None
+
+
+def judge_with_chat_completions(client, *, judge_model: str, question: str, gt_answer: str, model_answer: str, use_seed: bool, seed: Optional[int]) -> str:
+    system = (
+        "You are a strict but fair grader for a visual question-answering benchmark. "
+        "Return only 1 if the model answer is semantically correct according to the ground truth, otherwise return only 0. "
+        "Ignore harmless wording differences. Do not explain."
+    )
+    user = (
+        f"Question:\n{question}\n\n"
+        f"Ground truth answer:\n{gt_answer}\n\n"
+        f"Model answer:\n{model_answer}\n\n"
+        "Is the model answer correct? Return exactly 1 or 0."
+    )
+    kwargs = dict(
+        model=judge_model,
+        messages=[
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ],
+        temperature=0,
+        max_tokens=5,
+    )
+    if use_seed and seed is not None:
+        try:
+            response = client.chat.completions.create(seed=seed, **kwargs)
+        except Exception as exc:
+            print(f"[WARN] Judge model did not accept seed; retrying without seed. {exc}", file=sys.stderr)
+            response = client.chat.completions.create(**kwargs)
+    else:
+        response = client.chat.completions.create(**kwargs)
+    text = response.choices[0].message.content.strip() if response.choices else "0"
+    return "1" if text.startswith("1") else "0"
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Check one MS Paint model answer against ground truth.")
+    parser.add_argument("img_index")
+    parser.add_argument("q_index", type=int)
+    parser.add_argument("model_name", help="Answer-producing model name used to locate the answer file.")
+    parser.add_argument("image_type")
+    parser.add_argument("blur_level")
+    parser.add_argument("--reasoning-effort", default="low", choices=["low", "medium", "high"])
+    parser.add_argument("--skills", choices=["yes", "no"], default="yes")
+    parser.add_argument("--judge-model", default="gpt-4o", help="Separate model used as the grader.")
+    parser.add_argument("--seed", type=int, default=None, help="Accepted for CLI compatibility. Not used unless --use-judge-seed is set.")
+    parser.add_argument("--use-judge-seed", action="store_true", help="Try passing --seed to the judge call.")
+    parser.add_argument("--no-heuristic", action="store_true", help="Disable cheap exact-ish match before LLM grading.")
+    args = parser.parse_args()
+
+    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    answer_path = answer_file_path(
+        root_dir,
+        args.image_type,
+        args.blur_level,
+        args.reasoning_effort,
+        args.img_index,
+        args.q_index,
+        args.model_name,
+        args.skills,
+    )
+
+    question, gt_answer, questions_file, answers_file = get_question_and_gt(root_dir, args.img_index, args.q_index)
+
+    print(f"[DEBUG] Questions file: {questions_file}", file=sys.stderr)
+    print(f"[DEBUG] GT answers file: {answers_file}", file=sys.stderr)
+    print(f"[DEBUG] Model answer file: {answer_path}", file=sys.stderr)
+    print(f"[DEBUG] Judge model: {args.judge_model}", file=sys.stderr)
+    print(f"[DEBUG] Loaded question: {question}", file=sys.stderr)
+
+    if not os.path.exists(answer_path):
+        print(f"[ERROR] Model answer file not found: {answer_path}", file=sys.stderr)
+        print("0")
+        return
+
+    with open(answer_path, "r", encoding="utf-8") as f:
+        raw_output = f.read()
+    model_answer = extract_answer_from_output(raw_output)
+    print(f"[DEBUG] Extracted model answer: {model_answer}", file=sys.stderr)
+    print(f"[DEBUG] Loaded GT answer line: {gt_answer}", file=sys.stderr)
+
+    if not model_answer:
+        print("[ERROR] No model answer found.", file=sys.stderr)
+        print("0")
+        return
+
+    if not args.no_heuristic:
+        heuristic = quick_heuristic_match(model_answer, gt_answer)
+        if heuristic is not None:
+            print(f"[DEBUG] Heuristic result: {heuristic}", file=sys.stderr)
+            print(str(heuristic))
+            return
+
+    import openai
+
+    client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+    result = judge_with_chat_completions(
+        client,
+        judge_model=args.judge_model,
+        question=question,
+        gt_answer=gt_answer,
+        model_answer=model_answer,
+        use_seed=args.use_judge_seed,
+        seed=args.seed,
+    )
+    print(f"[DEBUG] LLM raw result: {result}", file=sys.stderr)
+    print(result)
+
+
+if __name__ == "__main__":
+    main()

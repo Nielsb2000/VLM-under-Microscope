@@ -3,7 +3,7 @@ Per-run heatmap + accuracy bar chart for a specific (image_type, blur_level, rea
 Reads from Results/dashboard_data/ via load_results_df().
 
 Usage (from project root):
-    uv run python MS_Paint_Reasoning_Evaluation/viz/plot_accuracy_heatmap.py \\
+    uv run python MS_Paint_Reasoning_Evaluation/viz/plot_accuracy_heatmap.py \
         --image-type color --blur-level heavy_blur --reasoning-mode medium --skills-mode no_skills
 """
 import sys
@@ -20,12 +20,25 @@ from matplotlib.patches import Patch
 from json_results_to_df import load_results_df
 
 OUT_BASE = os.path.join(os.path.dirname(__file__), "..", "Results", "res_vis")
+MODEL_ORDER = ["gpt-4o", "gpt-5.1", "gpt-5.2", "gpt-5.5"]
 
 MODEL_COLORS = {
     "gpt-4o":  "#56B4E9",
     "gpt-5.1": "#E69F00",
     "gpt-5.2": "#009E73",
+    "gpt-5.5": "#CC79A7",
 }
+
+
+def model_sort_key(model: str) -> tuple[int, str]:
+    try:
+        return (MODEL_ORDER.index(model), model)
+    except ValueError:
+        return (len(MODEL_ORDER), model)
+
+
+def models_in_order(models) -> list[str]:
+    return sorted(set(models), key=model_sort_key)
 
 
 def main():
@@ -39,6 +52,8 @@ def main():
                         help="Reasoning effort (gpt-4o is always included regardless of this setting).")
     parser.add_argument("--skills-mode", default="no_skills",
                         choices=["skills", "no_skills"])
+    parser.add_argument("--models", nargs="+", default=None,
+                        help="Restrict to specific models (default: all found, ordered as gpt-4o, gpt-5.1, gpt-5.2, gpt-5.5).")
     args = parser.parse_args()
 
     df = load_results_df()
@@ -47,12 +62,13 @@ def main():
         return
 
     df["Correct"] = df["Correct"].astype(float)
+    requested_models = models_in_order(args.models if args.models else df["Model"].unique())
 
-    # For gpt-5.x: filter by reasoning_mode; for gpt-4o: always include.
     base_mask = (
         (df["image_type"] == args.image_type)
         & (df["blur_level"] == args.blur_level)
         & (df["skills_mode"] == args.skills_mode)
+        & (df["Model"].isin(requested_models))
     )
     if "reasoning_mode" in df.columns:
         reasoning_mask = (df["reasoning_mode"] == args.reasoning_mode) | (df["Model"] == "gpt-4o")
@@ -66,12 +82,11 @@ def main():
               f"reasoning={args.reasoning_mode}, skills={args.skills_mode}")
         return
 
-    models = sorted(sub["Model"].unique())
+    models = models_in_order(sub["Model"].unique())
     tag = f"{args.image_type}_{args.blur_level}_{args.reasoning_mode}_{args.skills_mode}"
     out_dir = os.path.normpath(os.path.join(OUT_BASE, tag))
     os.makedirs(out_dir, exist_ok=True)
 
-    # Accuracy bar chart
     accuracies = {}
     for model in models:
         valid = sub[sub["Model"] == model]["Correct"].dropna()
@@ -82,7 +97,7 @@ def main():
     ax.bar(list(accuracies.keys()), list(accuracies.values()),
            color=bar_colors, edgecolor="white", linewidth=1.2)
     ax.set_title(
-        f"MS Paint Accuracy — {args.image_type}, {args.blur_level}\n"
+        f"MS Paint Accuracy - {args.image_type}, {args.blur_level}\n"
         f"reasoning: {args.reasoning_mode}, {args.skills_mode}",
         fontsize=12, fontweight="bold",
     )
@@ -99,7 +114,6 @@ def main():
     plt.close(fig)
     print(f"Saved: {bar_path}")
 
-    # Per-model correctness heatmap
     imgs = sorted(sub["image_num"].unique())
     qs = sorted(sub["question_num"].unique())
     for model in models:
