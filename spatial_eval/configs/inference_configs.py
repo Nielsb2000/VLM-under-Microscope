@@ -101,6 +101,20 @@ class InferenceArgumentParser:
                                       "offset_k is auto-computed as N×mc_runs (e.g. n30+mc3→offset=90) unless --offset_k is set explicitly. "
                                       "sam3: SAM 3 segmentation tool — agent autonomously decides what to segment based on the question; task-agnostic. "
                                       "If omitted uses the baseline models/skills/ folder.")
+        self.parser.add_argument("--use_sam2", action="store_true", default=False,
+                                 help="Enable SAM2 segmentation pre-pass: segments the image, extracts bounding-box "
+                                      "centroids and mask overlays, and feeds them to the model before answering. "
+                                      "Adds '_sam2' suffix to the output filename. Only effective for VQA/VTQA modes "
+                                      "with GPT models (gpt-5.5, gpt-5.2, gpt-4o, etc.).")
+        self.parser.add_argument("--sam2_grid_n", type=int, default=4,
+                                 help="Grid size for undirected SAM2 segmentation (N\u00d7N prompt points). "
+                                      "Default 4 gives 16 evenly-spaced points across the image. "
+                                      "Only used when --use_sam2 is set.")
+        self.parser.add_argument("--sam2_model_id", type=str, default="facebook/sam2.1-hiera-base-plus",
+                                 help="SAM2 HuggingFace model ID. Smaller models are faster: "
+                                      "facebook/sam2.1-hiera-base-plus (recommended for speed), "
+                                      "facebook/sam2.1-hiera-small, facebook/sam2.1-hiera-tiny. "
+                                      "Only used when --use_sam2 is set.")
 
     def parse_args(self):
         return self.parser.parse_args()

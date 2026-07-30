@@ -16,6 +16,10 @@ _RETRYABLE_CODES = {
     429,
 }
 
+# Models that reject any explicit temperature parameter (only the API default is accepted).
+# Passing temperature=0.2 (or any non-default value) returns a 400 BadRequestError.
+_FIXED_TEMPERATURE_MODELS = ("gpt-5.5",)
+
 
 def _is_retryable(exc: Exception) -> bool:
     """Return True if the exception is worth retrying."""
@@ -47,6 +51,9 @@ class GPT4Vision:
         """
         self.model_name = model_name
         self.max_tokens = max_tokens
+        self._fixed_temperature = any(
+            tag in model_name.lower() for tag in _FIXED_TEMPERATURE_MODELS
+        )
         self.llm = ChatOpenAI(
             model=self.model_name
         )
@@ -102,10 +109,12 @@ class GPT4Vision:
             # Text-only message
             message = HumanMessage(content=query_text)
         
-        # Get response from GPT-4 (with retry for transient errors)
+        # Get response from GPT-4 (with retry for transient errors).
+        # Some models (e.g. gpt-5.5) reject any explicit temperature — omit it.
+        invoke_kwargs = {} if self._fixed_temperature else {"temperature": temperature}
         for attempt in range(1, MAX_RETRIES + 1):
             try:
-                response = self.llm.invoke([message], temperature=temperature)
+                response = self.llm.invoke([message], **invoke_kwargs)
                 answer_text = response.content.strip()
                 return query_text, answer_text
             except Exception as exc:

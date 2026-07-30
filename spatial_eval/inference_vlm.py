@@ -6,10 +6,12 @@ import json
 import os
 import warnings
 import concurrent.futures
+import threading
 import time
 from utils.format_filename import format_output_path_vlm
 from configs.inference_configs import InferenceArgumentParser
 from datasets import load_dataset
+from sam2_integration import build_sam2_result_basic, boxes_to_text, centroids_to_text, load_sam2_predictor, DEFAULT_SAM2_MODEL_ID
 
 IMAGE_TOKEN_INDEX = -200
 
@@ -95,8 +97,16 @@ def load_instructblip_model_processor(args):
 
     return model, processor
 
+
+def _sam2_composite_path(output_file_path: str, task: str, item_id: str) -> str:
+    out_dir = os.path.join(os.path.dirname(str(output_file_path)), "sam2_overlays")
+    os.makedirs(out_dir, exist_ok=True)
+    safe_id = item_id.replace("/", "_").replace(".", "_")
+    return os.path.join(out_dir, f"{task}_{safe_id}_sam2.png")
+
+
 @torch.inference_mode()
-def main(args, model, processor, dataset, output_file_path):
+def main(args, model, processor, dataset, output_file_path, sam2_predictor=None, sam2_device=None):
     question_groups = {}
 
     for item in dataset:
@@ -135,12 +145,17 @@ def main(args, model, processor, dataset, output_file_path):
         flat_items.extend(sliced)
 
     _image_cache = {}
+    _sam2_result_cache: dict = {}   # img_index → Sam2TaskResult (shared across question types)
+    _sam2_lock = threading.Lock()   # serialises SAM2 GPU calls; GPT answers can run in parallel
+    sam2_enabled = getattr(args, 'use_sam2', False)
 
-    # ── Parallelism: only safe for cloud GPT models (I/O-bound HTTP calls) ─
+    # ── Parallelism: GPT models are I/O-bound; SAM2 GPU calls are serialised via lock ─
     workers = getattr(args, 'workers', 1)
     is_gpt = "gpt" in args.model_path.lower()
     effective_workers = workers if (workers > 1 and is_gpt) else 1
-    if workers > 1 and not is_gpt:
+    if workers > 1 and sam2_enabled:
+        print(f"Note: SAM2 enabled with {effective_workers} workers — SAM2 GPU calls serialised, GPT answers parallel.")
+    elif workers > 1 and not is_gpt:
         print(f"Note: --workers={workers} ignored for non-GPT models; running sequentially.")
 
     def _process_item(item):
@@ -259,12 +274,59 @@ def main(args, model, processor, dataset, output_file_path):
             answer_text = processor.batch_decode(output_id, skip_special_tokens=True)[0].strip()
 
         elif "llava" in args.model_path.lower() or ("bunny" in args.model_path.lower() and "merged" in args.model_path.lower()) or "gpt" in args.model_path.lower():
-            prompt, answer_text = model.generate(prompt, image, args.temperature)
-        
+            sam2_meta = None
+            sam2_composite_path = ""
+            gpt_prompt = prompt
+            gpt_image = image
+            if sam2_enabled and image is not None:
+                _cache_key = item_id.split('.')[2]  # image index — reliable across question types
+                sam2_result = _sam2_result_cache.get(_cache_key)
+                if sam2_result is None:
+                    with _sam2_lock:  # serialise SAM2 GPU calls; double-check after acquiring
+                        sam2_result = _sam2_result_cache.get(_cache_key)
+                        if sam2_result is None:
+                            sam2_result = build_sam2_result_basic(
+                                image,
+                                task=args.task,
+                                sam2_model_id=getattr(args, 'sam2_model_id', DEFAULT_SAM2_MODEL_ID),
+                                device=sam2_device or args.device,
+                                predictor=sam2_predictor,
+                                predictor_device=sam2_device,
+                                grid_n=getattr(args, 'sam2_grid_n', 4),
+                            )
+                            _sam2_result_cache[_cache_key] = sam2_result
+                else:
+                    print(f"  [sam2] cache hit img={_cache_key}")
+                sam2_composite_path = _sam2_composite_path(str(output_file_path), args.task, item_id)
+                sam2_result.composite_image.save(sam2_composite_path)
+                sam2_meta = {
+                    "task": sam2_result.task,
+                    "landmarks_canvas": sam2_result.landmarks_canvas,
+                    "landmarks": sam2_result.landmarks,
+                    "centroids": {
+                        k: [[cx, cy, score] for (cx, cy, score) in v]
+                        for k, v in sam2_result.centroids.items()
+                    },
+                    "boxes": {
+                        k: [[x0, y0, x1, y1, score] for (x0, y0, x1, y1, score) in v]
+                        for k, v in sam2_result.boxes.items()
+                    },
+                }
+                gpt_prompt = (
+                    f"{prompt}\n\n"
+                    f"SAM2 centroids:\n{centroids_to_text(sam2_result.centroids)}\n\n"
+                    f"SAM2 boxes:\n{boxes_to_text(sam2_result.boxes)}"
+                )
+                gpt_image = sam2_result.composite_image
+            _t_ans = time.perf_counter()
+            prompt, answer_text = model.generate(gpt_prompt, gpt_image, args.temperature)
+            if sam2_enabled and image is not None:
+                print(f"  [sam2] answer generation:  {time.perf_counter() - _t_ans:.1f}s")
+
         else:
             raise ValueError(f"Model id {args.model_path} is not supported.")
 
-        return {
+        result = {
             "id": item_id,
             "answer": answer_text,
             "oracle_answer": item['oracle_answer'],
@@ -273,6 +335,13 @@ def main(args, model, processor, dataset, output_file_path):
             "prompt": prompt,
             "image": image_path if isinstance(image_path, str) else "",
         }
+        if sam2_enabled and image is not None and sam2_meta is not None:
+            result.update({
+                "sam2_enabled": True,
+                "sam2_overlay_path": sam2_composite_path,
+                "sam2_meta": sam2_meta,
+            })
+        return result
 
     # ── Execute: parallel for GPT models, sequential for local/GPU models ──
     results = [None] * len(flat_items)
@@ -341,7 +410,7 @@ if __name__ == "__main__":
         "img-qa-val-v2-offset-n3", "img-qa-val-v2-offset", "img-qa-val-v2-offset-n30",
         "img-only-tool-n3", "img-only-tool-n10", "img-only-tool-n30",
     )
-    if ("gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower()) and getattr(args, 'use_skills', False) and getattr(args, 'skills_variant', None) in _PRELOAD_VARIANTS:
+    if ("gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower() or "gpt-5.5" in args.model_path.lower()) and getattr(args, 'use_skills', False) and getattr(args, 'skills_variant', None) in _PRELOAD_VARIANTS:
         from models.deepagent_preload_model import DeepAgentPreload
         variant = getattr(args, 'skills_variant', None)
         img_only = variant.startswith("img-only-tool")
@@ -365,11 +434,11 @@ if __name__ == "__main__":
                                  task=args.task, fewshot=fewshot, n_examples=n_examples,
                                  img_only=img_only)
         processor = None
-    elif ("gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower()) and getattr(args, 'use_skills', False) and getattr(args, 'skills_variant', None) == "sam3":
+    elif ("gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower() or "gpt-5.5" in args.model_path.lower()) and getattr(args, 'use_skills', False) and getattr(args, 'skills_variant', None) == "sam3":
         from models.deepagent_sam3_model import DeepAgentSAM3
         model = DeepAgentSAM3(model_name=args.model_path, max_tokens=args.max_new_tokens)
         processor = None
-    elif ("gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower()) and getattr(args, 'use_skills', False):
+    elif ("gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower() or "gpt-5.5" in args.model_path.lower()) and getattr(args, 'use_skills', False):
         from models.deepagent_model import DeepAgentGPT
         _debug_log_path = None
         if getattr(args, 'debug', False):
@@ -387,7 +456,7 @@ if __name__ == "__main__":
                              skills_variant=getattr(args, 'skills_variant', None),
                              debug_log_path=_debug_log_path)
         processor = None
-    elif "gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower():
+    elif "gpt-4" in args.model_path.lower() or "gpt4" in args.model_path.lower() or "gpt-5" in args.model_path.lower() or "gpt-5.5" in args.model_path.lower():
         from models.gpt4_model import GPT4Vision
         model = GPT4Vision(model_name=args.model_path, max_tokens=args.max_new_tokens)
         processor = None
@@ -424,6 +493,15 @@ if __name__ == "__main__":
     else:
         raise ValueError(f"Model {args.model_path} is not supported.")
 
+    # ── SAM2 predictor: load once, reuse across all runs ───────────────────
+    _sam2_predictor = None
+    _sam2_device = None
+    if getattr(args, 'use_sam2', False):
+        _sam2_model_id = getattr(args, 'sam2_model_id', DEFAULT_SAM2_MODEL_ID)
+        _sam2_predictor, _sam2_device = load_sam2_predictor(
+            _sam2_model_id,
+            device="cuda" if torch.cuda.is_available() else "cpu",
+        )
 
     # --- Support both deterministic runs and MC randomized runs ---
     import statistics as _statistics
@@ -444,7 +522,7 @@ if __name__ == "__main__":
 
             output_path = format_output_path_vlm(args)
             t_start = time.perf_counter()
-            main(args, model, processor, dataset, output_path)
+            main(args, model, processor, dataset, output_path, sam2_predictor=_sam2_predictor, sam2_device=_sam2_device)
             elapsed = time.perf_counter() - t_start
             run_times.append(elapsed)
 
@@ -486,7 +564,7 @@ if __name__ == "__main__":
 
             output_path = format_output_path_vlm(args)
             t_start = time.perf_counter()
-            main(args, model, processor, dataset, output_path)
+            main(args, model, processor, dataset, output_path, sam2_predictor=_sam2_predictor, sam2_device=_sam2_device)
             elapsed = time.perf_counter() - t_start
             run_times.append(elapsed)
 
@@ -520,6 +598,6 @@ if __name__ == "__main__":
     elif runs == 1:
         t_start = time.perf_counter()
         output_path = format_output_path_vlm(args)
-        main(args, model, processor, dataset, output_path)
+        main(args, model, processor, dataset, output_path, sam2_predictor=_sam2_predictor, sam2_device=_sam2_device)
         elapsed = time.perf_counter() - t_start
         print(f"\n  Elapsed: {elapsed:.1f}s")

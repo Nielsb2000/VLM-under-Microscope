@@ -34,6 +34,9 @@ def format_output_path_vlm(args):
         if getattr(args, 'skills_variant', None):
             filename += f"_{args.skills_variant}"
 
+    if getattr(args, 'use_sam2', False):
+        filename += "_sam2"
+
     # Monte Carlo run identifier (set by __main__ loop when mc_runs > 1)
     if getattr(args, '_mc_run_idx', None) is not None:
         filename += f"_mc{args._mc_run_idx:02d}s{getattr(args, '_mc_seed_i', 0)}"
