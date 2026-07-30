@@ -61,6 +61,8 @@ body {
 .btn:hover { background: #585b70; }
 .btn-danger { background: #45002a; }
 .btn-danger:hover { background: #800040; }
+.btn-save-gt { background: #1a4a1a; }
+.btn-save-gt:hover { background: #2e7d32; }
 
 /* ---- Mode toggle ---- */
 .mode-toggle-group {
@@ -122,6 +124,11 @@ body {
 }
 .atlas-btn:hover { background: #313244; color: #d0bcff; }
 .atlas-btn:active { background: #45475a; }
+.atlas-overlay-active {
+  background: #cba6f7 !important;
+  color: #1e1b2e !important;
+  font-weight: bold;
+}
 
 /* ---- Resize handles ---- */
 .resize-handle {
@@ -610,6 +617,118 @@ input[type="number"] {
   border: 1px solid #ffffff33;
 }
 
+/* ---- CS4 Pattern Search ---- */
+.btn-cs4          { background: #1a3a5c; }
+.btn-cs4:hover    { background: #2563ae; }
+.btn-save-pattern { background: #2a3a1c; }
+.btn-save-pattern:hover { background: #3a6622; }
+
+#cs4-dialog, #save-pattern-dialog {
+  background: #1e1e2e;
+  color: #cdd6f4;
+  border: 1px solid #45475a;
+  border-radius: 8px;
+  padding: 0;
+  min-width: 360px;
+  max-width: 460px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+#cs4-dialog::backdrop, #save-pattern-dialog::backdrop { background: rgba(0,0,0,0.5); }
+
+.sp-text-input {
+  background: #313244;
+  color: #cdd6f4;
+  border: 1px solid #45475a;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sp-tile-btn {
+  background: #313244;
+  color: #cdd6f4;
+  border: 1px solid #45475a;
+  border-radius: 4px;
+  padding: 3px 7px;
+  font-size: 11px;
+  font-family: monospace;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.sp-tile-btn:hover  { border-color: #89b4fa; }
+.sp-tile-btn.active { background: #1e3a5f; border-color: #89b4fa; color: #89b4fa; }
+
+.cs4-body {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cs4-drop-zone {
+  border: 2px dashed #45475a;
+  border-radius: 6px;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.15s;
+}
+.cs4-drop-zone:hover,
+.cs4-drop-zone.dragover { border-color: #89b4fa; }
+.cs4-drop-zone #cs4-pattern-hint { color: #a6adc8; font-size: 11px; }
+.cs4-drop-zone img { max-width: 100%; max-height: 140px; border-radius: 4px; }
+
+.cs4-dialog-footer {
+  padding: 8px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-cs4-run {
+  background: #1a3a5c;
+  font-weight: 600;
+  width: 100%;
+  padding: 6px 0;
+}
+.btn-cs4-run:hover:not(:disabled) { background: #2563ae; }
+.btn-cs4-run:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.cs4-status-text {
+  font-size: 11px;
+  color: #a6adc8;
+  text-align: center;
+}
+
+#cs4-result {
+  background: #181825;
+  border: 1px solid #313244;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.cs4-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.cs4-badge-found  { background: #1a4a1a; color: #a6e3a1; }
+.cs4-badge-absent { background: #45002a; color: #f38ba8; }
+.cs4-result-row { margin-bottom: 2px; }
+.cs4-result-reason { color: #a6adc8; font-style: italic; margin-top: 4px; font-size: 11px; }
+
 /* ---- Agent terminal panel ---- */
 #agent-panel {
   display: flex;
@@ -688,16 +807,20 @@ input[type="number"] {
   border-radius: 4px;
   color: #cdd6f4;
   font-size: 11px;
-  padding: 3px 6px;
+  padding: 2px 4px;
+  width: 46px;
+  text-align: center;
   cursor: pointer;
   margin-left: auto;
+  -moz-appearance: textfield;
+}
+#agent-font-size::-webkit-inner-spin-button,
+#agent-font-size::-webkit-outer-spin-button {
+  opacity: 0.5;
 }
 #agent-font-size:focus { outline: none; border-color: #89b4fa; }
 
-/* Font-size scale applied to #agent-body */
-#agent-body.fs-small  { --agent-chat-fs: 10px; --agent-trace-fs: 9px;  --agent-input-fs: 12px; }
-#agent-body.fs-medium { --agent-chat-fs: 12px; --agent-trace-fs: 10px; --agent-input-fs: 13px; }
-#agent-body.fs-large  { --agent-chat-fs: 15px; --agent-trace-fs: 12px; --agent-input-fs: 15px; }
+/* Font-size scale applied to #agent-body — set via inline CSS vars in JS */
 
 /* Left — chat log */
 #agent-chat {

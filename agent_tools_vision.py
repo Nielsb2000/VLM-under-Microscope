@@ -12,6 +12,25 @@ import os
 
 _PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
+_IMAGE_DETAIL = os.environ.get("OPENAI_IMAGE_DETAIL", "auto")
+
+
+def _image_url_payload(data_url: str) -> dict:
+    """Build an OpenAI-compatible image_url block with image detail enabled.
+
+    The detail parameter belongs inside the image_url object. Passing
+    image_detail as a top-level ChatOpenAI/model kwarg can be forwarded to
+    Completions.create(), where it is not accepted.
+    """
+    return {
+        "type": "image_url",
+        "image_url": {
+            "url": data_url,
+            "detail": _IMAGE_DETAIL,
+        },
+    }
+
+
 def _sandbox_path_to_host(image_path: str) -> str | None:
     """
     Translates a sandbox path to a host path if the directory is volume-mounted.
@@ -52,7 +71,7 @@ def sandbox_image_to_data_url(image_path: str) -> dict:
         except Exception as e:
             return {"success": False, "error": f"Host read failed: {e}"}
 
-    # Fallback: read via sandbox execution (avoid for large images — stdout goes to history)
+    # Fallback: read via sandbox execution (avoid for large images - stdout goes to history)
     py = f"""
 import base64, mimetypes, json
 from pathlib import Path
@@ -100,7 +119,7 @@ def make_analyze_sandbox_image_tool(llm):
         # 2) Ask the vision-capable model with multimodal content
         msg = HumanMessage(content=[
             {"type": "text", "text": question},
-            {"type": "image_url", "image_url": {"url": data_url}},
+            _image_url_payload(data_url),
         ])
 
         try:
@@ -222,8 +241,8 @@ def make_screenshot_and_ask_tool(llm):
 
         Args:
             question: The question to ask the vision model about the screenshot.
-            cursor_x: Optional current cursor X pixel position — draws a red dot on both images.
-            cursor_y: Optional current cursor Y pixel position — draws a red dot on both images.
+            cursor_x: Optional current cursor X pixel position - draws a red dot on both images.
+            cursor_y: Optional current cursor Y pixel position - draws a red dot on both images.
 
         Returns:
             Dict with keys: success, answer, width, height (and error on failure).
@@ -261,15 +280,15 @@ def make_screenshot_and_ask_tool(llm):
                 f"You are given two images of the same browser screenshot ({width}x{height} pixels).{cursor_note} "
                 f"Image 1 is the raw screenshot with the cursor dot. "
                 f"Image 2 has a cyan coordinate grid overlaid with labels showing (x,y) pixel positions "
-                f"every 100 pixels — use these labels to pinpoint exact coordinates. "
+                f"every 100 pixels - use these labels to pinpoint exact coordinates. "
                 f"Pixel (0,0) is top-left, ({width},{height}) is bottom-right. "
                 + question
             )
 
             msg = HumanMessage(content=[
                 {"type": "text", "text": full_question},
-                {"type": "image_url", "image_url": {"url": raw_data_url}},
-                {"type": "image_url", "image_url": {"url": grid_data_url}},
+                _image_url_payload(raw_data_url),
+                _image_url_payload(grid_data_url),
             ])
 
             resp = llm.invoke([msg])
@@ -291,7 +310,7 @@ def make_move_and_verify_tool(llm):
     by feeding the resulting screenshot back to the vision model.
 
     The model checks whether the red cursor dot landed on the intended target
-    (5px tolerance). No separate judge step needed — correction hints are included
+    (5px tolerance). No separate judge step needed - correction hints are included
     in the return value so the agent can retry in one loop.
     """
     @tool
@@ -319,10 +338,10 @@ def make_move_and_verify_tool(llm):
         Returns:
             Dict with keys:
               success (bool)
-              correct (bool)        — True if cursor is within 5px of the target
-              judgement (str)       — Full model verdict + reason + hint
-              suggested_x, suggested_y — Parsed corrected coordinates (if INCORRECT)
-              width, height         — Screenshot dimensions
+              correct (bool)        - True if cursor is within 5px of the target
+              judgement (str)       - Full model verdict + reason + hint
+              suggested_x, suggested_y - Parsed corrected coordinates (if INCORRECT)
+              width, height         - Screenshot dimensions
         """
         import time
         import re
@@ -362,7 +381,7 @@ def make_move_and_verify_tool(llm):
 
             verify_prompt = (
                 f"You are verifying a cursor move. The task was: \"{intent}\". "
-                f"The cursor is now at ({x},{y}) — shown as a red dot in both images. "
+                f"The cursor is now at ({x},{y}) - shown as a red dot in both images. "
                 f"Image 1 is the raw screenshot with the red cursor dot. "
                 f"Image 2 has a cyan coordinate grid with labels every 100px for reference. "
                 f"Screenshot is {width}x{height} px; (0,0) is top-left. "
@@ -375,8 +394,8 @@ def make_move_and_verify_tool(llm):
 
             msg = HumanMessage(content=[
                 {"type": "text", "text": verify_prompt},
-                {"type": "image_url", "image_url": {"url": raw_data_url}},
-                {"type": "image_url", "image_url": {"url": grid_data_url}},
+                _image_url_payload(raw_data_url),
+                _image_url_payload(grid_data_url),
             ])
 
             resp = llm.invoke([msg])
@@ -505,7 +524,7 @@ def make_segment_viewport_tool(_llm=None):
             try:
                 _http("PUT", f"{_PAINT_BASE}/api/canvas/segmentation", server_seg)
             except Exception:
-                pass  # non-fatal — segmentation data still returned to agent
+                pass  # non-fatal - segmentation data still returned to agent
 
         # --- build result (coordinates omitted when text output is disabled) ---
         count = data.get("count", 0)
@@ -519,7 +538,7 @@ def make_segment_viewport_tool(_llm=None):
             f"Found {count} segments in the current viewport.\n"
             + (f"Bounding boxes (first 20): {data['bboxes'][:20]}\n" if result.get("bboxes") else "")
             + (f"Centroids (first 20): {data['centroids'][:20]}\n" if result.get("centroids") else "")
-            + ("Coordinate text output is disabled — visual overlay only.\n" if not text_enabled else "")
+            + ("Coordinate text output is disabled - visual overlay only.\n" if not text_enabled else "")
             + ("Mask overlay synced to canvas and export." if server_seg.get("mask_png") else "")
         )
         return result

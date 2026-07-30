@@ -1,10 +1,29 @@
-// server/routes/randomize.js — randomizer endpoint for the image-quality case study
+// server/routes/randomize.js - randomizer endpoint for the image-quality case study
 'use strict';
 
 const express = require('express');
 const router  = express.Router();
 const fs      = require('fs');
 const state   = require('../state');
+
+function _seededRandom(seed) {
+  // Mulberry32 PRNG. Stable across Node versions for reproducible filter randomization.
+  let t = Number(seed) >>> 0;
+  return function () {
+    t += 0x6D2B79F5;
+    let x = t;
+    x = Math.imul(x ^ (x >>> 15), x | 1);
+    x ^= x + Math.imul(x ^ (x >>> 7), x | 61);
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function _rngFromSeed(seed) {
+  if (seed === undefined || seed === null || seed === '') return Math.random;
+  const n = Number(seed);
+  if (!Number.isFinite(n)) throw new Error('seed must be numeric');
+  return _seededRandom(n);
+}
 const { renderToPng } = require('../renderer');
 const {
   computeHistogramFromFile,
@@ -23,8 +42,16 @@ const {
 //
 // The client calls this when the human presses the "🎲 Randomize" button.
 // After this call the agent is expected to iteratively refine the image quality
-// using only visual feedback (VLM) — it must NOT read the reference histogram.
+// using only visual feedback (VLM) - it must NOT read the reference histogram.
 router.post('/', async (req, res) => {
+  const { seed } = req.body || {};
+  let rng;
+  try {
+    rng = _rngFromSeed(seed);
+  } catch (e) {
+    return res.status(400).json({ error: e.message });
+  }
+
   const s  = state.getState();
   const bg = s.canvas.backgroundImage;
   if (!bg) return res.status(400).json({ error: 'No background image is loaded on the canvas.' });
@@ -48,10 +75,9 @@ router.post('/', async (req, res) => {
 
   // --- 3. Randomize filter values ---
   // Ranges chosen to make recovery non-trivial but possible for a VLM agent:
-  //   brightness: 20–220 (allows very dark or very bright states)
-  //   contrast:   25–220 (allows washed-out or over-contrasted states)
-  //   saturation: 50–200 (SEM images are greyscale so this mainly tests hue-shift robustness)
-  const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+  //   brightness: 0–300 (allows very dark or very bright states)
+  //   contrast:   0–300 (allows washed-out or over-contrasted states)
+  const randInt = (min, max) => Math.floor(rng() * (max - min + 1)) + min;
   const brightness = randInt(0, 300);
   const contrast   = randInt(0, 300);
 
@@ -59,7 +85,7 @@ router.post('/', async (req, res) => {
 
   // --- 4. Capture randomized histogram + preview image (with filters applied) ---
   try {
-    // Strip segmentation and drawn objects — histogram reflects image+filters only.
+    // Strip segmentation and drawn objects - histogram reflects image+filters only.
     const { segmentation: _seg, ...histState } = state.getState();
     histState.objects = [];
     const png  = await renderToPng(histState);
@@ -70,7 +96,7 @@ router.post('/', async (req, res) => {
     require('fs').writeFileSync(RAND_PREVIEW_PATH, png);
   } catch (e) {
     console.error('[randomize] randomized histogram capture failed:', e);
-    // non-fatal — continue
+    // non-fatal - continue
   }
 
   // Reset session counters AFTER applying the random filters so the
@@ -88,6 +114,7 @@ router.post('/', async (req, res) => {
     const ref  = loadReferenceHistogram();
     if (ref) {
       ref.randomFilters = { brightness, contrast };
+      ref.randomizationSeed = seed ?? null;
       const jsonStr = JSON.stringify(ref);
       fs.writeFileSync(REF_HIST_PATH, jsonStr);
       // Also patch the matching timestamped copy if it exists
@@ -99,7 +126,13 @@ router.post('/', async (req, res) => {
     console.error('[randomize] failed to patch reference JSON with randomFilters:', e);
   }
 
-  res.json({ ok: true, reference_histogram_saved: true, randomized_histogram_saved: true });
+  res.json({
+    ok: true,
+    seed: seed ?? null,
+    filters,
+    reference_histogram_saved: true,
+    randomized_histogram_saved: true,
+  });
 });
 
 module.exports = router;

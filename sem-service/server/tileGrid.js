@@ -1,8 +1,13 @@
-// server/tileGrid.js — tile index for Combined_New_Scans_Andrea grid navigation
+// server/tileGrid.js — tile index for grid navigation
 //
-// Filename pattern: Region{NNN}_y{YY}_x{XX}_fw{FW}um[_1|_2].tiff
+// Supported filename patterns:
+//   Combined_New_Scans_Andrea: Region{NNN}_y{YY}_x{XX}_fw{FW}um[_1|_2].tiff
+//   Grid_Scan_Paper:           Tile_r{ROW}_c{COL}.tiff
 // Multiple regions, multiple FOVs per region, sparse grids.
 // Duplicate acquisitions (_1 suffix) exist; we prefer the base file.
+//
+// Grid_Scan_Paper tiles are assigned virtual region=999, fw=0.
+// REGION_LABELS maps virtual region IDs to human-readable names.
 
 'use strict';
 
@@ -18,7 +23,13 @@ let datasetName = 'Combined_New_Scans_Andrea';
 // Supported image extensions (lowercase)
 const IMG_EXTS = new Set(['.tiff', '.tif', '.png', '.jpg', '.jpeg']);
 
-// Parse filename stem: returns { region, y, x, fw, suffix } or null
+// Human-readable labels for virtual region IDs
+const REGION_LABELS = {
+  999: 'Grid_paper',
+};
+
+// Parse Combined_New_Scans_Andrea filename: Region{NNN}_y{YY}_x{XX}_fw{FW}um[_N]
+// Returns { region, y, x, fw, suffix } or null
 function parseTileFilename(filename) {
   const stem = filename.replace(/\.[^.]+$/, ''); // strip extension
   // Match: Region011_y14_x03_fw120um  or  Region011_y14_x03_fw120um_1
@@ -33,19 +44,37 @@ function parseTileFilename(filename) {
   };
 }
 
+// Parse Grid_Scan_Paper filename: Tile_r{ROW}_c{COL}.tiff
+// Returns { region: 999, y: row, x: col, fw: 0, suffix: 0 } or null
+function parsePaperTileFilename(filename) {
+  const stem = filename.replace(/\.[^.]+$/, '');
+  const m = stem.match(/^Tile_r(\d+)_c(\d+)$/i);
+  if (!m) return null;
+  return {
+    region: 999,
+    y:      parseInt(m[1], 10),
+    x:      parseInt(m[2], 10),
+    fw:     0,
+    suffix: 0,
+  };
+}
+
 function tileKey(region, fw, y, x) {
   return `${region}:${fw}:${y},${x}`;
 }
 
 // Scan one directory and add tiles to tileMap
-function _scanDir(dir, split) {
+// urlPrefix: the URL prefix used to serve tiles from this directory (e.g. '/tile-assets/')
+function _scanDir(dir, split, urlPrefix) {
   if (!fs.existsSync(dir)) return;
+  const prefix = urlPrefix || '/tile-assets/';
   const entries = fs.readdirSync(dir);
   for (const filename of entries) {
     const ext = path.extname(filename).toLowerCase();
     if (!IMG_EXTS.has(ext)) continue;
 
-    const parsed = parseTileFilename(filename);
+    // Try both filename parsers
+    const parsed = parseTileFilename(filename) || parsePaperTileFilename(filename);
     if (!parsed) continue;
 
     const { region, y, x, fw, suffix } = parsed;
@@ -57,8 +86,7 @@ function _scanDir(dir, split) {
       tileMap.set(key, {
         filename,
         absolutePath: path.join(dir, filename),
-        // URL path under /tile-assets/ for browser access
-        urlPath: `/tile-assets/${filename}`,
+        urlPath: `${prefix}${filename}`,
         region, fw, y, x,
         suffix,
         split,
@@ -68,10 +96,11 @@ function _scanDir(dir, split) {
 }
 
 // Scan all dataset directories, build index
+// Each entry: { dir, split, urlPrefix? }
 function scanDataset(dirs) {
   tileMap = new Map();
-  for (const { dir, split } of dirs) {
-    _scanDir(dir, split);
+  for (const { dir, split, urlPrefix } of dirs) {
+    _scanDir(dir, split, urlPrefix);
   }
   scanned = true;
   console.log(`[tileGrid] Scanned ${tileMap.size} tiles from ${dirs.map(d => d.split).join(', ')}`);
@@ -87,7 +116,8 @@ function getNeighbor(region, fw, y, x, dy, dx) {
   return getTile(region, fw, y + dy, x + dx);
 }
 
-// List all unique (region, fw) groups with tile counts, sorted
+// List all unique (region, fw) groups with tile counts, sorted.
+// Each entry includes an optional `label` field for human-readable region names.
 function listRegions() {
   const groups = new Map();
   for (const tile of tileMap.values()) {
@@ -97,9 +127,9 @@ function listRegions() {
     }
     groups.get(k).tileCount++;
   }
-  return Array.from(groups.values()).sort((a, b) =>
-    a.region !== b.region ? a.region - b.region : a.fw - b.fw
-  );
+  return Array.from(groups.values())
+    .sort((a, b) => a.region !== b.region ? a.region - b.region : a.fw - b.fw)
+    .map(g => ({ ...g, label: REGION_LABELS[g.region] || null }));
 }
 
 // Get the default starting tile: smallest (region asc, fw asc, y asc, x asc)
@@ -164,4 +194,6 @@ module.exports = {
   isScanned,
   getTileCount,
   parseTileFilename,
+  parsePaperTileFilename,
+  REGION_LABELS,
 };

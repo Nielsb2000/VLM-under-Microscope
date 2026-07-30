@@ -24,6 +24,40 @@ Read this skill when the user says anything like:
 - "move the cursor to X"
 - "highlight this area"
 - "show me what's on the canvas"
+- "count the particles in the image"
+- "describe / inspect / analyse what you see in the viewport"
+- "use your VLM to look at the current tile"
+- "what do you see in the SEM image?"
+
+---
+
+## Inspecting the canvas with VLM (`get_canvas_image` → `analyze_sandbox_image`)
+
+To count, describe, or analyse what is currently shown in the SEM viewport, always
+use the canvas export — **not** a browser screenshot tool:
+
+```python
+# 1. Export the current canvas (background image + any annotations) as a PNG
+img = paint_canvas("get_canvas_image")          # returns {saved_to, width, height}
+# saved_to is a sandbox path, e.g. /workspace/screenshots/paint_<ts>/canvas_export.png
+
+# 2. Ask the VLM a question about it
+result = analyze_sandbox_image(
+    img["saved_to"],
+    question="Count the number of dark particles visible in this SEM image. Return only the integer count."
+)
+print(result["answer"])   # e.g. "7"
+```
+
+> **Rule: NEVER use `screenshot_and_ask` to inspect the SEM canvas.**
+> `screenshot_and_ask` takes a live browser screenshot and will capture whatever
+> the browser is showing (possibly a new-tab page, a different window, etc.).
+> `get_canvas_image` exports the SEM service canvas directly — it always contains
+> the correct image regardless of what is visible on screen.
+
+This pattern works in **any** mode (image, grid, atlas) and after segmentation overlays
+have been applied.  The exported PNG includes the background tile **plus** all
+annotation objects drawn on top.
 
 ---
 
@@ -316,11 +350,11 @@ data = paint_canvas("export_json")
 | `camera_goto` | Jump directly to tile by `{x, y}` (optionally `region`, `fw`) |
 | `camera_state` | Read current uiMode and tileGrid position |
 | `set_canvas_mode` | Switch between `"image"` and `"grid"` modes |
-| `set_filters` | Set `{brightness, contrast}` (0–300, 100 = neutral) |
+| `set_filters` | Set `{brightness, contrast}` (0–300) |
 | `randomize_filters` | Scramble filters and capture reference histogram |
 | `atlas_enter` | Enter stitched atlas view for the current region + fw |
 | `atlas_exit` | Return from atlas view to grid mode |
-| `atlas_state` | Read atlas state including `tile_coords` annotation mapping |
+| `atlas_state` | Read atlas state including `tile_coords` (key-point lookup) and `tiles_traversed` (every tile a shape enters) annotation mappings |
 | `atlas_fit` | Fit the atlas view to the viewport |
 | `segment_viewport` | Run SAM2 segmentation on the current view (requires `segmentationEnabled=true`) |
 | `get_sem_status` | Wait, then return background, filters, tile_position, ui_mode, segmentation, session |
@@ -419,6 +453,13 @@ while True:
 
 ## Atlas Mode
 
+> **Rule: always use `atlas_state`, never parse SVG paths manually.**
+> When in atlas mode, call `paint_canvas("atlas_state")` to read annotation data.
+> Every annotation in the response already contains `tiles_traversed` — the
+> pre-computed ordered list of tiles the shape enters.  Do **not** call
+> `paint_canvas("state")` in atlas mode and do **not** write `execute` / Python
+> code to parse SVG path strings or compute tile indices yourself.
+
 Atlas mode stitches all tiles of the current region + focal width into a single
 overview image. Useful for selecting a structural ROI before zooming into
 individual tiles.
@@ -431,10 +472,12 @@ get_sem_status()   # wait for render; ui_mode → "atlas"
 # Fit to viewport
 paint_canvas("atlas_fit")
 
-# Read atlas state — includes tile_coords mapping
+# Read atlas state — each annotation carries two coordinate fields:
+#   tile_coords      → key-point breakdown (start/end/center/origin) with
+#                      {tile_x, tile_y, pixel_x, pixel_y} per point
+#   tiles_traversed  → ORDERED list of every {tile_x, tile_y} the shape
+#                      enters (full traversal, not just endpoints)
 state = paint_canvas("atlas_state")
-# state["tile_coords"] → dict mapping each annotation id → {region, fw, x, y, canvas_x, canvas_y}
-# Lets you find which tile an annotation falls in without manual math.
 
 # Exit atlas — returns to the tile that was active when you entered
 paint_canvas("atlas_exit")
@@ -444,9 +487,9 @@ get_sem_status()   # ui_mode → "grid"
 **When to use atlas mode:**
 - Spatial overview of a region before drilling into individual tiles
 - Finding which tile contains a structural feature (use `tile_coords` from `atlas_state`)
-- Case Study 2: map particle annotations back to tile coordinates for counting per-tile
+- Case Study 2: follow a drawn path — read `tiles_traversed` to get the exact tile list
 
-**Atlas + annotation coordinate mapping:**
+**Atlas + annotation coordinate mapping (single point):**
 
 ```python
 paint_canvas("atlas_enter")
@@ -455,14 +498,56 @@ dot = paint_canvas("dot", {"cx": 540, "cy": 320, "radius": 6,
                             "fill": "#ff0000", "createdBy": "model"})
 # Get which tile that dot falls in
 state = paint_canvas("atlas_state")
-coords = state["tile_coords"].get(dot["id"])
-# coords → {"region": "Region011", "fw": 120, "x": 3, "y": 1, ...}
+annotation = next(a for a in state["annotations"] if a["id"] == dot["id"])
+coords = annotation["tile_coords"]["center"]
+# coords → {"tile_x": 0, "tile_y": 0, "pixel_x": 540, "pixel_y": 320}
 
 # Navigate directly to that tile
 paint_canvas("atlas_exit")
-paint_canvas("camera_goto", {"x": coords["x"], "y": coords["y"],
-                              "region": coords["region"], "fw": coords["fw"]})
+paint_canvas("camera_goto", {"x": coords["tile_x"], "y": coords["tile_y"]})
 get_sem_status()
+```
+
+**Path following via `tiles_traversed` (Case Study 2):**
+
+When the user draws a line, arrow, freehand stroke, rect, or ellipse on the atlas,
+`atlas_state` returns a `tiles_traversed` list on each annotation — every tile that
+shape crosses, computed by DDA grid traversal (lines/arrows/freehand) or perimeter
+sampling (rects/ellipses).  Use this to drive systematic tile navigation:
+
+```python
+# 1. Enter atlas and read the drawn path
+paint_canvas("atlas_enter")
+get_sem_status()
+state = paint_canvas("atlas_state")
+
+# 2. Find the path annotation (drawn by human or eval script)
+path_obj = next(
+    a for a in state["annotations"]
+    if a["createdBy"] == "eval" and a["type"] in ("line", "freehand", "arrow")
+)
+tiles_to_visit = path_obj["tiles_traversed"]
+# → [{"tile_x": 3, "tile_y": 14}, {"tile_x": 4, "tile_y": 14}, ...]
+
+# 3. Exit atlas and visit each tile
+paint_canvas("atlas_exit")
+get_sem_status()
+
+results = {}
+for tile in tiles_to_visit:
+    paint_canvas("camera_goto", {"x": tile["tile_x"], "y": tile["tile_y"]})
+    get_sem_status()
+    img = paint_canvas("get_canvas_image")
+    answer = analyze_sandbox_image(
+        img["saved_to"],
+        question="Count the number of particles visible in this SEM image. Return only the integer count."
+    )
+    results[f"({tile['tile_x']}, {tile['tile_y']})"] = answer["answer"]
+
+# 4. Report
+for tile_key, count in results.items():
+    print(f"tile {tile_key}: {count}")
+print(f"total: {sum(int(re.search(r'\\d+', v).group()) for v in results.values() if re.search(r'\\d+', v))}")
 ```
 
 ---
@@ -470,7 +555,7 @@ get_sem_status()
 ## Image Filters
 
 ```python
-# Set brightness + contrast (0–300, 100 = neutral)
+# Set brightness + contrast (0–300)
 paint_canvas("set_filters", {"brightness": 130, "contrast": 85})
 get_sem_status()   # verify filters applied
 

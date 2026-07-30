@@ -8,7 +8,9 @@ from langchain_core.tools import tool
 from sandbox_browser_tools import run_visible_browser_steps
 import subprocess
 import json as _json
+import math as _math
 import os as _os
+import re as _re
 from urllib.request import urlopen, Request as _Request
 from urllib.parse import urlencode as _urlencode
 from MCP_functions import call_mcp_tool
@@ -17,8 +19,198 @@ from sandbox_core_functions import get_sandbox_context, create_skill_in_sandbox
 _PAINT_BASE = _os.environ.get("SEM_SERVICE_URL", "http://localhost:3000")
 
 
+# ---------------------------------------------------------------------------
+# Atlas tile-traversal helpers
+# ---------------------------------------------------------------------------
+
+def _tiles_for_segment_dda(
+    x1: float, y1: float,
+    x2: float, y2: float,
+    tw: int, th: int,
+) -> list[tuple[int, int]]:
+    """Return every (tile_x, tile_y) the line segment (x1,y1)→(x2,y2) enters.
+
+    Uses a DDA (digital differential analyser) grid-traversal algorithm so that
+    every tile the segment crosses is included, not just the endpoint tiles.
+    """
+    tiles: list[tuple[int, int]] = []
+    seen:  set[tuple[int, int]] = set()
+
+    def _add(t: tuple[int, int]) -> None:
+        if t not in seen:
+            seen.add(t)
+            tiles.append(t)
+
+    tx, ty   = int(x1 // tw), int(y1 // th)
+    tx1, ty1 = int(x2 // tw), int(y2 // th)
+    _add((tx, ty))
+    if tx == tx1 and ty == ty1:
+        return tiles
+
+    dx, dy = x2 - x1, y2 - y1
+    sx, sy = (1 if dx > 0 else -1), (1 if dy > 0 else -1)
+    t_mx = ((tx + (1 if dx > 0 else 0)) * tw - x1) / dx if dx else float("inf")
+    t_my = ((ty + (1 if dy > 0 else 0)) * th - y1) / dy if dy else float("inf")
+    td_x = abs(tw / dx) if dx else float("inf")
+    td_y = abs(th / dy) if dy else float("inf")
+
+    for _ in range(500):            # safety cap — no segment should cross >500 tiles
+        if t_mx < t_my:
+            tx += sx; t_mx += td_x
+        else:
+            ty += sy; t_my += td_y
+        _add((tx, ty))
+        if (tx, ty) == (tx1, ty1):
+            break
+
+    return tiles
+
+
+def _parse_svg_path_waypoints(path_str: str) -> list[tuple[float, float]]:
+    """Extract ordered (x, y) waypoints from an SVG path string.
+
+    Handles absolute and relative M, L, Q, C, Z commands.
+    Quadratic and cubic Bézier curves are sampled at t = 0.25, 0.5, 0.75, 1.0
+    so that tiles the curve dips into (but whose endpoints fall outside) are captured.
+
+    Fabric.js freehand paths use Q commands almost exclusively; C is included for
+    completeness.
+    """
+    pts: list[tuple[float, float]] = []
+    tokens = _re.findall(
+        r"[MLQCZmlqcz]|[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?", path_str
+    )
+    i = 0
+    cx = cy = sx = sy = 0.0   # current point and subpath start
+
+    while i < len(tokens):
+        cmd = tokens[i]; i += 1
+        if cmd in ("M", "m"):
+            x, y = float(tokens[i]), float(tokens[i + 1]); i += 2
+            if cmd == "m":
+                x += cx; y += cy
+            cx = sx = x; cy = sy = y
+            pts.append((cx, cy))
+        elif cmd in ("L", "l"):
+            x, y = float(tokens[i]), float(tokens[i + 1]); i += 2
+            if cmd == "l":
+                x += cx; y += cy
+            cx, cy = x, y
+            pts.append((cx, cy))
+        elif cmd in ("Q", "q"):
+            x1, y1 = float(tokens[i]), float(tokens[i + 1]); i += 2
+            x,  y  = float(tokens[i]), float(tokens[i + 1]); i += 2
+            if cmd == "q":
+                x1 += cx; y1 += cy; x += cx; y += cy
+            for t in (0.25, 0.5, 0.75, 1.0):
+                pts.append((
+                    (1 - t) ** 2 * cx + 2 * (1 - t) * t * x1 + t ** 2 * x,
+                    (1 - t) ** 2 * cy + 2 * (1 - t) * t * y1 + t ** 2 * y,
+                ))
+            cx, cy = x, y
+        elif cmd in ("C", "c"):
+            x1, y1 = float(tokens[i]), float(tokens[i + 1]); i += 2
+            x2, y2 = float(tokens[i]), float(tokens[i + 1]); i += 2
+            x,  y  = float(tokens[i]), float(tokens[i + 1]); i += 2
+            if cmd == "c":
+                x1 += cx; y1 += cy; x2 += cx; y2 += cy; x += cx; y += cy
+            for t in (0.25, 0.5, 0.75, 1.0):
+                pts.append((
+                    (1-t)**3*cx + 3*(1-t)**2*t*x1 + 3*(1-t)*t**2*x2 + t**3*x,
+                    (1-t)**3*cy + 3*(1-t)**2*t*y1 + 3*(1-t)*t**2*y2 + t**3*y,
+                ))
+            cx, cy = x, y
+        elif cmd in ("Z", "z"):
+            pts.append((sx, sy))
+
+    return pts
+
+
+def _traversed_tiles(obj: dict, tw: int, th: int) -> list[tuple[int, int]]:
+    """Return every (tile_x, tile_y) that a canvas annotation object enters.
+
+    Shape handling:
+      line / arrow  — DDA traversal of the single segment.
+      freehand      — DDA traversal of every inter-waypoint segment; Béziers sampled.
+      rect          — DDA traversal of all four edges (perimeter, not fill).
+      ellipse       — Perimeter sampled into ≥32 segments, then DDA per segment.
+      dot / text    — Single tile containing the anchor point.
+    """
+    otype = obj.get("type", "")
+    tiles: list[tuple[int, int]] = []
+    seen:  set[tuple[int, int]] = set()
+
+    def _merge(new_tiles: list[tuple[int, int]]) -> None:
+        for t in new_tiles:
+            if t not in seen:
+                seen.add(t)
+                tiles.append(t)
+
+    if otype in ("line", "arrow"):
+        _merge(_tiles_for_segment_dda(
+            obj.get("x1", 0), obj.get("y1", 0),
+            obj.get("x2", 0), obj.get("y2", 0),
+            tw, th,
+        ))
+
+    elif otype in ("dot", "text"):
+        cx = float(obj.get("cx", obj.get("x", 0)))
+        cy = float(obj.get("cy", obj.get("y", 0)))
+        _merge([(int(cx // tw), int(cy // th))])
+
+    elif otype == "rect":
+        x, y = float(obj.get("x", 0)), float(obj.get("y", 0))
+        w, h = float(obj.get("width", 0)), float(obj.get("height", 0))
+        for x1, y1, x2, y2 in [
+            (x,     y,     x + w, y    ),   # top edge
+            (x + w, y,     x + w, y + h),   # right edge
+            (x + w, y + h, x,     y + h),   # bottom edge
+            (x,     y + h, x,     y    ),   # left edge
+        ]:
+            _merge(_tiles_for_segment_dda(x1, y1, x2, y2, tw, th))
+
+    elif otype == "ellipse":
+        cx  = float(obj.get("cx", 0))
+        cy  = float(obj.get("cy", 0))
+        rx  = float(obj.get("rx", 0))
+        ry  = float(obj.get("ry", 0))
+        # Sample the perimeter densely enough to catch every tile boundary crossing.
+        n = max(32, int(2 * _math.pi * max(rx, ry) / min(tw, th) * 8))
+        pts = [
+            (cx + rx * _math.cos(2 * _math.pi * k / n),
+             cy + ry * _math.sin(2 * _math.pi * k / n))
+            for k in range(n)
+        ]
+        for (ax, ay), (bx, by) in zip(pts, pts[1:] + [pts[0]]):
+            _merge(_tiles_for_segment_dda(ax, ay, bx, by, tw, th))
+
+    elif otype == "freehand":
+        path_str = obj.get("path", "")
+        left = float(obj.get("left") or 0)
+        top  = float(obj.get("top")  or 0)
+        pts  = _parse_svg_path_waypoints(path_str)
+        if pts:
+            # Fabric.js normalizes path coords so the bounding box's top-left is at
+            # the local-coord minimum.  left/top = canvas position of that corner.
+            # canvas_x = left + (local_x - min_local_x)
+            min_x = min(p[0] for p in pts)
+            min_y = min(p[1] for p in pts)
+            canvas_pts = [(left + px - min_x, top + py - min_y) for px, py in pts]
+            for (ax, ay), (bx, by) in zip(canvas_pts, canvas_pts[1:]):
+                _merge(_tiles_for_segment_dda(ax, ay, bx, by, tw, th))
+
+    return tiles
+
+
 def _annotate_atlas_coords(obj: dict, tw: int, th: int) -> dict:
-    """Add tile_coords to an annotation object, translating atlas pixel coords → tile coords.
+    """Add tile_coords and tiles_traversed to an annotation object.
+
+    tile_coords      — key-point breakdown (start/end/center/origin) with per-point
+                       {tile_x, tile_y, pixel_x, pixel_y}.  Unchanged from before.
+    tiles_traversed  — ordered list of every {tile_x, tile_y} the shape enters,
+                       computed via DDA grid traversal (lines/arrows/freehand),
+                       perimeter edge traversal (rects), perimeter sampling (ellipses),
+                       or single-tile lookup (dots/text).
 
     For any point (ax, ay) in atlas pixel space:
       tile_x   = floor(ax / tw),  pixel_x = ax % tw
@@ -46,6 +238,11 @@ def _annotate_atlas_coords(obj: dict, tw: int, th: int) -> dict:
         coords["center"] = _pt(obj.get("cx"), obj.get("cy"))
     if coords:
         out["tile_coords"] = coords
+
+    # Full traversal — every tile the shape enters
+    traversed = _traversed_tiles(obj, tw, th)
+    out["tiles_traversed"] = [{"tile_x": tx, "tile_y": ty} for tx, ty in traversed]
+
     return out
 
 
@@ -181,6 +378,10 @@ def paint_canvas(action: str, params: dict | str | None = None, **kwargs) -> dic
       - "list_images"    List all uploaded images available on the server.
       - "load_image_by_name"  Load a previously uploaded image by filename.
                          params: {filename}
+      - "sample_image"   Load a uniformly random image from the unlabeled SEM dataset
+                         (default) or labeled dataset as the canvas background.
+                         params: {source: "unlabeled" (default) | "labeled"}
+                         Returns {ok, category, filename, width, height, total_candidates}.
 
     Grid dataset mode (SEM tile navigation — Combined_New_Scans_Andrea):
       - "load_tile_grid"  Enter grid mode and load the tile dataset. Scans both train+val
@@ -208,8 +409,14 @@ def paint_canvas(action: str, params: dict | str | None = None, **kwargs) -> dic
                          atlas pixel coordinates where x = tile_x * 1920 + pixel_x_within_tile.
       - "atlas_exit"    Return from atlas mode back to tile-by-tile grid navigation.
       - "atlas_state"   Returns atlas dimensions, grid layout, and all annotations with
-                         automatic tile coordinate translation (shows which tile each point
-                         falls on and the pixel offset within that tile).
+                         FULL tile traversal pre-computed. Each annotation object includes:
+                           tile_coords      — key-point {tile_x, tile_y, pixel_x, pixel_y}
+                           tiles_traversed  — ORDERED list of every {tile_x, tile_y} the
+                                             shape enters (DDA for lines/freehand/arrows,
+                                             perimeter traversal for rects/ellipses).
+                         ALWAYS use atlas_state (not "state") when in atlas mode.
+                         NEVER write execute/Python code to parse SVG paths or compute
+                         tile indices manually — atlas_state already does this for you.
 
     Returns:
         dict with the API response or {saved_to, size_bytes} for PNG export.
@@ -350,6 +557,10 @@ def paint_canvas(action: str, params: dict | str | None = None, **kwargs) -> dic
             if not fname:
                 return {"error": "load_image_by_name requires a 'filename' param. Call list_images first to see available filenames."}
             return _paint("POST", "/api/images/load", {"filename": fname})
+        case "sample_image":
+            # Load a random image from the unlabeled dataset (default) or labeled dataset.
+            # params: {source: "unlabeled" (default) | "labeled"}
+            return _paint("POST", "/api/dataset/sample", {"source": params.get("source", "unlabeled")})
         # ---- Tile grid / camera navigation ----
         case "load_tile_grid":
             return _paint("POST", "/api/camera/init", params or {})
@@ -385,25 +596,44 @@ def paint_canvas(action: str, params: dict | str | None = None, **kwargs) -> dic
             cam = _paint("GET", "/api/camera/state")
             if cam.get("uiMode") != "atlas":
                 return {"error": "Not in atlas mode. Use camera_state for grid/image state."}
+            canvas_s = _paint("GET", "/api/canvas/state")
+            atlas_coord_enabled = canvas_s.get("atlasCoordEnabled", True)
             atlas = cam.get("atlas", {})
             tw = atlas.get("tileWidth", 1920)
             th = atlas.get("tileHeight", 1200)
             objects = _paint("GET", "/api/objects")
             if isinstance(objects, list):
-                annotated = [_annotate_atlas_coords(o, tw, th) for o in objects]
+                if atlas_coord_enabled:
+                    annotated = [_annotate_atlas_coords(o, tw, th) for o in objects]
+                else:
+                    # Strip any stale coord fields so the agent cannot rely on them
+                    annotated = [
+                        {k: v for k, v in o.items() if k not in ("tiles_traversed", "tile_coords")}
+                        for o in objects
+                    ]
             else:
                 annotated = objects  # error passthrough
-            return {
+            result = {
                 "uiMode": "atlas",
                 "atlas": atlas,
                 "annotations": annotated,
-                "coordinate_note": (
-                    "All annotation coordinates are in atlas pixel space. "
-                    f"atlas_x = tile_x * {tw} + pixel_x_within_tile, "
-                    f"atlas_y = tile_y * {th} + pixel_y_within_tile. "
-                    "tile_coords shows the decomposed tile + pixel offset for each coordinate."
-                ),
             }
+            if atlas_coord_enabled:
+                result["coordinate_note"] = (
+                    "Each annotation already has tiles_traversed (ordered list of every "
+                    "{tile_x, tile_y} the shape enters) and tile_coords (key-point "
+                    "breakdown). DO NOT write Python/execute code to parse SVG paths or "
+                    "compute tile indices — read tiles_traversed directly from each "
+                    f"annotation. atlas_x = tile_x * {tw} + pixel_x,  "
+                    f"atlas_y = tile_y * {th} + pixel_y."
+                )
+            else:
+                result["coordinate_note"] = (
+                    "Tile coordinate computation is disabled. Use your VLM to read the "
+                    "tile coordinates from the canvas image instead of relying on "
+                    "tiles_traversed or tile_coords fields."
+                )
+            return result
         case "randomize_filters":
             # Randomise brightness/contrast AND capture the reference histogram.
             # Use this to start a case-study run.
@@ -441,7 +671,7 @@ def get_sem_status(settle_seconds: float = 1.5) -> dict:
     try:
         state = _paint("GET", "/api/canvas/state")
         cam   = _paint("GET", "/api/camera/state")
-        sess  = _paint("GET", "/api/session")
+        sess  = _paint("GET", "/api/session/stats")
 
         bg = state.get("canvas", {}).get("backgroundImage")
         if bg:

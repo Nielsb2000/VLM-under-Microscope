@@ -1,20 +1,20 @@
 # =============================================================================
-# ⚠️  DUAL-COPY FILE — KEEP BOTH COPIES IDENTICAL
+# DUAL-COPY FILE - KEEP BOTH COPIES IDENTICAL
 #
 # This file exists in TWO locations:
-#   1. sem_histogram_error.py                                (project root — human/CI runs)
-#   2. skills/master-skill/sem-histogram-eval/sem_histogram_error.py  (sandbox — agent runs)
+#   1. sem_histogram_error.py                                (project root - human/CI runs)
+#   2. skills/master-skill/sem-histogram-eval/sem_histogram_error.py  (sandbox - agent runs)
 #
 # The sandbox copy is the ONLY one the agent can execute.
 # The root copy is the canonical version for human and CI use.
 #
 # ANY change to either file MUST be applied to the other immediately.
 # The only intentional difference is the _HIST_RESULT path resolution
-# block (sandbox vs host fallback) — everything else must be character-
+# block (sandbox vs host fallback) - everything else must be character-
 # for-character identical.
 # =============================================================================
 
-"""sem_histogram_error.py — SEM image quality evaluation via histogram comparison.
+"""sem_histogram_error.py - SEM image quality evaluation via histogram comparison.
 
 Computes the SEM Histogram Error between a rendered canvas image and a reference
 brightness histogram:
@@ -37,16 +37,16 @@ Usage (standalone script):
                                   [--edge-bins 5] [--clipping-weight 5.0]
 
 The script fetches:
-  GET /api/histogram/current    — histogram of the canvas with current filters applied
-  GET /api/histogram/reference  — histogram captured before randomisation
+  GET /api/histogram/current    - histogram of the canvas with current filters applied
+  GET /api/histogram/reference  - histogram captured before randomisation
 
 Saves to sem-service/histograms/result/:
-  result_hist.json     — current histogram + metric scores
-  result_hist.png      — standalone result brightness histogram
-  ref_hist.png         — standalone reference histogram (copy for side-by-side viewing)
-  comparison_hist.png  — result bars with reference overlaid in red
+  result_hist.json     - current histogram + metric scores
+  result_hist.png      - standalone result brightness histogram
+  ref_hist.png         - standalone reference histogram (copy for side-by-side viewing)
+  comparison_hist.png  - result bars with reference overlaid in red
 
-This script is intentionally separate from the agent loop — the AGENT is not
+This script is intentionally separate from the agent loop - the AGENT is not
 allowed to call this and must rely solely on its visual (VLM) assessment to
 decide when the image quality is good.
 """
@@ -141,7 +141,7 @@ def sem_histogram_error(
     image_bins: list[int] | list[float],
     ref_bins:   list[int] | list[float],
     *,
-    edge_bins:       int   = 5,
+    edge_bins: int = 1,
     clipping_weight: float = 5.0,
 ) -> dict:
     """Compute the SEM Histogram Error between an image and a reference histogram.
@@ -153,31 +153,37 @@ def sem_histogram_error(
     ref_bins:
         Raw histogram bin counts for the reference (un-modified) image.
     edge_bins:
-        Number of bins at each extreme (black / white) counted as clipping.
+        Number of bins at each histogram edge to consider as clipping.
+        The default is 1, meaning only exact black and exact white saturation
+        are counted.
     clipping_weight (lambda):
         Penalty multiplier for the clipping fraction.
 
     Returns
     -------
     dict with keys:
-        ``score``               — the SEM histogram error (lower is better)
-        ``wasserstein``         — W distance component
-        ``clipping_fraction``   — |image clipping − reference clipping|
-        ``clipping_penalty``    — lambda * clipping_fraction
-        ``n_bins``              — number of bins (should be 256 for 8-bit)
+        ``score``               - the SEM histogram error (lower is better)
+        ``wasserstein``         - W distance component
+        ``clipping_fraction``   - |image clipping − reference clipping|
+        ``clipping_penalty``    - lambda * clipping_fraction
+        ``n_bins``              - number of bins (should be 256 for 8-bit)
     """
     n = len(image_bins)
     if n == 0:
         return {"error": "image_bins is empty"}
     if len(ref_bins) != n:
         return {"error": f"Histogram lengths differ: {n} vs {len(ref_bins)}"}
+    if edge_bins < 1:
+        return {"error": "edge_bins must be >= 1"}
+    if edge_bins * 2 > n:
+        return {"error": f"edge_bins too large for histogram length {n}: {edge_bins}"}
 
     total_img = sum(image_bins)
     total_ref = sum(ref_bins)
     if total_img == 0:
-        return {"error": "image_bins sums to zero — cannot normalise"}
+        return {"error": "image_bins sums to zero - cannot normalise"}
     if total_ref == 0:
-        return {"error": "ref_bins sums to zero — cannot normalise"}
+        return {"error": "ref_bins sums to zero - cannot normalise"}
 
     # Normalise to probability distributions
     p_img = [b / total_img for b in image_bins]
@@ -196,11 +202,11 @@ def sem_histogram_error(
         wasserstein += abs(cdf_img - cdf_ref)
     wasserstein /= (n - 1)
 
-    # Clipping fraction — |excess clipping in image vs reference|
-    # Measured as absolute difference so a perfect match scores 0 even if the
-    # reference itself has clipped pixels.
-    clipping_fraction_img = sum(p_img[:edge_bins]) + sum(p_img[max(0, n - edge_bins):])
-    clipping_fraction_ref = sum(p_ref[:edge_bins]) + sum(p_ref[max(0, n - edge_bins):])
+    # Clipping fraction - |excess clipping in image vs reference|
+    # Measured using the first/last edge_bins histogram bins.
+    # With edge_bins=1 this counts exact black and exact white saturation only.
+    clipping_fraction_img = sum(p_img[:edge_bins]) + sum(p_img[-edge_bins:])
+    clipping_fraction_ref = sum(p_ref[:edge_bins]) + sum(p_ref[-edge_bins:])
     clipping_fraction = abs(clipping_fraction_img - clipping_fraction_ref)
 
     clipping_penalty = clipping_weight * clipping_fraction
@@ -211,6 +217,7 @@ def sem_histogram_error(
         "wasserstein":       round(wasserstein, 6),
         "clipping_fraction": round(clipping_fraction, 6),
         "clipping_penalty":  round(clipping_penalty, 6),
+        "edge_bins":         edge_bins,
         "n_bins":            n,
     }
 
@@ -236,8 +243,8 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--edge-bins",
         type=int,
-        default=5,
-        help="Number of edge bins to consider as clipping (default: 5)",
+        default=1,
+        help="Number of edge bins to consider as clipping (default: 1)",
     )
     parser.add_argument(
         "--clipping-weight",
@@ -271,7 +278,7 @@ def main(argv: list[str] | None = None) -> None:
         print(f"ERROR from /api/histogram/reference: {reference['error']}", file=sys.stderr)
         sys.exit(1)
 
-    # Fetch the randomized histogram (optional — saved at randomize time)
+    # Fetch the randomized histogram (optional - saved at randomize time)
     randomized: dict | None = None
     try:
         randomized = _fetch_json(f"{base}/api/histogram/randomized")
@@ -307,7 +314,7 @@ def main(argv: list[str] | None = None) -> None:
     print(f"  Reference image         : {reference.get('filename', '?')}")
     print(f"  Reference captured at   : {reference.get('capturedAt', '?')}")
     if reference.get('randomFilters'):
-        print(f"  Random filters applied  : [withheld — see result JSON]")
+        print(f"  Random filters applied  : [withheld - see result JSON]")
     print("─────────────────────────────────────────────────────────────\n")
 
     # Fetch final filter values and session iteration counts
@@ -328,9 +335,9 @@ def main(argv: list[str] | None = None) -> None:
     from datetime import datetime as _dt
     try:
         from zoneinfo import ZoneInfo as _ZI
-        ts = _dt.now(_ZI("Europe/Amsterdam")).strftime("%Y%m%d_%H%M")
+        ts = _dt.now(_ZI("Europe/Amsterdam")).strftime("%Y%m%d_%H%M%S")
     except Exception:
-        ts = _dt.now().strftime("%Y%m%d_%H%M")
+        ts = _dt.now().strftime("%Y%m%d_%H%M%S")
 
     _HIST_RESULT.mkdir(parents=True, exist_ok=True)
     json_path      = _HIST_RESULT / f"result_hist_{ts}.json"
@@ -416,7 +423,7 @@ def main(argv: list[str] | None = None) -> None:
     try:
         img_result_bytes = _urlopen(f"{base}/api/histogram/result-image", timeout=30).read()
         img_result_path.write_bytes(img_result_bytes)
-        result_payload["resultImage"] = str(img_result_path)
+        result_payload["resultImage"] = img_result_path.name
         print(f"  Result image saved   → {img_result_path}")
     except Exception as _e:
         print(f"  Warning: could not fetch result image: {_e}", file=sys.stderr)
@@ -425,7 +432,7 @@ def main(argv: list[str] | None = None) -> None:
     try:
         img_ref_bytes = _urlopen(f"{base}/api/histogram/reference-image", timeout=15).read()
         img_reference_path.write_bytes(img_ref_bytes)
-        result_payload["referenceImageFile"] = str(img_reference_path)
+        result_payload["referenceImageFile"] = img_reference_path.name
         print(f"  Reference image saved→ {img_reference_path}")
     except Exception as _e:
         print(f"  Warning: could not fetch reference image: {_e}", file=sys.stderr)
@@ -434,7 +441,7 @@ def main(argv: list[str] | None = None) -> None:
     try:
         img_rand_bytes = _urlopen(f"{base}/api/histogram/randomized-image", timeout=15).read()
         img_randomized_path.write_bytes(img_rand_bytes)
-        result_payload["randomizedImageFile"] = str(img_randomized_path)
+        result_payload["randomizedImageFile"] = img_randomized_path.name
         print(f"  Randomized img saved → {img_randomized_path}")
     except Exception as _e:
         print(f"  Warning: could not fetch randomized image: {_e}", file=sys.stderr)
@@ -443,7 +450,7 @@ def main(argv: list[str] | None = None) -> None:
     json_path.write_text(json.dumps(result_payload, indent=2))
 
     # Overwrite plain-name "latest" copies so the most recent run is always
-    # at the predictable path — the timestamped files are the permanent archive.
+    # at the predictable path - the timestamped files are the permanent archive.
     import shutil as _shutil
     latest_copies = [
         (json_path,      _HIST_RESULT / "result_hist.json"),
@@ -459,10 +466,20 @@ def main(argv: list[str] | None = None) -> None:
         latest_copies.append((img_reference_path,  _HIST_RESULT / "ref_img.png"))
     if img_randomized_path.exists():
         latest_copies.append((img_randomized_path, _HIST_RESULT / "rand_img.png"))
+    _skipped = []
     for src, dst in latest_copies:
-        _shutil.copy2(src, dst)
-    print(f"  Latest copies updated in {_HIST_RESULT}\n")
+        try:
+            _shutil.copy2(src, dst)
+        except PermissionError:
+            _skipped.append(dst.name)
+    if _skipped:
+        print(f"  Latest copies skipped (permission denied - owned by Docker): {', '.join(_skipped)}")
+        print(f"  Timestamped copies are the permanent record.")
+    else:
+        print(f"  Latest copies updated in {_HIST_RESULT}")
+    print()
 
 
 if __name__ == "__main__":
     main()
+

@@ -1,4 +1,4 @@
-// server/state.js — single-session in-memory canvas state + SSE broadcast
+// server/state.js - single-session in-memory canvas state + SSE broadcast
 const { v4: uuidv4 } = require('uuid');
 
 let state = {
@@ -7,12 +7,24 @@ let state = {
   viewport: { zoom: 1, panX: 0, panY: 0 },
   cursor: { x: null, y: null, visible: false, label: '' },
   filters: { brightness: 100, contrast: 100 },
-  session: { filterAdjustments: 0, vlmSnapshots: 0 },
+  session: { filterAdjustments: 0, vlmSnapshots: 0, filterLog: [], vlmSnapshotLog: [] },
   uiMode: 'image',   // 'image' | 'grid' | 'atlas'
   atlas: null,        // { region, fw, tileWidth, tileHeight, cols, rows, atlasWidth, atlasHeight }
-  segmentation: null, // { mask_png?, centroids?, bboxes? } — stored for server-side export
+  atlasOverlay: {
+    grid: false,
+    labels: false,
+    gridLevel: 0,
+    subdivision: 1,
+    gridLineWidth: 10,
+    gridLineAlpha: 0.85,
+    labelFontSize: 64,
+    labelBoxPadding: 14,
+    labelBoxAlpha: 0.70,
+  }, // visual overlays in atlas mode
+  segmentation: null, // { mask_png?, centroids?, bboxes? } - stored for server-side export
   segmentationEnabled: false, // true while the Segment panel is open in the UI
   segmentTextEnabled: true,   // when false, agent tool omits coordinate text output
+  atlasCoordEnabled: true,    // when false, atlas_state skips coord computation - agent must use VLM
   tileGrid: {
     loaded: false,
     datasetName: null,
@@ -25,10 +37,10 @@ let state = {
   },
 };
 
-// Saved per-mode snapshots — restored when switching back
+// Saved per-mode snapshots - restored when switching back
 let _savedImageState = null;  // { backgroundImage, width, height, objects }
-let _savedGridTile   = null;  // { region, fw, x, y } — restored on switch back to grid
-let _atlasAnnotations = {};   // key: "region:fw" → objects[] — persists until region switch
+let _savedGridTile   = null;  // { region, fw, x, y } - restored on switch back to grid
+let _atlasAnnotations = {};   // key: "region:fw" -> objects[] - persists until region switch
 
 const sseClients = new Set();
 
@@ -51,12 +63,24 @@ function resetCanvas(width = 1200, height = 800) {
     viewport: { zoom: 1, panX: 0, panY: 0 },
     cursor: { x: null, y: null, visible: false, label: '' },
     filters: { brightness: 100, contrast: 100 },
-    session: { filterAdjustments: 0, vlmSnapshots: 0 },
+    session: { filterAdjustments: 0, vlmSnapshots: 0, filterLog: [], vlmSnapshotLog: [] },
     uiMode: 'image',
     atlas: null,
+    atlasOverlay: {
+      grid: false,
+      labels: false,
+      gridLevel: 0,
+      subdivision: 1,
+      gridLineWidth: 10,
+      gridLineAlpha: 0.85,
+      labelFontSize: 64,
+      labelBoxPadding: 14,
+      labelBoxAlpha: 0.70,
+    },
     segmentation: null,
     segmentationEnabled: false,
     segmentTextEnabled: true,
+    atlasCoordEnabled: true,
     tileGrid: {
       loaded: false,
       datasetName: null,
@@ -86,8 +110,6 @@ function setBackground(filename, width, height, { switchToImageMode = false } = 
   if (height) state.canvas.height = height;
   state.canvas.backgroundImage = filename;
   if (switchToImageMode) state.uiMode = 'image';
-  // New image — discard any segmentation from the previous image so it
-  // never renders over the wrong background on connected clients.
   state.segmentation = null;
   broadcast();
 }
@@ -104,8 +126,6 @@ function addObject(raw) {
   return obj;
 }
 
-// Add multiple objects with a single broadcast — avoids client dropping
-// intermediate SSE events when addObject is called in a tight loop.
 function addObjectsBatch(raws) {
   const created = raws.map(raw => ({
     ...raw,
@@ -121,7 +141,6 @@ function addObjectsBatch(raws) {
 function updateObject(id, updates) {
   const idx = state.objects.findIndex((o) => o.id === id);
   if (idx === -1) return null;
-  // Never allow overwriting id / timestamps
   const { id: _id, createdAt: _ca, createdBy: _cb, ...safe } = updates;
   state.objects[idx] = { ...state.objects[idx], ...safe };
   broadcast();
@@ -162,7 +181,6 @@ function setCursor(x, y, visible, label = '') {
   broadcast();
 }
 
-// Compute viewport so a bounding box fills the display with optional padding.
 function zoomToRegion(rx, ry, rw, rh, padding = 60) {
   const W = state.canvas.width;
   const H = state.canvas.height;
@@ -188,27 +206,27 @@ function resetViewport() {
 function setFilters({ brightness, contrast } = {}) {
   state.filters = {
     brightness: Math.max(0, Math.min(brightness ?? state.filters.brightness, 300)),
-    contrast:   Math.max(0, Math.min(contrast   ?? state.filters.contrast,   300)),
+    contrast: Math.max(0, Math.min(contrast ?? state.filters.contrast, 300)),
   };
   state.session.filterAdjustments++;
+  state.session.filterLog.push({
+    t: new Date().toISOString(),
+    brightness: state.filters.brightness,
+    contrast: state.filters.contrast,
+  });
   broadcast();
   return state.filters;
 }
 
 // ---- Session stats ----
 
-/**
- * Reset session counters (call at the start of each case-study run, i.e. on Randomize).
- * skipFilterCount: if true, the reset happens AFTER the randomize filter set so that
- * the automatic randomize call is not counted as an agent adjustment.
- */
 function resetSession() {
-  state.session = { filterAdjustments: 0, vlmSnapshots: 0 };
-  // No broadcast — session stats are not rendered in the UI
+  state.session = { filterAdjustments: 0, vlmSnapshots: 0, filterLog: [], vlmSnapshotLog: [] };
 }
 
 function incrementVlmSnapshots() {
   state.session.vlmSnapshots++;
+  state.session.vlmSnapshotLog.push({ t: new Date().toISOString() });
 }
 
 function getSessionStats() {
@@ -217,10 +235,7 @@ function getSessionStats() {
 
 // ---- Atlas mode ----
 
-// Enter atlas mode: saves any current atlas annotations, loads saved ones for this region:fw,
-// sets uiMode to 'atlas', and broadcasts. Tile re-loading is NOT done here.
 function enterAtlasMode(region, fw, atlasInfo) {
-  // Save current atlas annotations if switching between atlases
   if (state.uiMode === 'atlas' && state.atlas) {
     const key = `${state.atlas.region}:${state.atlas.fw}`;
     _atlasAnnotations[key] = [...state.objects];
@@ -233,8 +248,6 @@ function enterAtlasMode(region, fw, atlasInfo) {
   broadcast();
 }
 
-// Exit atlas mode: saves annotations, switches to grid mode. Does NOT broadcast —
-// caller (atlas route) must load a tile afterwards which triggers broadcasts.
 function exitAtlasMode() {
   if (state.uiMode !== 'atlas') return;
   if (state.atlas) {
@@ -243,10 +256,8 @@ function exitAtlasMode() {
   }
   state.uiMode = 'grid';
   state.atlas = null;
-  // No broadcast — caller will load a tile which broadcasts
 }
 
-// Update viewport silently (no SSE broadcast) — used for atlas viewport sync
 function setViewportSilent(zoom, panX, panY) {
   state.viewport = {
     zoom: Math.max(0.001, Math.min(zoom, 50)),
@@ -258,9 +269,11 @@ function setViewportSilent(zoom, panX, panY) {
 
 function setUiMode(mode) {
   if (!['image', 'grid', 'atlas'].includes(mode)) throw new Error(`Invalid uiMode: ${mode}`);
-  if (mode === state.uiMode) { broadcast(); return; }
+  if (mode === state.uiMode) {
+    broadcast();
+    return;
+  }
 
-  // Save atlas annotations when leaving atlas mode
   if (state.uiMode === 'atlas' && state.atlas) {
     const key = `${state.atlas.region}:${state.atlas.fw}`;
     _atlasAnnotations[key] = [...state.objects];
@@ -268,35 +281,30 @@ function setUiMode(mode) {
   }
 
   if (mode === 'image') {
-    // Save current grid position before leaving grid mode
     if (state.tileGrid.loaded) {
       _savedGridTile = {
         region: state.tileGrid.currentRegion,
-        fw:     state.tileGrid.currentFw,
-        x:      state.tileGrid.currentX,
-        y:      state.tileGrid.currentY,
+        fw: state.tileGrid.currentFw,
+        x: state.tileGrid.currentX,
+        y: state.tileGrid.currentY,
       };
     }
-    // Restore saved image background if there is one
     if (_savedImageState) {
       state.canvas.backgroundImage = _savedImageState.backgroundImage;
-      state.canvas.width  = _savedImageState.width;
+      state.canvas.width = _savedImageState.width;
       state.canvas.height = _savedImageState.height;
       state.objects = _savedImageState.objects || [];
     }
     state.uiMode = 'image';
   } else if (mode === 'grid') {
-    // Save current image state before leaving image mode
     _savedImageState = {
       backgroundImage: state.canvas.backgroundImage,
-      width:  state.canvas.width,
+      width: state.canvas.width,
       height: state.canvas.height,
       objects: [...state.objects],
     };
     state.uiMode = 'grid';
-    // Tile re-loading (re-calling _loadTile) is handled by camera.js which calls setUiMode
   } else {
-    // 'atlas' — use enterAtlasMode() instead; this path should not normally be reached
     state.uiMode = 'atlas';
   }
   broadcast();
@@ -306,15 +314,14 @@ function getSavedGridTile() {
   return _savedGridTile;
 }
 
-// Switch mode flag only — does NOT restore saved state (used after crop)
 function setUiModeOnly(mode) {
   if (mode !== 'image' && mode !== 'grid') throw new Error(`Invalid uiMode: ${mode}`);
   if (mode === 'grid' && state.tileGrid.loaded) {
     _savedGridTile = {
       region: state.tileGrid.currentRegion,
-      fw:     state.tileGrid.currentFw,
-      x:      state.tileGrid.currentX,
-      y:      state.tileGrid.currentY,
+      fw: state.tileGrid.currentFw,
+      x: state.tileGrid.currentX,
+      y: state.tileGrid.currentY,
     };
   }
   state.uiMode = mode;
@@ -327,18 +334,80 @@ function setSegmentation(data) {
 }
 
 function clearSegmentation() {
-  if (state.segmentation === null) return; // nothing to do — skip broadcast
+  if (state.segmentation === null) return;
   state.segmentation = null;
   broadcast();
 }
 
 function setSegmentationEnabled(enabled) {
   state.segmentationEnabled = !!enabled;
-  if (!enabled) clearSegmentation(); // broadcasts if seg data was present
+  if (!enabled) clearSegmentation();
 }
 
 function setSegmentTextEnabled(enabled) {
   state.segmentTextEnabled = !!enabled;
+}
+
+function setAtlasCoordEnabled(enabled) {
+  state.atlasCoordEnabled = !!enabled;
+}
+
+// Set atlas overlay visual modes (grid lines, coordinate labels, and style).
+function setAtlasOverlay({
+  grid,
+  labels,
+  gridLevel,
+  subdivision,
+  gridLineWidth,
+  gridLineAlpha,
+  labelFontSize,
+  labelBoxPadding,
+  labelBoxAlpha,
+} = {}) {
+  const current = state.atlasOverlay || {};
+
+  const nextGridLevel =
+    gridLevel !== undefined
+      ? Math.max(0, Math.floor(Number(gridLevel) || 0))
+      : Math.max(0, Math.floor(Number(current.gridLevel) || 0));
+
+  const inferredSubdivision = Math.pow(2, nextGridLevel);
+
+  const nextSubdivision =
+    subdivision !== undefined
+      ? Math.max(1, Math.floor(Number(subdivision) || inferredSubdivision || 1))
+      : Math.max(1, Math.floor(Number(current.subdivision) || inferredSubdivision || 1));
+
+  state.atlasOverlay = {
+    ...current,
+    grid: grid !== undefined ? !!grid : !!current.grid,
+    labels: labels !== undefined ? !!labels : !!current.labels,
+    gridLevel: nextGridLevel,
+    subdivision: nextSubdivision,
+    gridLineWidth:
+      gridLineWidth !== undefined
+        ? Math.max(1, Number(gridLineWidth) || current.gridLineWidth || 10)
+        : current.gridLineWidth || 10,
+    gridLineAlpha:
+      gridLineAlpha !== undefined
+        ? Math.max(0, Math.min(1, Number(gridLineAlpha)))
+        : (current.gridLineAlpha ?? 0.85),
+    labelFontSize:
+      labelFontSize !== undefined
+        ? Math.max(8, Number(labelFontSize) || current.labelFontSize || 64)
+        : current.labelFontSize || 64,
+    labelBoxPadding:
+      labelBoxPadding !== undefined
+        ? Math.max(0, Number(labelBoxPadding) || current.labelBoxPadding || 14)
+        : current.labelBoxPadding || 14,
+    labelBoxAlpha:
+      labelBoxAlpha !== undefined
+        ? Math.max(0, Math.min(1, Number(labelBoxAlpha)))
+        : (current.labelBoxAlpha ?? 0.70),
+  };
+
+  broadcast();
+  return state.atlasOverlay;
 }
 
 function setTileGridState(patch) {
@@ -388,5 +457,7 @@ module.exports = {
   clearSegmentation,
   setSegmentationEnabled,
   setSegmentTextEnabled,
+  setAtlasCoordEnabled,
+  setAtlasOverlay,
   addObjectsBatch,
 };

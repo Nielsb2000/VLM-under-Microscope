@@ -2,6 +2,7 @@
 //
 // POST /api/camera/init           load tile dataset + enter grid mode
 // GET  /api/camera/state          get current tile position + mode
+// GET  /api/camera/regions        list all available regions (works in any mode)
 // POST /api/camera/move           move camera in a direction (left/right/up/down)
 // POST /api/camera/goto           jump to explicit (x, y, region?, fw?)
 // POST /api/camera/mode           switch uiMode ("image" | "grid")
@@ -16,7 +17,8 @@ const state = require('../state');
 
 // Dataset directory inside the container (mounted via Docker volume)
 const TILE_DIRS = [
-  { dir: '/app/tile-datasets', split: 'tiles' },
+  { dir: '/app/tile-datasets',    split: 'tiles', urlPrefix: '/tile-assets/' },
+  { dir: '/app/grid-paper-tiles', split: 'paper', urlPrefix: '/grid-paper-assets/' },
 ];
 
 // Ensure dataset is scanned; lazy-init on first call to /init
@@ -92,12 +94,67 @@ router.post('/init', async (req, res) => {
   }
 });
 
+// ---- GET /api/camera/regions ----
+// Returns the full region list from the tile dataset.
+// Scans the dataset if needed — works in any UI mode (image, grid, atlas).
+router.get('/regions', (req, res) => {
+  try {
+    _ensureScanned();
+    return res.json({ regions: tileGrid.listRegions() });
+  } catch (err) {
+    console.error('[camera/regions]', err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ---- GET /api/camera/tiles?region=X&fw=Y ----
+// Returns all (x,y) tile coordinates for a given region+fw pair.
+router.get('/tiles', (req, res) => {
+  try {
+    _ensureScanned();
+    const region = parseInt(req.query.region, 10);
+    const fw     = parseInt(req.query.fw,     10);
+    if (isNaN(region) || isNaN(fw)) {
+      return res.status(400).json({ error: 'region and fw query params are required' });
+    }
+    const tiles = tileGrid.getTilesForRegion(region, fw).map(t => ({ x: t.x, y: t.y }));
+    return res.json({ region, fw, tiles });
+  } catch (err) {
+    console.error('[camera/tiles]', err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ---- GET /api/camera/tile-image?region=X&fw=Y&x=A&y=B ----
+// Returns the raw tile image file for the given position.
+router.get('/tile-image', (req, res) => {
+  try {
+    _ensureScanned();
+    const region = parseInt(req.query.region, 10);
+    const fw     = parseInt(req.query.fw,     10);
+    const x      = parseInt(req.query.x,      10);
+    const y      = parseInt(req.query.y,      10);
+    if ([region, fw, x, y].some(isNaN)) {
+      return res.status(400).json({ error: 'region, fw, x, y query params are required' });
+    }
+    const tile = tileGrid.getTile(region, fw, y, x);
+    if (!tile) {
+      return res.status(404).json({ error: `Tile not found: region=${region} fw=${fw} x=${x} y=${y}` });
+    }
+    return res.sendFile(tile.absolutePath);
+  } catch (err) {
+    console.error('[camera/tile-image]', err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // ---- GET /api/camera/state ----
 router.get('/state', (req, res) => {
   const s = state.getState();
   return res.json({
-    uiMode: s.uiMode,
+    uiMode:  s.uiMode,
     tileGrid: s.tileGrid,
+    atlas:   s.atlas,
   });
 });
 

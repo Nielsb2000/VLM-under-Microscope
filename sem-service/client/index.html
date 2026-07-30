@@ -16,7 +16,8 @@
         📂 Load Image
         <input type="file" id="file-upload" accept="image/*" hidden />
       </label>
-      <button class="btn" id="btn-browse-dataset" title="Browse SEM dataset (labeled + unlabeled)">&#x1F50D; Dataset</button>
+      <button class="btn" id="btn-browse-dataset" title="Browse SEM datasets">&#x1F50D; Dataset</button>
+      <button class="btn" id="btn-sample-image" title="Load a random image from the unlabeled dataset">&#x1F3B2; Sample</button>
     </div>
 
     <!-- Dataset browser dialog -->
@@ -46,6 +47,12 @@
     <div class="topbar-group">
       <button id="btn-export-png" class="btn">⬇ PNG</button>
       <button id="btn-export-json" class="btn">⬇ JSON</button>
+      <button id="btn-save-gt" class="btn btn-save-gt" title="Count drawn objects and save as ground truth for the current image">💾 Save GT</button>
+    </div>
+
+    <div class="topbar-group">
+      <button class="btn btn-cs4" id="btn-cs4-open" title="Pattern search — find a reference object/pattern in the current view using the VLM">🔍 Find Pattern</button>
+      <button class="btn btn-save-pattern" id="btn-save-pattern-open" title="Save a pattern crop to the CS4 ground-truth dataset">📌 Save Pattern</button>
     </div>
 
     <div class="topbar-group filter-group">
@@ -78,10 +85,72 @@
       <button id="btn-atlas" class="btn atlas-btn" title="View full region as a single explorable Atlas">🗺️ Atlas</button>
     </div>
 
+    <!-- CS4 Save Pattern dialog -->
+    <dialog id="save-pattern-dialog">
+      <div class="dialog-header">
+        <span>📌 Save Pattern to GT Dataset</span>
+        <button id="btn-save-pattern-close" class="btn btn-sm">✕</button>
+      </div>
+      <div class="dialog-body cs4-body">
+        <label>Pattern image</label>
+        <div id="sp-image-drop" class="cs4-drop-zone" title="Click or drag to upload the pattern image">
+          <span id="sp-image-hint">Drop / click to upload pattern image</span>
+          <img id="sp-image-preview" style="display:none" alt="pattern preview" />
+          <input type="file" id="sp-image-input" accept="image/*" hidden />
+        </div>
+        <label for="sp-sample-id">Sample ID <small style="color:#6c7086">(auto-filled from filename)</small></label>
+        <input type="text" id="sp-sample-id" class="sp-text-input" placeholder="e.g. fiber_001" />
+        <label for="sp-source-region">Source region <small style="color:#6c7086">(which region this was cropped from)</small></label>
+        <div style="display:flex;gap:6px;align-items:center">
+          <select id="sp-source-region" class="sp-text-input" style="flex:1"><option value="">— loading regions… —</option></select>
+          <select id="sp-source-fw" class="sp-text-input" style="width:90px;display:none"></select>
+        </div>
+        <label>Tile coordinates <small style="color:#6c7086">(select all tiles where the pattern appears)</small></label>
+        <div id="sp-tile-grid" style="max-height:200px;overflow:auto;padding:4px 0">
+          <span style="color:#6c7086;font-size:11px">Select a region first</span>
+        </div>
+        <label for="sp-notes">Notes <small style="color:#6c7086">(optional)</small></label>
+        <input type="text" id="sp-notes" class="sp-text-input" placeholder="optional description" />
+      </div>
+      <div class="cs4-dialog-footer">
+        <button id="btn-sp-save" class="btn btn-cs4-run" disabled>Save to GT</button>
+        <div id="sp-status" style="display:none;color:#a6e3a1;font-size:12px"></div>
+      </div>
+    </dialog>
+
+    <!-- CS4 Pattern Search dialog -->
+    <dialog id="cs4-dialog">
+      <div class="dialog-header">
+        <span>🔍 Find Pattern in Atlas</span>
+        <button id="btn-cs4-close" class="btn btn-sm">✕</button>
+      </div>
+      <div class="dialog-body cs4-body">
+        <label>1 — Reference pattern</label>
+        <div id="cs4-pattern-drop" class="cs4-drop-zone" title="Click or drag to upload the reference pattern image">
+          <span id="cs4-pattern-hint">Drop / click to upload pattern</span>
+          <img id="cs4-pattern-preview" style="display:none" alt="pattern preview" />
+          <input type="file" id="cs4-pattern-input" accept="image/*" hidden />
+        </div>
+        <label>2 — Atlas image to search in</label>
+        <div id="cs4-atlas-drop" class="cs4-drop-zone" title="Click or drag to upload the atlas image">
+          <span id="cs4-atlas-hint">Drop / click to upload atlas</span>
+          <img id="cs4-atlas-preview" style="display:none" alt="atlas preview" />
+          <input type="file" id="cs4-atlas-input" accept="image/*" hidden />
+        </div>
+      </div>
+      <div class="cs4-dialog-footer">
+        <button id="btn-cs4-run" class="btn btn-cs4-run" disabled>3 — Find in atlas</button>
+        <div id="cs4-status" class="cs4-status-text" style="display:none">⏳ Asking the VLM…</div>
+        <div id="cs4-result" style="display:none"></div>
+      </div>
+    </dialog>
+
     <!-- Atlas mode controls (hidden unless in atlas mode) -->
     <div id="atlas-bar" style="display:none">
-      <button id="btn-atlas-back" class="btn atlas-btn" title="Return to tile-by-tile grid navigation">← Grid</button>
-      <button id="btn-atlas-fit"  class="btn atlas-btn" title="Zoom to fit whole atlas in view">⊞ Fit</button>
+      <button id="btn-atlas-back"   class="btn atlas-btn" title="Return to tile-by-tile grid navigation">← Grid</button>
+      <button id="btn-atlas-fit"    class="btn atlas-btn" title="Zoom to fit whole atlas in view">⊞ Fit</button>
+      <button id="btn-atlas-grid"   class="btn atlas-btn" title="Toggle tile grid overlay">⊞ Grid</button>
+      <button id="btn-atlas-labels" class="btn atlas-btn" title="Toggle tile coordinate labels (requires grid)">🏷 Labels</button>
     </div>
   </header>
 
@@ -176,6 +245,7 @@
           <span class="btn-divider"></span>
           <button id="btn-nocode" class="btn btn-nocode" title="Block code execution: when ON, every message is prefixed with an instruction telling the agent not to run any code or scripts">🚫 No&nbsp;Code</button>
           <button id="tool-segment" class="btn btn-seg-toggle" title="SAM2 automatic segmentation">⬡ Segment</button>
+          <button id="tool-atlas-coord" class="btn btn-seg-toggle active" title="Compute atlas tile coordinates for annotations (agent tool). Toggle off to have the agent use its VLM to read the coordinates from the canvas image instead.">📐 Coords</button>
           <div id="segment-panel">
             <span class="btn-divider"></span>
             <button id="seg-opt-centroids" class="seg-opt active" title="Show centroid dots">&#x25CF; Centroids</button>
@@ -185,11 +255,7 @@
             <button id="btn-run-seg"   class="btn btn-seg-run">&#x25B6; Run</button>
             <button id="btn-clear-seg" class="btn btn-danger btn-sm">&#x2715; Clear</button>
           </div>
-          <select id="agent-font-size" title="Font size">
-            <option value="small">S</option>
-            <option value="medium" selected>M</option>
-            <option value="large">L</option>
-          </select>
+          <input type="number" id="agent-font-size" min="8" max="32" step="1" value="12" title="Font size (px)" />
         </div>
         <div id="agent-chat"></div>
         <div id="agent-input-bar">

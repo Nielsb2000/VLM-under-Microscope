@@ -9,11 +9,21 @@ services:
       - ./uploads:/app/uploads
       # Tile-grid dataset (Combined_New_Scans_Andrea — train + val merged)
       - ../grid_dataset:/app/tile-datasets:ro
+      # Grid_Scan_Paper tile dataset
+      - ../Dataset_images_Unlabeled/dataset/sem_segmentation_ssl/train/Grid_Scan_Paper:/app/grid-paper-tiles:ro
+        # Validation Andrea CS2 dataset
+      - ../Validation_Andrea_Dataset_Images_CS2:/app/validation-andrea-dataset:ro
+        # Validation UNC Luca CS2 dataset
+      - ../Validation_Unc_Dataset_Images_Luca_CS2:/app/validation-unc-luca-dataset:ro
       # Live-reload server code without rebuild
       - ./server:/app/server
       - ./client:/app/client
       # Histogram outputs for case-study evaluation
       - ./histograms:/app/histograms
+      # Ground truth store — shared with run_case_study_2.py on the host
+      - ../outputs/case_study_2:/app/gt-data
+      # CS4 pattern search data — patterns + GT store
+      - ../data/case_study_4:/app/cs4-data
       # Labeled SEM dataset (SSL + segmentation)
       - ../Dataset_Images_Labeled_W_Metadata:/app/dataset-labeled:ro
       # Unlabeled SEM dataset (SSL tiles, tiff)

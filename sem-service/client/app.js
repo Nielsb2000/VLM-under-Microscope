@@ -44,6 +44,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   _setupTileNav();
   _setupAtlasButtons();
   _setupSegmentation();
+  _setupCs4Panel();
+  _setupSavePatternPanel();
 
   // Fetch initial state
   const s = await fetch(`${API}/canvas/state`).then(r => r.json());
@@ -60,6 +62,24 @@ function _setupToolbar() {
   document.getElementById('btn-clear')?.addEventListener('click', clearCanvas);
   document.getElementById('btn-export-png')?.addEventListener('click', exportPng);
   document.getElementById('btn-export-json')?.addEventListener('click', exportJson);
+  document.getElementById('btn-save-gt')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btn-save-gt');
+    if (btn) btn.disabled = true;
+    try {
+      const res  = await fetch(`${API}/gt/annotate`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        alert('Save GT failed: ' + (data.error || res.statusText));
+        return;
+      }
+      const prev = data.prev ? ` (was ${data.prev.gt_count})` : '';
+      alert(`Saved GT: ${data.sample_id} → ${data.gt_count} particles${prev}`);
+    } catch (err) {
+      alert('Save GT error: ' + err.message);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  });
   document.getElementById('btn-reset-filters')?.addEventListener('click', () => {
     fetch(`${API}/viewport/filters`, {
       method: 'POST',
@@ -154,6 +174,53 @@ function _setupAtlasButtons() {
     fc.setZoom(fitZoom);
     fc.absolutePan(new fabric.Point(0, 0));
     _atlasLoadVisibleDebounced();
+    _syncAtlasViewport();
+  });
+
+  // Grid overlay toggle
+  document.getElementById('btn-atlas-grid')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btn-atlas-grid');
+    const active = btn?.classList.contains('atlas-overlay-active');
+    const newGrid = !active;
+    const res = await fetch(`${API}/atlas/overlay`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ grid: newGrid }),
+    }).catch(() => null);
+    if (!res || !res.ok) return;
+    if (btn) btn.classList.toggle('atlas-overlay-active', newGrid);
+    // If grid is turned off, labels must also go off
+    if (!newGrid) {
+      await fetch(`${API}/atlas/overlay`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ labels: false }),
+      }).catch(() => {});
+      const lblBtn = document.getElementById('btn-atlas-labels');
+      if (lblBtn) lblBtn.classList.remove('atlas-overlay-active');
+    }
+    // Trigger re-export of server-side PNG (force viewport re-sync so export is current)
+    _syncAtlasViewport();
+  });
+
+  // Coordinate-label overlay toggle (only meaningful when grid is on)
+  document.getElementById('btn-atlas-labels')?.addEventListener('click', async () => {
+    const btn    = document.getElementById('btn-atlas-labels');
+    const active = btn?.classList.contains('atlas-overlay-active');
+    const newLabels = !active;
+    // If enabling labels, ensure grid is also on
+    const body = newLabels ? { grid: true, labels: true } : { labels: false };
+    const res = await fetch(`${API}/atlas/overlay`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(body),
+    }).catch(() => null);
+    if (!res || !res.ok) return;
+    if (btn) btn.classList.toggle('atlas-overlay-active', newLabels);
+    if (newLabels) {
+      const gridBtn = document.getElementById('btn-atlas-grid');
+      if (gridBtn) gridBtn.classList.add('atlas-overlay-active');
+    }
     _syncAtlasViewport();
   });
 
@@ -402,23 +469,31 @@ async function _addText(x, y) {
   setTool('select');
 }
 
-async function _onPathCreated(e) {
-  const p = e.path;
-  if (p._sid) return; // already synced
-  const id = _genId();
-  p._sid = id;
-  const pathStr = p.path ? fabric.util.joinPath(p.path) : '';
-  const payload = {
-    id, type: 'freehand',
-    path: pathStr,
-    left: Math.round(p.left), top: Math.round(p.top),
-    stroke: p.stroke, strokeWidth: p.strokeWidth,
-    createdBy: 'human',
-  };
-  const saved = await _postDraw('freehand', payload);
-  p._sid = saved.id;
-  p._synced = true;
-}
+  async function _onPathCreated(e) {
+    const p = e.path;
+    if (p._sid) return;
+
+    const id = _genId();
+    p._sid = id;
+
+    const pathStr = p.path ? fabric.util.joinPath(p.path) : '';
+
+    const payload = {
+      id,
+      type: 'freehand',
+      path: pathStr,
+      left: Math.round(p.left),
+      top: Math.round(p.top),
+      stroke: p.stroke,
+      strokeWidth: p.strokeWidth,
+      createdBy: 'human',
+      // no coordMode here
+    };
+
+    const saved = await _postDraw('freehand', payload);
+    p._sid = saved.id;
+    p._synced = true;
+  }
 
 // ---- Fabric object builders (server → canvas) ----
 
@@ -675,6 +750,9 @@ async function _applyState(state) {
   // UI mode + tile grid status
   if (state.uiMode !== undefined) _applyUiMode(state.uiMode, state.tileGrid, state.atlas);
 
+  // Atlas overlay button sync (keep visual state consistent with server state)
+  if (state.atlasOverlay !== undefined) _applyAtlasOverlayState(state.atlasOverlay);
+
   // Segmentation overlay — render when server state changes (e.g. agent ran segment tool)
   const incomingSegKey = _segKey(state.segmentation);
   if (incomingSegKey !== _lastServerSegKey) {
@@ -729,6 +807,8 @@ function _setupFileUpload() {
 
 let _datasetLabeled   = [];
 let _datasetUnlabeled = [];
+let _datasetValidationAndrea = [];
+let _datasetValidationUncLuca = [];
 
 async function _setupDatasetBrowser() {
   const btn    = document.getElementById('btn-browse-dataset');
@@ -740,15 +820,38 @@ async function _setupDatasetBrowser() {
   // Load category list once
   try {
     const data = await fetch(`${API}/dataset/list`).then(r => r.json());
-    _datasetLabeled   = (data.labeled   || []).map(c => ({ ...c, source: 'labeled' }));
-    _datasetUnlabeled = (data.unlabeled || []).map(c => ({ ...c, source: 'unlabeled' }));
-    const allCats = [..._datasetLabeled, ..._datasetUnlabeled];
+    _datasetLabeled = (data.labeled || [])
+    .map(c => ({ ...c, source: 'labeled' }));
+
+    _datasetUnlabeled = (data.unlabeled || [])
+      .map(c => ({ ...c, source: 'unlabeled' }));
+
+    _datasetValidationAndrea = (data.validation_andrea || [])
+      .map(c => ({ ...c, source: 'validation_andrea' }));
+
+    _datasetValidationUncLuca = (data.validation_unc_luca || [])
+      .map(c => ({ ...c, source: 'validation_unc_luca' }));
+    const allCats = [
+      ..._datasetLabeled,
+      ..._datasetUnlabeled,
+      ..._datasetValidationAndrea,
+      ..._datasetValidationUncLuca,
+    ];
     catSel.innerHTML = [
       '<optgroup label="Labeled">',
       ..._datasetLabeled.map(c  => `<option value="${c.source}::${c.name}">${c.name} (${c.images.length})</option>`),
       '</optgroup>',
+
       '<optgroup label="Unlabeled (SSL)">',
       ..._datasetUnlabeled.map(c => `<option value="${c.source}::${c.name}">${c.name} (${c.images.length})</option>`),
+      '</optgroup>',
+
+      '<optgroup label="Validation Andrea CS2">',
+      ..._datasetValidationAndrea.map(c => `<option value="${c.source}::${c.name}">${c.name} (${c.images.length})</option>`),
+      '</optgroup>',
+
+      '<optgroup label="Validation UNC Luca CS2">',
+      ..._datasetValidationUncLuca.map(c => `<option value="${c.source}::${c.name}">${c.name} (${c.images.length})</option>`),
       '</optgroup>',
     ].join('');
     _populateDatasetImages();
@@ -758,6 +861,26 @@ async function _setupDatasetBrowser() {
 
   btn.addEventListener('click', () => dialog.showModal());
   document.getElementById('btn-dataset-close')?.addEventListener('click', () => dialog.close());
+
+  document.getElementById('btn-sample-image')?.addEventListener('click', async () => {
+    const btnSample = document.getElementById('btn-sample-image');
+    btnSample.disabled = true;
+    btnSample.textContent = '⏳ Sampling…';
+    try {
+      const res  = await fetch(`${API}/dataset/sample`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: 'unlabeled' }),
+      });
+      const data = await res.json();
+      if (!data.ok) { alert('Sample failed: ' + (data.error || res.statusText)); }
+    } catch (e) {
+      alert('Sample failed: ' + e.message);
+    } finally {
+      btnSample.disabled = false;
+      btnSample.textContent = '🎲 Sample';
+    }
+  });
 
   document.getElementById('btn-dataset-load')?.addEventListener('click', async () => {
     const [source, ...catParts] = catSel.value.split('::');
@@ -781,7 +904,12 @@ function _populateDatasetImages() {
   if (!catSel || !imgSel) return;
   const [source, ...catParts] = catSel.value.split('::');
   const catName = catParts.join('::');
-  const allCats = [..._datasetLabeled, ..._datasetUnlabeled];
+  const allCats = [
+    ..._datasetLabeled,
+    ..._datasetUnlabeled,
+    ..._datasetValidationAndrea,
+    ..._datasetValidationUncLuca,
+  ];
   const cat = allCats.find(c => c.source === source && c.name === catName);
   imgSel.innerHTML = (cat?.images || [])
     .map(img => `<option value="${img.filename}">${img.filename}</option>`)
@@ -1275,6 +1403,14 @@ function _syncAtlasViewport() {
 
 // ---- UI mode + tile grid status ----
 
+// Sync overlay toggle button visual state to match the server's atlasOverlay state.
+function _applyAtlasOverlayState(overlay) {
+  const gridBtn   = document.getElementById('btn-atlas-grid');
+  const labelsBtn = document.getElementById('btn-atlas-labels');
+  if (gridBtn)   gridBtn.classList.toggle('atlas-overlay-active',   !!overlay.grid);
+  if (labelsBtn) labelsBtn.classList.toggle('atlas-overlay-active', !!overlay.labels);
+}
+
 let _currentUiMode = 'image';
 
 function _applyUiMode(mode, tileGrid, atlas) {
@@ -1307,7 +1443,9 @@ function _applyUiMode(mode, tileGrid, atlas) {
       const fw  = tileGrid.currentFw;
       const x   = String(tileGrid.currentX).padStart(2, '0');
       const y   = String(tileGrid.currentY).padStart(2, '0');
-      if (label)  label.textContent     = `Region${reg} · fw${fw}um · x${x} y${y}`;
+      const regionLabel = tileGrid.regions?.find(r => r.region === tileGrid.currentRegion)?.label;
+      const regDisplay = regionLabel || `Region${reg}`;
+      if (label)  label.textContent     = `${regDisplay} · fw${fw}um · x${x} y${y}`;
       if (status) status.style.display  = '';
       if (minimap) minimap.style.display = '';
       if (tileNav) tileNav.style.display = '';
@@ -1329,10 +1467,12 @@ function _applyUiMode(mode, tileGrid, atlas) {
     // Hide live histogram in atlas mode
     const histPanel = document.getElementById('live-hist-panel');
     if (histPanel) histPanel.style.display = 'none';
-    if (tileGrid?.loaded) _updateTileNav(tileGrid);
+    if (tileGrid?.loaded) _updateTileNav(tileGrid, { regionOverride: atlas?.region, fwOverride: atlas?.fw });
     if (atlas) {
       const reg = String(atlas.region).padStart(3, '0');
-      if (label)  label.textContent    = `Region${reg} · fw${atlas.fw}um · Atlas`;
+      const regionLabel = tileGrid?.regions?.find(r => r.region === atlas.region)?.label;
+      const regDisplay = regionLabel || `Region${reg}`;
+      if (label)  label.textContent    = `${regDisplay} · fw${atlas.fw}um · Atlas`;
       if (status) status.style.display = '';
     }
     // Trigger atlas loading if this is a fresh transition
@@ -1413,7 +1553,7 @@ function _setupTileNav() {
     }
   });
 
-  // fw dropdown → goto x=0 y=0 (or re-enter atlas)
+  // fw dropdown → enter first tile of new fw (or re-enter atlas)
   document.getElementById('nav-fw')?.addEventListener('change', async (e) => {
     const fw = parseInt(e.target.value, 10);
     if (_currentUiMode === 'atlas') {
@@ -1422,10 +1562,11 @@ function _setupTileNav() {
     } else {
       const s = await fetch(`${API}/camera/state`).then(r => r.json());
       const region = s.tileGrid.currentRegion;
-      await fetch(`${API}/camera/goto`, {
+      // Use /init which calls getFirstTileForRegion — works for non-zero-origin grids
+      await fetch(`${API}/camera/init`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ region, fw, x: 0, y: 0 }),
+        body: JSON.stringify({ region, fw }),
       }).catch(() => {});
     }
   });
@@ -1463,8 +1604,11 @@ async function _atlasReload(region, fw) {
     const manifest = await fetch(`${API}/atlas/manifest?region=${region}&fw=${fw}`).then(r => r.json());
     _doEnterAtlasMode(manifest);
     // Update status label
+    const state = await fetch(`${API}/camera/state`).then(r => r.json()).catch(() => null);
+    const regionLabel = state?.tileGrid?.regions?.find(r => r.region === region)?.label;
+    const regDisplay = regionLabel || `Region${String(region).padStart(3,'0')}`;
     const label = document.getElementById('grid-status-label');
-    if (label) label.textContent = `Region${String(region).padStart(3,'0')} · fw${fw}um · Atlas`;
+    if (label) label.textContent = `${regDisplay} · fw${fw}um · Atlas`;
   } catch (_) {}
 }
 
@@ -1475,35 +1619,51 @@ async function _navRegionChanged(region) {
   const fwOptions = state.tileGrid.regions.filter(r => r.region === region).map(r => r.fw);
   const fwSel = document.getElementById('nav-fw');
   if (fwSel && fwOptions.length) {
-    fwSel.innerHTML = fwOptions.map(fw => `<option value="${fw}">${fw}um</option>`).join('');
+    const curRegionObj = state.tileGrid.regions.find(r => r.region === region);
+    fwSel.innerHTML = fwOptions.map(fw => {
+      const fwLabel = (curRegionObj?.label && fw === 0) ? '-' : `${fw}um`;
+      return `<option value="${fw}">${fwLabel}</option>`;
+    }).join('');
     const fw = fwOptions[0];
-    await fetch(`${API}/camera/goto`, {
+    // Use /init which calls getFirstTileForRegion — works for non-zero-origin grids
+    await fetch(`${API}/camera/init`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ region, fw, x: 0, y: 0 }),
+      body: JSON.stringify({ region, fw }),
     }).catch(() => {});
   }
 }
 
-function _updateTileNav(tileGrid) {
+function _updateTileNav(tileGrid, { regionOverride, fwOverride } = {}) {
   if (!tileGrid?.loaded) return;
+
+  const curRegion = regionOverride ?? tileGrid.currentRegion;
+  const curFw     = fwOverride     ?? tileGrid.currentFw;
 
   // Populate region dropdown (unique regions, sorted)
   const regionSel = document.getElementById('nav-region');
   const fwSel     = document.getElementById('nav-fw');
   if (regionSel && tileGrid.regions) {
     const uniqueRegions = [...new Set(tileGrid.regions.map(r => r.region))].sort((a, b) => a - b);
-    const curRegion = tileGrid.currentRegion;
+    // Build a label map from the regions list (label may be null for standard regions)
+    const labelMap = Object.fromEntries(tileGrid.regions.map(r => [r.region, r.label]));
     regionSel.innerHTML = uniqueRegions
-      .map(r => `<option value="${r}" ${r === curRegion ? 'selected' : ''}>Region${String(r).padStart(3,'0')}</option>`)
+      .map(r => {
+        const lbl = labelMap[r] || `Region${String(r).padStart(3, '0')}`;
+        return `<option value="${r}" ${r === curRegion ? 'selected' : ''}>${lbl}</option>`;
+      })
       .join('');
   }
 
   // Populate fw dropdown for current region
   if (fwSel && tileGrid.regions) {
-    const fwOptions = tileGrid.regions.filter(r => r.region === tileGrid.currentRegion).map(r => r.fw);
+    const curRegionObj = tileGrid.regions.find(r => r.region === curRegion);
+    const fwOptions = tileGrid.regions.filter(r => r.region === curRegion).map(r => r.fw);
     fwSel.innerHTML = fwOptions
-      .map(fw => `<option value="${fw}" ${fw === tileGrid.currentFw ? 'selected' : ''}>${fw}um</option>`)
+      .map(fw => {
+        const fwLabel = (curRegionObj?.label && fw === 0) ? '-' : `${fw}um`;
+        return `<option value="${fw}" ${fw === curFw ? 'selected' : ''}>${fwLabel}</option>`;
+      })
       .join('');
   }
 
@@ -1726,16 +1886,16 @@ async function _postDraw(type, payload) {
 
   let _noCodeMode = false;
   const NO_CODE_PREFIX =
-    'IMPORTANT CONSTRAINT: Do not execute any code, run any Python scripts, ' +
-    'or invoke any shell/terminal commands in this response. ' +
-    'Only reason about the task, describe observations, and use canvas/annotation tools.\n\n';
+    'IMPORTANT CONSTRAINT: Do not write or execute any custom code to analyze images, ' +
+    'extract information unrelated to the user\'s objective, or manipulate experiment ' +
+    'results or test conditions.\n\n';
 
   btnNoCode?.addEventListener('click', () => {
     _noCodeMode = !_noCodeMode;
     btnNoCode.classList.toggle('nocode-on', _noCodeMode);
     btnNoCode.title = _noCodeMode
-      ? 'Code execution BLOCKED — click to allow code again'
-      : 'Block code execution: when ON, every message is prefixed with an instruction telling the agent not to run any code';
+      ? 'No custom analysis code — click to allow again'
+      : 'No custom analysis code: when ON, the agent is instructed not to write code that analyzes images or manipulates experiment results';
   });
   const fontSizeEl  = document.getElementById('agent-font-size');
   const agentBody   = document.getElementById('agent-body');
@@ -1746,14 +1906,16 @@ async function _postDraw(type, payload) {
   const _FS_KEY = 'agentFontSize';
   function _applyFontSize(size) {
     if (!agentBody) return;
-    agentBody.classList.remove('fs-small', 'fs-medium', 'fs-large');
-    agentBody.classList.add('fs-' + size);
-    localStorage.setItem(_FS_KEY, size);
+    const n = Math.max(8, Math.min(32, parseInt(size, 10) || 12));
+    agentBody.style.setProperty('--agent-chat-fs',  n + 'px');
+    agentBody.style.setProperty('--agent-trace-fs', Math.max(8, n - 2) + 'px');
+    agentBody.style.setProperty('--agent-input-fs', (n + 1) + 'px');
+    localStorage.setItem(_FS_KEY, n);
   }
-  const _savedFs = localStorage.getItem(_FS_KEY) || 'medium';
+  const _savedFs = parseInt(localStorage.getItem(_FS_KEY), 10) || 12;
   if (fontSizeEl) fontSizeEl.value = _savedFs;
   _applyFontSize(_savedFs);
-  fontSizeEl?.addEventListener('change', () => _applyFontSize(fontSizeEl.value));
+  fontSizeEl?.addEventListener('input', () => _applyFontSize(fontSizeEl.value));
 
   // ---- Resize: drag the splitter between chat and trace ----
   if (splitHandle && tracePane) {
@@ -2070,6 +2232,18 @@ function _setupSegmentation() {
 
   document.getElementById('btn-run-seg')?.addEventListener('click', _runSegmentation);
   document.getElementById('btn-clear-seg')?.addEventListener('click', _clearSegmentation);
+
+  // Atlas coord toggle — controls whether atlas_state computes tile coordinates
+  const coordBtn = document.getElementById('tool-atlas-coord');
+  coordBtn?.addEventListener('click', () => {
+    const enabled = !coordBtn.classList.contains('active');
+    coordBtn.classList.toggle('active', enabled);
+    fetch(`${API}/canvas/atlas-coord-enabled`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled }),
+    }).catch(() => {});
+  });
 }
 
 async function _runSegmentation() {
@@ -2203,4 +2377,342 @@ function _clearSegmentation() {
   _clearSegmentationCanvas();
   _lastServerSegKey = null;
   fetch(`${API}/canvas/segmentation`, { method: 'DELETE' }).catch(() => {});
+}
+
+// ---- CS4 Pattern Search ----
+
+const CS4_API = 'http://localhost:3002';
+let _cs4PatternB64 = null;
+let _cs4AtlasB64   = null;
+
+function _setupCs4Panel() {
+  const dlg       = document.getElementById('cs4-dialog');
+  const btnOpen   = document.getElementById('btn-cs4-open');
+  const btnClose  = document.getElementById('btn-cs4-close');
+  const btnRun    = document.getElementById('btn-cs4-run');
+  const status    = document.getElementById('cs4-status');
+  const resultBox = document.getElementById('cs4-result');
+  if (!dlg) return;
+
+  btnOpen?.addEventListener('click', () => dlg.showModal());
+  btnClose?.addEventListener('click', () => dlg.close());
+
+  // Wire up a generic drop zone to a b64 variable + preview
+  function _wireDropZone(dropId, inputId, previewId, hintId, onLoad) {
+    const drop    = document.getElementById(dropId);
+    const input   = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    const hint    = document.getElementById(hintId);
+    if (!drop) return;
+    drop.addEventListener('click', () => input?.click());
+    drop.addEventListener('dragover',  e => { e.preventDefault(); drop.classList.add('dragover'); });
+    drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+    drop.addEventListener('drop', e => {
+      e.preventDefault();
+      drop.classList.remove('dragover');
+      const file = e.dataTransfer?.files?.[0];
+      if (file) _readFile(file);
+    });
+    input?.addEventListener('change', () => {
+      const file = input.files?.[0];
+      if (file) _readFile(file);
+      input.value = '';
+    });
+    function _readFile(file) {
+      const reader = new FileReader();
+      reader.onload = evt => {
+        const dataUrl = evt.target.result;
+        if (preview) { preview.src = dataUrl; preview.style.display = 'block'; }
+        if (hint)    hint.style.display = 'none';
+        onLoad(dataUrl.split(',')[1]);
+        _cs4UpdateRunBtn();
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  _wireDropZone('cs4-pattern-drop', 'cs4-pattern-input', 'cs4-pattern-preview', 'cs4-pattern-hint',
+    b64 => { _cs4PatternB64 = b64; });
+  _wireDropZone('cs4-atlas-drop',   'cs4-atlas-input',   'cs4-atlas-preview',   'cs4-atlas-hint',
+    b64 => { _cs4AtlasB64 = b64; });
+
+  function _cs4UpdateRunBtn() {
+    if (btnRun) btnRun.disabled = !(_cs4PatternB64 && _cs4AtlasB64);
+  }
+
+  btnRun?.addEventListener('click', async () => {
+    if (!_cs4PatternB64 || !_cs4AtlasB64) return;
+    btnRun.disabled = true;
+    status.style.display = 'block';
+    resultBox.style.display = 'none';
+    try {
+      const resp = await fetch(`${CS4_API}/find-pattern`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patternBase64: _cs4PatternB64,
+          searchBase64:  _cs4AtlasB64,
+          searchMode:    'atlas_global_search',
+        }),
+      });
+      status.style.display = 'none';
+      const data = await resp.json();
+      if (!resp.ok || !data.ok) {
+        resultBox.innerHTML = `<span style="color:#f38ba8">⚠ Error: ${data.error || resp.statusText}</span>`;
+        resultBox.style.display = 'block';
+        return;
+      }
+      _cs4RenderResult(data);
+    } catch (err) {
+      status.style.display = 'none';
+      resultBox.innerHTML = `<span style="color:#f38ba8">⚠ ${err.message}<br><small>Is <code>cs4_api.py</code> running on port 3002?</small></span>`;
+      resultBox.style.display = 'block';
+    } finally {
+      _cs4UpdateRunBtn();
+    }
+  });
+}
+
+function _cs4RenderResult(data) {
+  const resultBox = document.getElementById('cs4-result');
+  if (!resultBox) return;
+
+  const badge = data.found
+    ? '<span class="cs4-badge cs4-badge-found">✓ FOUND</span>'
+    : '<span class="cs4-badge cs4-badge-absent">✗ NOT FOUND</span>';
+  const conf   = data.confidence != null ? `${Math.round(data.confidence * 100)}%` : '—';
+  const tile   = data.tile ? `<b>${data.tile}</b>` : '<i style="color:#6c7086">—</i>';
+  const bbox   = (data.found && Array.isArray(data.bbox) && data.bbox.length === 4)
+    ? `<div class="cs4-result-row">Bbox (atlas px): <b>[${data.bbox.join(', ')}]</b></div>`
+    : '';
+  const reason = data.reason
+    ? `<div class="cs4-result-reason">${data.reason}</div>`
+    : '';
+  const model  = data.model
+    ? `<div style="color:#585b70;font-size:10px;margin-top:6px">model: ${data.model}</div>`
+    : '';
+
+  resultBox.innerHTML = `
+    <div class="cs4-result-row">${badge} &nbsp;Confidence: <b>${conf}</b></div>
+    <div class="cs4-result-row">Tile: ${tile}</div>
+    ${bbox}${reason}${model}
+  `;
+  resultBox.style.display = 'block';
+}
+
+// ---- CS4 Save Pattern to GT ----
+
+function _setupSavePatternPanel() {
+  const dlg             = document.getElementById('save-pattern-dialog');
+  const btnOpen         = document.getElementById('btn-save-pattern-open');
+  const btnClose        = document.getElementById('btn-save-pattern-close');
+  const btnSave         = document.getElementById('btn-sp-save');
+  const drop            = document.getElementById('sp-image-drop');
+  const input           = document.getElementById('sp-image-input');
+  const preview         = document.getElementById('sp-image-preview');
+  const hint            = document.getElementById('sp-image-hint');
+  const idField         = document.getElementById('sp-sample-id');
+  const regionSel       = document.getElementById('sp-source-region');
+  const fwSel           = document.getElementById('sp-source-fw');
+  const tileGrid        = document.getElementById('sp-tile-grid');
+  const notesField      = document.getElementById('sp-notes');
+  const status          = document.getElementById('sp-status');
+  if (!dlg) return;
+
+  let _imageDataUrl = null;
+  let _allRegions   = [];   // [{ region, fw, tileCount, label }]
+  let _selectedTiles = new Set(); // "y,x" strings
+
+  // ---- Region/fw/tile population ----
+
+  async function _populateRegions() {
+    try {
+      const s = await fetch(`${API}/camera/regions`).then(r => r.json());
+      _allRegions = s?.regions || [];
+      if (!_allRegions.length) throw new Error('no regions');
+      const uniqueRegions = [...new Set(_allRegions.map(r => r.region))].sort((a, b) => a - b);
+      const labelMap = Object.fromEntries(_allRegions.map(r => [r.region, r.label]));
+      regionSel.innerHTML =
+        '<option value="">— select region —</option>' +
+        uniqueRegions.map(r => {
+          const lbl = labelMap[r] || `Region${String(r).padStart(3, '0')}`;
+          return `<option value="${r}">${lbl}</option>`;
+        }).join('');
+    } catch {
+      regionSel.innerHTML = '<option value="">— regions unavailable —</option>';
+    }
+    _clearTileGrid();
+  }
+
+  function _clearTileGrid() {
+    _selectedTiles.clear();
+    if (tileGrid) tileGrid.innerHTML = '<span style="color:#6c7086;font-size:11px">Select a region first</span>';
+    if (fwSel)    { fwSel.style.display = 'none'; fwSel.innerHTML = ''; }
+  }
+
+  async function _onRegionChange() {
+    const region = parseInt(regionSel.value, 10);
+    if (isNaN(region)) { _clearTileGrid(); return; }
+
+    // Find fw options for this region
+    const fwOptions = _allRegions.filter(r => r.region === region).map(r => r.fw).sort((a, b) => a - b);
+    if (fwOptions.length === 0) { _clearTileGrid(); return; }
+
+    if (fwOptions.length > 1) {
+      fwSel.innerHTML = fwOptions.map(fw => `<option value="${fw}">${fw}um</option>`).join('');
+      fwSel.style.display = '';
+    } else {
+      fwSel.innerHTML = `<option value="${fwOptions[0]}">${fwOptions[0]}um</option>`;
+      fwSel.style.display = 'none';
+    }
+    await _loadTiles(region, fwOptions[0]);
+  }
+
+  async function _loadTiles(region, fw) {
+    _selectedTiles.clear();
+    if (tileGrid) tileGrid.innerHTML = '<span style="color:#6c7086;font-size:11px">Loading…</span>';
+    try {
+      const d = await fetch(`${API}/camera/tiles?region=${region}&fw=${fw}`).then(r => r.json());
+      if (!d.tiles?.length) { tileGrid.innerHTML = '<span style="color:#6c7086;font-size:11px">No tiles found</span>'; return; }
+
+      const maxX = Math.max(...d.tiles.map(t => t.x));
+      const maxY = Math.max(...d.tiles.map(t => t.y));
+      const cols = maxX + 1;
+      const rows = maxY + 1;
+
+      // Index existing tiles for quick lookup
+      const tileSet = new Set(d.tiles.map(t => `${t.y},${t.x}`));
+
+      tileGrid.innerHTML = '';
+      tileGrid.style.display = 'grid';
+      tileGrid.style.gridTemplateColumns = `repeat(${cols}, auto)`;
+      tileGrid.style.gap = '3px';
+      tileGrid.style.width = 'fit-content';
+
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const key = `${y},${x}`;
+          const cell = document.createElement('div');
+          cell.style.gridColumn = x + 1;
+          cell.style.gridRow    = y + 1;
+
+          if (tileSet.has(key)) {
+            const btn = document.createElement('button');
+            btn.className = 'sp-tile-btn';
+            btn.textContent = `(${x},${y})`;
+            btn.dataset.key = key;
+            btn.addEventListener('click', () => {
+              if (_selectedTiles.has(key)) { _selectedTiles.delete(key); btn.classList.remove('active'); }
+              else                         { _selectedTiles.add(key);    btn.classList.add('active'); }
+            });
+            cell.appendChild(btn);
+          } else {
+            // Empty cell — invisible placeholder keeps grid aligned
+            cell.style.visibility = 'hidden';
+            const placeholder = document.createElement('button');
+            placeholder.className = 'sp-tile-btn';
+            placeholder.textContent = `(${x},${y})`;
+            placeholder.disabled = true;
+            cell.appendChild(placeholder);
+          }
+          tileGrid.appendChild(cell);
+        }
+      }
+    } catch {
+      if (tileGrid) tileGrid.innerHTML = '<span style="color:#f38ba8;font-size:11px">Failed to load tiles</span>';
+    }
+  }
+
+  regionSel?.addEventListener('change', _onRegionChange);
+  fwSel?.addEventListener('change', () => {
+    const region = parseInt(regionSel.value, 10);
+    const fw     = parseInt(fwSel.value, 10);
+    if (!isNaN(region) && !isNaN(fw)) _loadTiles(region, fw);
+  });
+
+  btnOpen?.addEventListener('click', () => { dlg.showModal(); _populateRegions(); });
+  btnClose?.addEventListener('click', () => dlg.close());
+
+  // ---- Drop zone ----
+  drop?.addEventListener('click', () => input?.click());
+  drop?.addEventListener('dragover',  e => { e.preventDefault(); drop.classList.add('dragover'); });
+  drop?.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+  drop?.addEventListener('drop', e => {
+    e.preventDefault();
+    drop.classList.remove('dragover');
+    const file = e.dataTransfer?.files?.[0];
+    if (file) _loadFile(file);
+  });
+  input?.addEventListener('change', () => {
+    const file = input.files?.[0];
+    if (file) _loadFile(file);
+    input.value = '';
+  });
+
+  function _loadFile(file) {
+    const reader = new FileReader();
+    reader.onload = evt => {
+      _imageDataUrl = evt.target.result;
+      if (preview) { preview.src = _imageDataUrl; preview.style.display = 'block'; }
+      if (hint)    hint.style.display = 'none';
+      if (idField && !idField.value) idField.value = file.name.replace(/\.[^.]+$/, '');
+      _updateSaveBtn();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function _updateSaveBtn() {
+    if (btnSave) btnSave.disabled = !_imageDataUrl;
+  }
+
+  // ---- Save ----
+  btnSave?.addEventListener('click', async () => {
+    if (!_imageDataUrl) return;
+    btnSave.disabled = true;
+    if (status) { status.textContent = '⏳ Saving…'; status.style.display = 'block'; }
+
+    // Build tile strings from selected toggle buttons: "(x,y)"
+    const tilesStr = [..._selectedTiles].map(k => { const [y, x] = k.split(','); return `(${x},${y})`; }).join(', ');
+
+    // Resolve human-readable region label
+    const regionNum = parseInt(regionSel?.value, 10);
+    const regionEntry = _allRegions.find(r => r.region === regionNum);
+    const sourceRegionLabel = isNaN(regionNum) ? '' :
+      (regionEntry?.label || `Region${String(regionNum).padStart(3, '0')}`);
+    try {
+      const res = await fetch(`${API}/cs4/save-pattern`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sample_id:      idField?.value?.trim() || '',
+          image_data_url: _imageDataUrl,
+          source_region:  sourceRegionLabel,
+          tiles:          tilesStr,
+          notes:          notesField?.value?.trim() || '',
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        if (status) { status.textContent = '⚠ ' + (data.error || res.statusText); status.style.color = '#f38ba8'; }
+        return;
+      }
+      const savedTiles = data.gt_tiles?.length ? data.gt_tiles.join(', ') : 'none';
+      if (status) {
+        status.textContent = `✓ Saved "${data.sample_id}" — tiles: [${savedTiles}]`;
+        status.style.color = '#a6e3a1';
+      }
+      // Reset
+      _imageDataUrl = null;
+      if (preview) { preview.style.display = 'none'; preview.src = ''; }
+      if (hint)    hint.style.display = '';
+      if (idField)     idField.value = '';
+      if (notesField)  notesField.value = '';
+      regionSel.selectedIndex = 0;
+      _clearTileGrid();
+    } catch (err) {
+      if (status) { status.textContent = '⚠ ' + err.message; status.style.color = '#f38ba8'; }
+    } finally {
+      _updateSaveBtn();
+    }
+  });
 }

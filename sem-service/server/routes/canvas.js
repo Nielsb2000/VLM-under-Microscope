@@ -404,4 +404,11 @@ router.put('/segmentation-text-enabled', (req, res) => {
   res.json({ ok: true, segmentTextEnabled: !!enabled });
 });
 
+// PUT /api/canvas/atlas-coord-enabled — gate atlas_state coord computation on UI toggle state
+router.put('/atlas-coord-enabled', (req, res) => {
+  const { enabled } = req.body || {};
+  state.setAtlasCoordEnabled(enabled);
+  res.json({ ok: true, atlasCoordEnabled: !!enabled });
+});
+
 module.exports = router;

@@ -1,4 +1,4 @@
-// server/routes/atlas.js — Atlas mode: stitch all tiles of a region/fw into a virtual explorable canvas
+// server/routes/atlas.js - Atlas mode: stitch all tiles of a region/fw into a virtual explorable canvas
 //
 // GET  /api/atlas/manifest          { region?, fw? }  → tile grid manifest (dimensions + tile URLs)
 // POST /api/atlas/enter             { region?, fw? }  → enter atlas mode (uses current grid region/fw)
@@ -132,7 +132,7 @@ router.post('/exit', async (req, res) => {
 });
 
 // ---- POST /api/atlas/viewport  { zoom, panX, panY } ----
-// Silent viewport sync from client — used so server-side export knows the current atlas view.
+// Silent viewport sync from client - used so server-side export knows the current atlas view.
 router.post('/viewport', (req, res) => {
   const { zoom, panX, panY } = req.body || {};
   if (zoom == null || panX == null || panY == null) {
@@ -140,6 +140,134 @@ router.post('/viewport', (req, res) => {
   }
   state.setViewportSilent(parseFloat(zoom), parseFloat(panX), parseFloat(panY));
   res.json({ ok: true });
+});
+
+// ---- POST /api/atlas/overlay  { grid?, labels?, gridLevel?, subdivision?, gridLineWidth?, gridLineAlpha?, labelFontSize?, labelBoxPadding?, labelBoxAlpha? } ----
+// Toggle grid overlay and/or analysis-grid coordinate labels in atlas mode.
+// gridLevel/subdivision are consumed by server-side PNG export rendering:
+//   L0 => subdivision 1, original SEM acquisition-tile grid
+//   L1 => subdivision 2, each original tile split into 2 x 2 cells
+//   L2 => subdivision 4, each original tile split into 4 x 4 cells
+// Style fields are optional and are consumed by server-side PNG export rendering.
+router.post('/overlay', (req, res) => {
+  const s = state.getState();
+  if (s.uiMode !== 'atlas') {
+    return res.status(400).json({ error: 'Not in atlas mode' });
+  }
+
+  const {
+    grid,
+    labels,
+    gridLevel,
+    subdivision,
+    gridLineWidth,
+    gridLineAlpha,
+    labelFontSize,
+    labelBoxPadding,
+    labelBoxAlpha,
+  } = req.body || {};
+
+  if (
+    grid === undefined &&
+    labels === undefined &&
+    gridLevel === undefined &&
+    subdivision === undefined &&
+    gridLineWidth === undefined &&
+    gridLineAlpha === undefined &&
+    labelFontSize === undefined &&
+    labelBoxPadding === undefined &&
+    labelBoxAlpha === undefined
+  ) {
+    return res.status(400).json({ error: 'At least one atlas overlay field required' });
+  }
+
+  const overlay = state.setAtlasOverlay({
+    grid,
+    labels,
+    gridLevel,
+    subdivision,
+    gridLineWidth,
+    gridLineAlpha,
+    labelFontSize,
+    labelBoxPadding,
+    labelBoxAlpha,
+  });
+  res.json({ ok: true, atlasOverlay: overlay });
+});
+
+// ---- GET /api/atlas/list-regions ----
+// Returns all available (region, fw) pairs with tile counts and labels.
+router.get('/list-regions', (req, res) => {
+  if (!tileGrid.isScanned()) {
+    return res.status(400).json({ error: 'Tile dataset not yet scanned.' });
+  }
+  res.json(tileGrid.listRegions());
+});
+
+// ---- GET /api/atlas/stitch?region=R&fw=F&maxWidth=2048 ----
+// Stitches all tiles for a (region, fw) pair into a single PNG and returns it
+// as base64.  The atlas is downscaled so its width does not exceed maxWidth.
+router.get('/stitch', async (req, res) => {
+  if (!tileGrid.isScanned()) {
+    return res.status(400).json({ error: 'Tile dataset not yet scanned.' });
+  }
+  const region   = parseInt(req.query.region,   10);
+  const fw       = parseInt(req.query.fw,       10);
+  const maxWidth = parseInt(req.query.maxWidth || '2048', 10);
+  if (isNaN(region) || isNaN(fw)) {
+    return res.status(400).json({ error: 'region and fw are required' });
+  }
+
+  try {
+    const tiles = tileGrid.getTilesForRegion(region, fw);
+    if (tiles.length === 0) {
+      return res.status(404).json({ error: `No tiles for Region${region} fw=${fw}` });
+    }
+
+    // Use the first tile to get canonical tile dimensions
+    const firstMeta = await sharp(tiles[0].absolutePath).metadata();
+    const tileW = firstMeta.width  || 1920;
+    const tileH = firstMeta.height || 1200;
+
+    let cols = 0, rows = 0;
+    for (const t of tiles) {
+      cols = Math.max(cols, t.x + 1);
+      rows = Math.max(rows, t.y + 1);
+    }
+    const atlasW = cols * tileW;
+    const atlasH = rows * tileH;
+
+    // Compute scale so the output width <= maxWidth
+    const scale  = Math.min(1, maxWidth / atlasW);
+    const outW   = Math.max(1, Math.round(atlasW * scale));
+    const outH   = Math.max(1, Math.round(atlasH * scale));
+    const cellW  = Math.max(1, Math.round(tileW  * scale));
+    const cellH  = Math.max(1, Math.round(tileH  * scale));
+
+    // Build composite list: resize each tile then place at grid position
+    const composites = await Promise.all(tiles.map(async t => {
+      const buf = await sharp(t.absolutePath)
+        .resize(cellW, cellH, { fit: 'fill' })
+        .toBuffer();
+      return {
+        input: buf,
+        left:  Math.round(t.x * cellW),
+        top:   Math.round(t.y * cellH),
+      };
+    }));
+
+    const png = await sharp({
+      create: { width: outW, height: outH, channels: 3, background: { r: 0, g: 0, b: 0 } },
+    })
+      .composite(composites)
+      .png({ compressionLevel: 6 })
+      .toBuffer();
+
+    res.json({ ok: true, imageBase64: png.toString('base64'), width: outW, height: outH, region, fw });
+  } catch (err) {
+    console.error('[atlas/stitch]', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;
