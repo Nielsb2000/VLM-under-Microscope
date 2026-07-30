@@ -1,0 +1,59 @@
+{
+  "root": "/home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_3",
+  "out_dir": "/home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_3/analysis_outputs/all_runs",
+  "n_run_rows": 531,
+  "n_prediction_rows": 540,
+  "n_batch_aggregate_rows": 180,
+  "n_difficulty_rows": 4,
+  "n_variant_difficulty_rows": 36,
+  "difficulties": [
+    "easy",
+    "medium",
+    "hard",
+    "very_hard"
+  ],
+  "variants": [
+    "L0_path_only",
+    "L1_path_only",
+    "L2_path_only",
+    "L0_grid",
+    "L1_grid",
+    "L2_grid",
+    "L0_grid_labels",
+    "L1_grid_labels",
+    "L2_grid_labels"
+  ],
+  "tables": [
+    "batch_manifest_aggregates.csv",
+    "difficulty_aggregates.csv",
+    "long_metrics.csv",
+    "prediction_details.csv",
+    "recomputed_aggregates.csv",
+    "run_level_metrics.csv",
+    "variant_difficulty_aggregates.csv"
+  ],
+  "figures": [
+    "condition_comparison_panels.png",
+    "difficulty_tile_accuracy_mean_std.png",
+    "distribution_exact_match.png",
+    "distribution_missed_tile_rate.png",
+    "distribution_tile_accuracy.png",
+    "error_metrics_point_range.png",
+    "error_rates_mean_std.png",
+    "f1_accuracy_exact_match_point_range.png",
+    "mean_metric_heatmap.png",
+    "primary_metrics_mean_std.png",
+    "primary_metrics_mean_std_E1_only.png",
+    "primary_metrics_point_range.png",
+    "run_variability_exact_match.png",
+    "run_variability_extra_tile_rate.png",
+    "run_variability_f1.png",
+    "run_variability_missed_tile_rate.png",
+    "run_variability_precision.png",
+    "run_variability_recall.png",
+    "run_variability_tile_accuracy.png",
+    "variant_difficulty_tile_accuracy_heatmap.png",
+    "variant_difficulty_tile_accuracy_mean_inner_batch_std.png",
+    "variant_difficulty_tile_accuracy_mean_std.png"
+  ]
+}

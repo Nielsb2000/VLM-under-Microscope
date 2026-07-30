@@ -18,19 +18,27 @@ screenshots/
 # Large datasets
 Dataset_images_Unlabeled/
 Dataset_Images_Labeled_W_Metadata/
+Validation_Andrea_Dataset_Images_CS2/
+Validation_Unc_Dataset_Images_Luca_CS2/
+data/
 spatial_eval/vqa/
 spatial_eval/vtqa/
 spatial_eval/tqa/
 
 # SpatialEval outputs and generated data (gitignored — large JSONL files)
+outputs/**/runs/
+outputs/**/runs_quarantine/
+outputs/**/runs_backup/
 spatial_eval/outputs/
 spatial_eval/outputs_smoke_test/
+spatial_eval/outputs_smoke_test_gpt55/
 spatial_eval/outputs_round2/
 spatial_eval/outputs_round3/
 spatial_eval/legacy/
 legacy/
 
 # SpatialEval eval_summary data (keep Python scripts, ignore data files)
+eval_summary/
 spatial_eval/eval_summary/vqa/
 spatial_eval/eval_summary/vtqa/
 spatial_eval/eval_summary/result_vis/

@@ -1,0 +1,335 @@
+Rettenberger Uncertainty ImgGen large-error audit
+======================================================================
+
+This file lists the largest ImgGen-based errors and the exact artifacts to inspect.
+
+1. ImgGen mask | luca_unc_low_mag_022
+   absolute_error: 588
+   direction: overcount
+   predicted_count: 601
+   gt_interval: 5 - 13
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_022/20260624_160642/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_022/20260624_160642/images/E3_imggen_deterministic_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_022/20260624_160642/images/E3_imggen_deterministic_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_022/20260624_160642/predictions/E3_imggen_deterministic.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_022/20260624_160642/run_manifest.json
+
+2. ImgGen overlay | luca_unc_low_mag_020
+   absolute_error: 481
+   direction: overcount
+   predicted_count: 487
+   gt_interval: 2 - 6
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_020/20260627_141649/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_020/20260627_141649/images/E5_imggen_overlay_vlm_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_020/20260627_141649/images/E5_imggen_overlay_vlm_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_020/20260627_141649/predictions/E5_imggen_overlay_vlm.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_020/20260627_141649/run_manifest.json
+
+3. ImgGen overlay | luca_unc_low_mag_021
+   absolute_error: 370
+   direction: overcount
+   predicted_count: 421
+   gt_interval: 23 - 51
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_021/20260627_142247/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_021/20260627_142247/images/E5_imggen_overlay_vlm_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_021/20260627_142247/images/E5_imggen_overlay_vlm_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_021/20260627_142247/predictions/E5_imggen_overlay_vlm.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_021/20260627_142247/run_manifest.json
+
+4. ImgGen mask | luca_unc_low_mag_021
+   absolute_error: 278
+   direction: overcount
+   predicted_count: 329
+   gt_interval: 23 - 51
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_021/20260624_160545/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_021/20260624_160545/images/E3_imggen_deterministic_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_021/20260624_160545/images/E3_imggen_deterministic_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_021/20260624_160545/predictions/E3_imggen_deterministic.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_021/20260624_160545/run_manifest.json
+
+5. ImgGen overlay | luca_unc_low_mag_022
+   absolute_error: 247
+   direction: overcount
+   predicted_count: 260
+   gt_interval: 5 - 13
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_022/20260627_142830/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_022/20260627_142830/images/E5_imggen_overlay_vlm_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_022/20260627_142830/images/E5_imggen_overlay_vlm_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_022/20260627_142830/predictions/E5_imggen_overlay_vlm.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_022/20260627_142830/run_manifest.json
+
+6. ImgGen mask | luca_unc_low_mag_038
+   absolute_error: 147
+   direction: overcount
+   predicted_count: 206
+   gt_interval: 24 - 59
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_038/20260624_173122/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_038/20260624_173122/images/E3_imggen_deterministic_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_038/20260624_173122/images/E3_imggen_deterministic_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_038/20260624_173122/predictions/E3_imggen_deterministic.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_038/20260624_173122/run_manifest.json
+
+7. ImgGen overlay | luca_unc_high_mag_011
+   absolute_error: 113
+   direction: overcount
+   predicted_count: 133
+   gt_interval: 8 - 20
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_011/20260624_134456/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_011/20260624_134456/images/E5_imggen_overlay_vlm_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_011/20260624_134456/images/E5_imggen_overlay_vlm_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_011/20260624_134456/predictions/E5_imggen_overlay_vlm.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_011/20260624_134456/run_manifest.json
+
+8. ImgGen mask | luca_unc_low_mag_020
+   absolute_error: 111
+   direction: overcount
+   predicted_count: 117
+   gt_interval: 2 - 6
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_020/20260624_160448/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_020/20260624_160448/images/E3_imggen_deterministic_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_020/20260624_160448/images/E3_imggen_deterministic_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_020/20260624_160448/predictions/E3_imggen_deterministic.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_020/20260624_160448/run_manifest.json
+
+9. ImgGen mask | luca_unc_high_mag_011
+   absolute_error: 111
+   direction: overcount
+   predicted_count: 131
+   gt_interval: 8 - 20
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_011/20260624_134456/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_011/20260624_134456/images/E3_imggen_deterministic_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_011/20260624_134456/images/E3_imggen_deterministic_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_011/20260624_134456/predictions/E3_imggen_deterministic.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_011/20260624_134456/run_manifest.json
+
+10. ImgGen mask | luca_unc_low_mag_002
+   absolute_error: 99
+   direction: overcount
+   predicted_count: 154
+   gt_interval: 21 - 55
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_002/20260624_151008/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_002/20260624_151008/images/E3_imggen_deterministic_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_002/20260624_151008/images/E3_imggen_deterministic_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_002/20260624_151008/predictions/E3_imggen_deterministic.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_002/20260624_151008/run_manifest.json
+
+11. ImgGen overlay | luca_unc_low_mag_002
+   absolute_error: 92
+   direction: overcount
+   predicted_count: 147
+   gt_interval: 21 - 55
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_002/20260624_151008/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_002/20260624_151008/images/E5_imggen_overlay_vlm_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_002/20260624_151008/images/E5_imggen_overlay_vlm_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_002/20260624_151008/predictions/E5_imggen_overlay_vlm.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_002/20260624_151008/run_manifest.json
+
+12. ImgGen overlay | luca_unc_low_mag_038
+   absolute_error: 89
+   direction: overcount
+   predicted_count: 148
+   gt_interval: 24 - 59
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_038/20260624_173122/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_038/20260624_173122/images/E5_imggen_overlay_vlm_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_038/20260624_173122/images/E5_imggen_overlay_vlm_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_038/20260624_173122/predictions/E5_imggen_overlay_vlm.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_038/20260624_173122/run_manifest.json
+
+13. ImgGen mask | luca_unc_low_mag_024
+   absolute_error: 87
+   direction: overcount
+   predicted_count: 125
+   gt_interval: 18 - 38
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_024/20260624_160823/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_024/20260624_160823/images/E3_imggen_deterministic_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_024/20260624_160823/images/E3_imggen_deterministic_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_024/20260624_160823/predictions/E3_imggen_deterministic.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_024/20260624_160823/run_manifest.json
+
+14. ImgGen overlay | luca_unc_low_mag_009
+   absolute_error: 82
+   direction: undercount
+   predicted_count: 1
+   gt_interval: 83 - 340
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_009/20260624_153742/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_009/20260624_153742/images/E5_imggen_overlay_vlm_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_009/20260624_153742/images/E5_imggen_overlay_vlm_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_009/20260624_153742/predictions/E5_imggen_overlay_vlm.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_009/20260624_153742/run_manifest.json
+
+15. ImgGen mask | luca_unc_low_mag_009
+   absolute_error: 82
+   direction: undercount
+   predicted_count: 1
+   gt_interval: 83 - 340
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_009/20260624_153742/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_009/20260624_153742/images/E3_imggen_deterministic_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_009/20260624_153742/images/E3_imggen_deterministic_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_009/20260624_153742/predictions/E3_imggen_deterministic.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_009/20260624_153742/run_manifest.json
+
+16. ImgGen overlay | luca_unc_high_mag_034
+   absolute_error: 63
+   direction: overcount
+   predicted_count: 73
+   gt_interval: 4 - 10
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_034/20260627_132211/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_034/20260627_132211/images/E5_imggen_overlay_vlm_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_034/20260627_132211/images/E5_imggen_overlay_vlm_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_034/20260627_132211/predictions/E5_imggen_overlay_vlm.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_034/20260627_132211/run_manifest.json
+
+17. ImgGen mask | luca_unc_low_mag_035
+   absolute_error: 62
+   direction: overcount
+   predicted_count: 154
+   gt_interval: 33 - 92
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_035/20260624_170752/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_035/20260624_170752/images/E3_imggen_deterministic_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_035/20260624_170752/images/E3_imggen_deterministic_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_035/20260624_170752/predictions/E3_imggen_deterministic.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_035/20260624_170752/run_manifest.json
+
+18. ImgGen mask | luca_unc_high_mag_034
+   absolute_error: 61
+   direction: overcount
+   predicted_count: 71
+   gt_interval: 4 - 10
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_034/20260624_144524/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_034/20260624_144524/images/E3_imggen_deterministic_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_034/20260624_144524/images/E3_imggen_deterministic_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_034/20260624_144524/predictions/E3_imggen_deterministic.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_034/20260624_144524/run_manifest.json
+
+19. ImgGen overlay | luca_unc_low_mag_035
+   absolute_error: 58
+   direction: overcount
+   predicted_count: 150
+   gt_interval: 33 - 92
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_035/20260624_170752/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_035/20260624_170752/images/E5_imggen_overlay_vlm_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_035/20260624_170752/images/E5_imggen_overlay_vlm_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_035/20260624_170752/predictions/E5_imggen_overlay_vlm.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_035/20260624_170752/run_manifest.json
+
+20. ImgGen mask | luca_unc_low_mag_047
+   absolute_error: 57
+   direction: overcount
+   predicted_count: 215
+   gt_interval: 40 - 158
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_047/20260624_182234/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_047/20260624_182234/images/E3_imggen_deterministic_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_047/20260624_182234/images/E3_imggen_deterministic_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_047/20260624_182234/predictions/E3_imggen_deterministic.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_047/20260624_182234/run_manifest.json
+
+21. ImgGen overlay | luca_unc_low_mag_024
+   absolute_error: 53
+   direction: overcount
+   predicted_count: 91
+   gt_interval: 18 - 38
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_024/20260627_144156/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_024/20260627_144156/images/E5_imggen_overlay_vlm_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_024/20260627_144156/images/E5_imggen_overlay_vlm_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_024/20260627_144156/predictions/E5_imggen_overlay_vlm.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_024/20260627_144156/run_manifest.json
+
+22. ImgGen overlay | luca_unc_low_mag_031
+   absolute_error: 47
+   direction: overcount
+   predicted_count: 101
+   gt_interval: 25 - 54
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_031/20260624_164426/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_031/20260624_164426/images/E5_imggen_overlay_vlm_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_031/20260624_164426/images/E5_imggen_overlay_vlm_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_031/20260624_164426/predictions/E5_imggen_overlay_vlm.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_031/20260624_164426/run_manifest.json
+
+23. ImgGen overlay | luca_unc_low_mag_050
+   absolute_error: 44
+   direction: overcount
+   predicted_count: 123
+   gt_interval: 11 - 79
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_050/20260624_184413/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_050/20260624_184413/images/E5_imggen_overlay_vlm_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_050/20260624_184413/images/E5_imggen_overlay_vlm_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_050/20260624_184413/predictions/E5_imggen_overlay_vlm.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_050/20260624_184413/run_manifest.json
+
+24. ImgGen overlay | luca_unc_high_mag_027
+   absolute_error: 42
+   direction: overcount
+   predicted_count: 69
+   gt_interval: 8 - 27
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_027/20260627_130041/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_027/20260627_130041/images/E5_imggen_overlay_vlm_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_027/20260627_130041/images/E5_imggen_overlay_vlm_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_027/20260627_130041/predictions/E5_imggen_overlay_vlm.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_027/20260627_130041/run_manifest.json
+
+25. ImgGen mask | luca_unc_low_mag_034
+   absolute_error: 40
+   direction: undercount
+   predicted_count: 9
+   gt_interval: 49 - 103
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_034/20260624_170455/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_034/20260624_170455/images/E3_imggen_deterministic_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_034/20260624_170455/images/E3_imggen_deterministic_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_034/20260624_170455/predictions/E3_imggen_deterministic.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_034/20260624_170455/run_manifest.json
+
+26. ImgGen overlay | luca_unc_low_mag_034
+   absolute_error: 40
+   direction: undercount
+   predicted_count: 9
+   gt_interval: 49 - 103
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_034/20260624_170455/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_034/20260624_170455/images/E5_imggen_overlay_vlm_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_034/20260624_170455/images/E5_imggen_overlay_vlm_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_034/20260624_170455/predictions/E5_imggen_overlay_vlm.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_034/20260624_170455/run_manifest.json
+
+27. ImgGen mask | luca_unc_high_mag_019
+   absolute_error: 39
+   direction: undercount
+   predicted_count: 8
+   gt_interval: 47 - 126
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_019/20260624_141508/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_019/20260624_141508/images/E3_imggen_deterministic_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_019/20260624_141508/images/E3_imggen_deterministic_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_019/20260624_141508/predictions/E3_imggen_deterministic.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_019/20260624_141508/run_manifest.json
+
+28. ImgGen overlay | luca_unc_high_mag_019
+   absolute_error: 39
+   direction: undercount
+   predicted_count: 8
+   gt_interval: 47 - 126
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_019/20260627_122919/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_019/20260627_122919/images/E5_imggen_overlay_vlm_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_019/20260627_122919/images/E5_imggen_overlay_vlm_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_019/20260627_122919/predictions/E5_imggen_overlay_vlm.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_high_mag_019/20260627_122919/run_manifest.json
+
+29. ImgGen overlay | luca_unc_low_mag_045
+   absolute_error: 38
+   direction: overcount
+   predicted_count: 80
+   gt_interval: 10 - 42
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_045/20260624_181401/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_045/20260624_181401/images/E5_imggen_overlay_vlm_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_045/20260624_181401/images/E5_imggen_overlay_vlm_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_045/20260624_181401/predictions/E5_imggen_overlay_vlm.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_045/20260624_181401/run_manifest.json
+
+30. ImgGen mask | luca_unc_low_mag_045
+   absolute_error: 38
+   direction: overcount
+   predicted_count: 80
+   gt_interval: 10 - 42
+   original_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_045/20260624_181401/images/original.jpg
+   mask_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_045/20260624_181401/images/E3_imggen_deterministic_mask.png
+   overlay_image: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_045/20260624_181401/images/E3_imggen_deterministic_overlay.png
+   prediction_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_045/20260624_181401/predictions/E3_imggen_deterministic.json
+   manifest_json: /home/nielsbroekhuizen/projects/my-vscode-project/outputs/case_study_2/runs/luca_unc_low_mag_045/20260624_181401/run_manifest.json
+

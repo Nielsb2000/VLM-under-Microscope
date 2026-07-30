@@ -1,0 +1,127 @@
+batch_id,run_id,variant,variant_label,grid_level,subdivision,visual_condition,visual_condition_label,turn_count,turn_difficulty,turn_difficulty_label,model,status,metric,value
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_path_only,L0: No annotations,0.0,1.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,precision,0.3333
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_path_only,L0: No annotations,0.0,1.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,precision,0.1429
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_path_only,L1: No annotations,1.0,2.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,precision,0.973
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_path_only,L1: No annotations,1.0,2.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,precision,0.973
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_path_only,L2: No annotations,2.0,4.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,precision,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_path_only,L2: No annotations,2.0,4.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,precision,0.9296
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_grid,L0: Grid,0.0,1.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,precision,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_grid,L0: Grid,0.0,1.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,precision,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_grid,L1: Grid,1.0,2.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,precision,0.75
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_grid,L1: Grid,1.0,2.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,precision,0.9118
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_grid,L2: Grid,2.0,4.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,precision,0.8636
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_grid,L2: Grid,2.0,4.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,precision,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_grid_labels,L0: Grid + labels,0.0,1.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,precision,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_grid_labels,L0: Grid + labels,0.0,1.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,precision,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_grid_labels,L1: Grid + labels,1.0,2.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,precision,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_grid_labels,L1: Grid + labels,1.0,2.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,precision,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_grid_labels,L2: Grid + labels,2.0,4.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,precision,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_grid_labels,L2: Grid + labels,2.0,4.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,precision,0.5
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_path_only,L0: No annotations,0.0,1.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,recall,0.1667
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_path_only,L0: No annotations,0.0,1.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,recall,0.0556
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_path_only,L1: No annotations,1.0,2.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,recall,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_path_only,L1: No annotations,1.0,2.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,recall,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_path_only,L2: No annotations,2.0,4.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,recall,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_path_only,L2: No annotations,2.0,4.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,recall,0.9041
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_grid,L0: Grid,0.0,1.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,recall,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_grid,L0: Grid,0.0,1.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,recall,0.9444
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_grid,L1: Grid,1.0,2.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,recall,0.75
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_grid,L1: Grid,1.0,2.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,recall,0.8611
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_grid,L2: Grid,2.0,4.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,recall,0.2603
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_grid,L2: Grid,2.0,4.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,recall,0.0274
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_grid_labels,L0: Grid + labels,0.0,1.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,recall,0.9444
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_grid_labels,L0: Grid + labels,0.0,1.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,recall,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_grid_labels,L1: Grid + labels,1.0,2.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,recall,0.1389
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_grid_labels,L1: Grid + labels,1.0,2.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,recall,0.1389
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_grid_labels,L2: Grid + labels,2.0,4.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,recall,0.1096
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_grid_labels,L2: Grid + labels,2.0,4.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,recall,0.1233
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_path_only,L0: No annotations,0.0,1.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,f1,0.2222
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_path_only,L0: No annotations,0.0,1.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,f1,0.08
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_path_only,L1: No annotations,1.0,2.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,f1,0.9863
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_path_only,L1: No annotations,1.0,2.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,f1,0.9863
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_path_only,L2: No annotations,2.0,4.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,f1,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_path_only,L2: No annotations,2.0,4.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,f1,0.9167
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_grid,L0: Grid,0.0,1.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,f1,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_grid,L0: Grid,0.0,1.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,f1,0.9714
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_grid,L1: Grid,1.0,2.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,f1,0.75
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_grid,L1: Grid,1.0,2.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,f1,0.8857
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_grid,L2: Grid,2.0,4.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,f1,0.4
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_grid,L2: Grid,2.0,4.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,f1,0.0533
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_grid_labels,L0: Grid + labels,0.0,1.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,f1,0.9714
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_grid_labels,L0: Grid + labels,0.0,1.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,f1,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_grid_labels,L1: Grid + labels,1.0,2.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,f1,0.2439
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_grid_labels,L1: Grid + labels,1.0,2.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,f1,0.2439
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_grid_labels,L2: Grid + labels,2.0,4.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,f1,0.1975
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_grid_labels,L2: Grid + labels,2.0,4.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,f1,0.1978
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_path_only,L0: No annotations,0.0,1.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,tile_accuracy,0.1667
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_path_only,L0: No annotations,0.0,1.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,tile_accuracy,0.0556
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_path_only,L1: No annotations,1.0,2.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,tile_accuracy,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_path_only,L1: No annotations,1.0,2.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,tile_accuracy,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_path_only,L2: No annotations,2.0,4.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,tile_accuracy,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_path_only,L2: No annotations,2.0,4.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,tile_accuracy,0.9041
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_grid,L0: Grid,0.0,1.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,tile_accuracy,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_grid,L0: Grid,0.0,1.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,tile_accuracy,0.9444
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_grid,L1: Grid,1.0,2.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,tile_accuracy,0.75
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_grid,L1: Grid,1.0,2.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,tile_accuracy,0.8611
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_grid,L2: Grid,2.0,4.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,tile_accuracy,0.2603
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_grid,L2: Grid,2.0,4.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,tile_accuracy,0.0274
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_grid_labels,L0: Grid + labels,0.0,1.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,tile_accuracy,0.9444
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_grid_labels,L0: Grid + labels,0.0,1.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,tile_accuracy,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_grid_labels,L1: Grid + labels,1.0,2.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,tile_accuracy,0.1389
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_grid_labels,L1: Grid + labels,1.0,2.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,tile_accuracy,0.1389
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_grid_labels,L2: Grid + labels,2.0,4.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,tile_accuracy,0.1096
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_grid_labels,L2: Grid + labels,2.0,4.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,tile_accuracy,0.1233
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_path_only,L0: No annotations,0.0,1.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,exact_match,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_path_only,L0: No annotations,0.0,1.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,exact_match,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_path_only,L1: No annotations,1.0,2.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,exact_match,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_path_only,L1: No annotations,1.0,2.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,exact_match,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_path_only,L2: No annotations,2.0,4.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,exact_match,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_path_only,L2: No annotations,2.0,4.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,exact_match,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_grid,L0: Grid,0.0,1.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,exact_match,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_grid,L0: Grid,0.0,1.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,exact_match,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_grid,L1: Grid,1.0,2.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,exact_match,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_grid,L1: Grid,1.0,2.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,exact_match,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_grid,L2: Grid,2.0,4.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,exact_match,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_grid,L2: Grid,2.0,4.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,exact_match,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_grid_labels,L0: Grid + labels,0.0,1.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,exact_match,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_grid_labels,L0: Grid + labels,0.0,1.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,exact_match,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_grid_labels,L1: Grid + labels,1.0,2.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,exact_match,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_grid_labels,L1: Grid + labels,1.0,2.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,exact_match,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_grid_labels,L2: Grid + labels,2.0,4.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,exact_match,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_grid_labels,L2: Grid + labels,2.0,4.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,exact_match,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_path_only,L0: No annotations,0.0,1.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,missed_tile_rate,0.8333
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_path_only,L0: No annotations,0.0,1.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,missed_tile_rate,0.9444
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_path_only,L1: No annotations,1.0,2.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,missed_tile_rate,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_path_only,L1: No annotations,1.0,2.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,missed_tile_rate,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_path_only,L2: No annotations,2.0,4.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,missed_tile_rate,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_path_only,L2: No annotations,2.0,4.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,missed_tile_rate,0.0959
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_grid,L0: Grid,0.0,1.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,missed_tile_rate,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_grid,L0: Grid,0.0,1.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,missed_tile_rate,0.0556
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_grid,L1: Grid,1.0,2.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,missed_tile_rate,0.25
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_grid,L1: Grid,1.0,2.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,missed_tile_rate,0.1389
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_grid,L2: Grid,2.0,4.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,missed_tile_rate,0.7397
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_grid,L2: Grid,2.0,4.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,missed_tile_rate,0.9726
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_grid_labels,L0: Grid + labels,0.0,1.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,missed_tile_rate,0.0556
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_grid_labels,L0: Grid + labels,0.0,1.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,missed_tile_rate,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_grid_labels,L1: Grid + labels,1.0,2.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,missed_tile_rate,0.8611
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_grid_labels,L1: Grid + labels,1.0,2.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,missed_tile_rate,0.8611
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_grid_labels,L2: Grid + labels,2.0,4.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,missed_tile_rate,0.8904
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_grid_labels,L2: Grid + labels,2.0,4.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,missed_tile_rate,0.8767
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_path_only,L0: No annotations,0.0,1.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,extra_tile_rate,0.6667
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_path_only,L0: No annotations,0.0,1.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,extra_tile_rate,0.8571
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_path_only,L1: No annotations,1.0,2.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,extra_tile_rate,0.027
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_path_only,L1: No annotations,1.0,2.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,extra_tile_rate,0.027
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_path_only,L2: No annotations,2.0,4.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,extra_tile_rate,1.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_path_only,L2: No annotations,2.0,4.0,path_only,No annotations (VLM only),4,very_hard,Very hard (>3 turns),gpt-5.5,completed,extra_tile_rate,0.0704
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_grid,L0: Grid,0.0,1.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,extra_tile_rate,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_grid,L0: Grid,0.0,1.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,extra_tile_rate,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_grid,L1: Grid,1.0,2.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,extra_tile_rate,0.25
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_grid,L1: Grid,1.0,2.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,extra_tile_rate,0.0882
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_grid,L2: Grid,2.0,4.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,extra_tile_rate,0.1364
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_grid,L2: Grid,2.0,4.0,grid,Grid,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,extra_tile_rate,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L0_grid_labels,L0: Grid + labels,0.0,1.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,extra_tile_rate,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L0_grid_labels,L0: Grid + labels,0.0,1.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,extra_tile_rate,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L1_grid_labels,L1: Grid + labels,1.0,2.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,extra_tile_rate,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L1_grid_labels,L1: Grid + labels,1.0,2.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,extra_tile_rate,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_002,L2_grid_labels,L2: Grid + labels,2.0,4.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,extra_tile_rate,0.0
+case3_batch_20260620_092907,case3_batch_20260620_092907_run_003,L2_grid_labels,L2: Grid + labels,2.0,4.0,grid_labels,Grid + labels,4,very_hard,Very hard (>3 turns),gpt-5.5,completed,extra_tile_rate,0.5

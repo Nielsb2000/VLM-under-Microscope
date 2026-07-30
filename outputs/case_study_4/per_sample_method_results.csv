@@ -1,0 +1,5 @@
+run_id,sample_id,search_mode,method_name,status,gt_target_present,gt_tile,found,predicted_tile,confidence,correct_found_status,correct_tile,bbox_iou,localization_error_px,within_tolerance,correct_detection,correct_abstention,false_positive,parsing_error
+"case4_False Positive test of Fiber like structure in region000 tile (3,4), searched in Region003_grid_r0fw851_20260602_133909","False Positive test of Fiber like structure in region000 tile (3,4), searched in Region003",,grid_scan_search,completed,False,,False,,0,True,,,,,,,,
+"case4_Part of Fiber like structure in region000 tile (3,4)_grid_r0fw851_20260602_133838","Part of Fiber like structure in region000 tile (3,4)",,grid_scan_search,completed,True,,False,,0,False,,,,,,,,
+case4_test_001_positive_20260601_101045,test_001_positive,,atlas_global_search,completed,True,upper-left,True,upper-left region,0.86,True,False,0.2857,70.71,True,False,,,
+case4_test_002_negative_20260601_101139,test_002_negative,,atlas_global_search,completed,False,,False,,0.82,True,,,,,,True,False,

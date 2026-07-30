@@ -1,0 +1,103 @@
+{
+  "n_runs": 4,
+  "by_method": {
+    "grid_scan_search": {
+      "n_total": 2,
+      "n_parsed": 2,
+      "n_failed": 0,
+      "n_present_samples": 1,
+      "n_absent_samples": 1,
+      "presence_accuracy": 0.5,
+      "positive_recall": 0.0,
+      "negative_abstention_accuracy": 0.0,
+      "false_positive_rate_on_absent": 0.0,
+      "tile_accuracy_on_present": 0.0,
+      "mean_localization_error_px": null,
+      "mean_bbox_iou": null,
+      "within_tolerance_rate": null,
+      "parse_failure_rate": 0.0
+    },
+    "atlas_global_search": {
+      "n_total": 2,
+      "n_parsed": 2,
+      "n_failed": 0,
+      "n_present_samples": 1,
+      "n_absent_samples": 1,
+      "presence_accuracy": 1.0,
+      "positive_recall": 1.0,
+      "negative_abstention_accuracy": 1.0,
+      "false_positive_rate_on_absent": 0.0,
+      "tile_accuracy_on_present": 0.0,
+      "mean_localization_error_px": 70.71,
+      "mean_bbox_iou": 0.2857,
+      "within_tolerance_rate": 1.0,
+      "parse_failure_rate": 0.0
+    }
+  },
+  "by_condition": {
+    "E2N": {
+      "n_total": 1,
+      "n_parsed": 1,
+      "n_failed": 0,
+      "n_present_samples": 0,
+      "n_absent_samples": 1,
+      "presence_accuracy": 1.0,
+      "positive_recall": null,
+      "negative_abstention_accuracy": 0.0,
+      "false_positive_rate_on_absent": 0.0,
+      "tile_accuracy_on_present": null,
+      "mean_localization_error_px": null,
+      "mean_bbox_iou": null,
+      "within_tolerance_rate": null,
+      "parse_failure_rate": 0.0
+    },
+    "E2P": {
+      "n_total": 1,
+      "n_parsed": 1,
+      "n_failed": 0,
+      "n_present_samples": 1,
+      "n_absent_samples": 0,
+      "presence_accuracy": 0.0,
+      "positive_recall": 0.0,
+      "negative_abstention_accuracy": null,
+      "false_positive_rate_on_absent": null,
+      "tile_accuracy_on_present": 0.0,
+      "mean_localization_error_px": null,
+      "mean_bbox_iou": null,
+      "within_tolerance_rate": null,
+      "parse_failure_rate": 0.0
+    },
+    "E1P": {
+      "n_total": 1,
+      "n_parsed": 1,
+      "n_failed": 0,
+      "n_present_samples": 1,
+      "n_absent_samples": 0,
+      "presence_accuracy": 1.0,
+      "positive_recall": 1.0,
+      "negative_abstention_accuracy": null,
+      "false_positive_rate_on_absent": null,
+      "tile_accuracy_on_present": 0.0,
+      "mean_localization_error_px": 70.71,
+      "mean_bbox_iou": 0.2857,
+      "within_tolerance_rate": 1.0,
+      "parse_failure_rate": 0.0
+    },
+    "E1N": {
+      "n_total": 1,
+      "n_parsed": 1,
+      "n_failed": 0,
+      "n_present_samples": 0,
+      "n_absent_samples": 1,
+      "presence_accuracy": 1.0,
+      "positive_recall": null,
+      "negative_abstention_accuracy": 1.0,
+      "false_positive_rate_on_absent": 0.0,
+      "tile_accuracy_on_present": null,
+      "mean_localization_error_px": null,
+      "mean_bbox_iou": null,
+      "within_tolerance_rate": null,
+      "parse_failure_rate": 0.0
+    }
+  }
+}

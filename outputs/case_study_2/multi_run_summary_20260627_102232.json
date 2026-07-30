@@ -1,0 +1,4845 @@
+{
+  "generated_at": "20260627_102232",
+  "n_samples": 19,
+  "n_failed": 0,
+  "variants": [
+    "E1_raw_vlm",
+    "E2_sam2_deterministic",
+    "E3_imggen_deterministic",
+    "E4_sam2_overlay_vlm",
+    "E5_imggen_overlay_vlm",
+    "E6_sam3_deterministic",
+    "E7_sam3_overlay_vlm"
+  ],
+  "aggregate_by_dataset": {
+    "unknown_source:unknown_category": {
+      "E1_raw_vlm": {
+        "n_samples": 1,
+        "mae": 1.0,
+        "exact_match_pct": 0.0,
+        "inside_gt_interval_pct": 0.0,
+        "within_1_pct": 100.0,
+        "within_2_pct": 100.0,
+        "within_3_pct": 100.0,
+        "within_5p_pct": 0.0,
+        "within_10p_pct": 100.0
+      },
+      "E2_sam2_deterministic": {
+        "n_samples": 1,
+        "mae": 3.0,
+        "exact_match_pct": 0.0,
+        "inside_gt_interval_pct": 0.0,
+        "within_1_pct": 0.0,
+        "within_2_pct": 0.0,
+        "within_3_pct": 100.0,
+        "within_5p_pct": 0.0,
+        "within_10p_pct": 0.0
+      },
+      "E3_imggen_deterministic": {
+        "n_samples": 1,
+        "mae": 24.0,
+        "exact_match_pct": 0.0,
+        "inside_gt_interval_pct": 0.0,
+        "within_1_pct": 0.0,
+        "within_2_pct": 0.0,
+        "within_3_pct": 0.0,
+        "within_5p_pct": 0.0,
+        "within_10p_pct": 0.0
+      },
+      "E4_sam2_overlay_vlm": {
+        "n_samples": 1,
+        "mae": 13.0,
+        "exact_match_pct": 0.0,
+        "inside_gt_interval_pct": 0.0,
+        "within_1_pct": 0.0,
+        "within_2_pct": 0.0,
+        "within_3_pct": 0.0,
+        "within_5p_pct": 0.0,
+        "within_10p_pct": 0.0
+      },
+      "E5_imggen_overlay_vlm": {
+        "n_samples": 1,
+        "mae": 1.0,
+        "exact_match_pct": 0.0,
+        "inside_gt_interval_pct": 0.0,
+        "within_1_pct": 100.0,
+        "within_2_pct": 100.0,
+        "within_3_pct": 100.0,
+        "within_5p_pct": 0.0,
+        "within_10p_pct": 100.0
+      },
+      "E6_sam3_deterministic": {
+        "n_samples": 1,
+        "mae": 3.0,
+        "exact_match_pct": 0.0,
+        "inside_gt_interval_pct": 0.0,
+        "within_1_pct": 0.0,
+        "within_2_pct": 0.0,
+        "within_3_pct": 100.0,
+        "within_5p_pct": 0.0,
+        "within_10p_pct": 0.0
+      },
+      "E7_sam3_overlay_vlm": {
+        "n_samples": 1,
+        "mae": 2.0,
+        "exact_match_pct": 0.0,
+        "inside_gt_interval_pct": 0.0,
+        "within_1_pct": 0.0,
+        "within_2_pct": 100.0,
+        "within_3_pct": 100.0,
+        "within_5p_pct": 0.0,
+        "within_10p_pct": 0.0
+      }
+    },
+    "labeled_particles": {
+      "E7_sam3_overlay_vlm": {
+        "n_samples": 1,
+        "mae": 2.0,
+        "exact_match_pct": 0.0,
+        "inside_gt_interval_pct": 0.0,
+        "within_1_pct": 0.0,
+        "within_2_pct": 100.0,
+        "within_3_pct": 100.0,
+        "within_5p_pct": 0.0,
+        "within_10p_pct": 0.0
+      },
+      "E3_imggen_deterministic": {
+        "n_samples": 1,
+        "mae": 10.0,
+        "exact_match_pct": 0.0,
+        "inside_gt_interval_pct": 0.0,
+        "within_1_pct": 0.0,
+        "within_2_pct": 0.0,
+        "within_3_pct": 0.0,
+        "within_5p_pct": 0.0,
+        "within_10p_pct": 0.0
+      },
+      "E2_sam2_deterministic": {
+        "n_samples": 1,
+        "mae": 0.0,
+        "exact_match_pct": 100.0,
+        "inside_gt_interval_pct": 100.0,
+        "within_1_pct": 100.0,
+        "within_2_pct": 100.0,
+        "within_3_pct": 100.0,
+        "within_5p_pct": 100.0,
+        "within_10p_pct": 100.0
+      },
+      "E6_sam3_deterministic": {
+        "n_samples": 1,
+        "mae": 3.0,
+        "exact_match_pct": 0.0,
+        "inside_gt_interval_pct": 0.0,
+        "within_1_pct": 0.0,
+        "within_2_pct": 0.0,
+        "within_3_pct": 100.0,
+        "within_5p_pct": 0.0,
+        "within_10p_pct": 0.0
+      }
+    },
+    "grid_scan_paper": {
+      "E7_sam3_overlay_vlm": {
+        "n_samples": 163,
+        "mae": 2.0061,
+        "exact_match_pct": 35.0,
+        "inside_gt_interval_pct": 35.0,
+        "within_1_pct": 62.0,
+        "within_2_pct": 72.4,
+        "within_3_pct": 79.8,
+        "within_5p_pct": 35.0,
+        "within_10p_pct": 35.0
+      },
+      "E1_raw_vlm": {
+        "n_samples": 163,
+        "mae": 1.7853,
+        "exact_match_pct": 44.2,
+        "inside_gt_interval_pct": 44.2,
+        "within_1_pct": 65.0,
+        "within_2_pct": 79.8,
+        "within_3_pct": 85.3,
+        "within_5p_pct": 44.2,
+        "within_10p_pct": 44.8
+      },
+      "E2_sam2_deterministic": {
+        "n_samples": 163,
+        "mae": 2.8098,
+        "exact_match_pct": 19.0,
+        "inside_gt_interval_pct": 19.0,
+        "within_1_pct": 50.3,
+        "within_2_pct": 67.5,
+        "within_3_pct": 77.9,
+        "within_5p_pct": 19.0,
+        "within_10p_pct": 20.2
+      },
+      "E3_imggen_deterministic": {
+        "n_samples": 163,
+        "mae": 1.362,
+        "exact_match_pct": 44.8,
+        "inside_gt_interval_pct": 44.8,
+        "within_1_pct": 69.9,
+        "within_2_pct": 79.8,
+        "within_3_pct": 90.2,
+        "within_5p_pct": 44.8,
+        "within_10p_pct": 45.4
+      },
+      "E4_sam2_overlay_vlm": {
+        "n_samples": 163,
+        "mae": 4.9448,
+        "exact_match_pct": 11.7,
+        "inside_gt_interval_pct": 11.7,
+        "within_1_pct": 30.1,
+        "within_2_pct": 46.0,
+        "within_3_pct": 59.5,
+        "within_5p_pct": 11.7,
+        "within_10p_pct": 12.3
+      },
+      "E5_imggen_overlay_vlm": {
+        "n_samples": 163,
+        "mae": 3.7117,
+        "exact_match_pct": 31.9,
+        "inside_gt_interval_pct": 31.9,
+        "within_1_pct": 58.3,
+        "within_2_pct": 71.2,
+        "within_3_pct": 73.6,
+        "within_5p_pct": 31.9,
+        "within_10p_pct": 31.9
+      },
+      "E6_sam3_deterministic": {
+        "n_samples": 163,
+        "mae": 1.773,
+        "exact_match_pct": 25.2,
+        "inside_gt_interval_pct": 25.2,
+        "within_1_pct": 57.7,
+        "within_2_pct": 72.4,
+        "within_3_pct": 83.4,
+        "within_5p_pct": 25.2,
+        "within_10p_pct": 27.0
+      }
+    },
+    "validation_unc_luca": {
+      "E1_raw_vlm": {
+        "n_samples": 61,
+        "mae": 20.2951,
+        "exact_match_pct": 1.6,
+        "inside_gt_interval_pct": 1.6,
+        "within_1_pct": 3.3,
+        "within_2_pct": 4.9,
+        "within_3_pct": 8.2,
+        "within_5p_pct": 1.6,
+        "within_10p_pct": 3.3
+      },
+      "E2_sam2_deterministic": {
+        "n_samples": 91,
+        "mae": 9.3626,
+        "exact_match_pct": 33.0,
+        "inside_gt_interval_pct": 33.0,
+        "within_1_pct": 36.3,
+        "within_2_pct": 45.1,
+        "within_3_pct": 49.5,
+        "within_5p_pct": 37.4,
+        "within_10p_pct": 39.6
+      },
+      "E3_imggen_deterministic": {
+        "n_samples": 91,
+        "mae": 24.956,
+        "exact_match_pct": 34.1,
+        "inside_gt_interval_pct": 34.1,
+        "within_1_pct": 41.8,
+        "within_2_pct": 46.2,
+        "within_3_pct": 51.6,
+        "within_5p_pct": 36.3,
+        "within_10p_pct": 38.5
+      },
+      "E4_sam2_overlay_vlm": {
+        "n_samples": 60,
+        "mae": 9.55,
+        "exact_match_pct": 36.7,
+        "inside_gt_interval_pct": 36.7,
+        "within_1_pct": 43.3,
+        "within_2_pct": 48.3,
+        "within_3_pct": 48.3,
+        "within_5p_pct": 38.3,
+        "within_10p_pct": 43.3
+      },
+      "E5_imggen_overlay_vlm": {
+        "n_samples": 60,
+        "mae": 14.4833,
+        "exact_match_pct": 50.0,
+        "inside_gt_interval_pct": 50.0,
+        "within_1_pct": 53.3,
+        "within_2_pct": 60.0,
+        "within_3_pct": 60.0,
+        "within_5p_pct": 51.7,
+        "within_10p_pct": 55.0
+      },
+      "E6_sam3_deterministic": {
+        "n_samples": 91,
+        "mae": 8.7143,
+        "exact_match_pct": 25.3,
+        "inside_gt_interval_pct": 25.3,
+        "within_1_pct": 33.0,
+        "within_2_pct": 37.4,
+        "within_3_pct": 41.8,
+        "within_5p_pct": 29.7,
+        "within_10p_pct": 30.8
+      },
+      "E7_sam3_overlay_vlm": {
+        "n_samples": 61,
+        "mae": 9.3279,
+        "exact_match_pct": 31.1,
+        "inside_gt_interval_pct": 31.1,
+        "within_1_pct": 34.4,
+        "within_2_pct": 36.1,
+        "within_3_pct": 39.3,
+        "within_5p_pct": 32.8,
+        "within_10p_pct": 37.7
+      }
+    },
+    "validation_andrea_grid_scan_mirror": {
+      "E1_raw_vlm": {
+        "n_samples": 19,
+        "mae": 4.6842,
+        "exact_match_pct": 0.0,
+        "inside_gt_interval_pct": 0.0,
+        "within_1_pct": 26.3,
+        "within_2_pct": 36.8,
+        "within_3_pct": 47.4,
+        "within_5p_pct": 0.0,
+        "within_10p_pct": 0.0
+      },
+      "E2_sam2_deterministic": {
+        "n_samples": 19,
+        "mae": 2.2632,
+        "exact_match_pct": 10.5,
+        "inside_gt_interval_pct": 10.5,
+        "within_1_pct": 31.6,
+        "within_2_pct": 63.2,
+        "within_3_pct": 73.7,
+        "within_5p_pct": 10.5,
+        "within_10p_pct": 10.5
+      },
+      "E3_imggen_deterministic": {
+        "n_samples": 19,
+        "mae": 1.2105,
+        "exact_match_pct": 31.6,
+        "inside_gt_interval_pct": 31.6,
+        "within_1_pct": 73.7,
+        "within_2_pct": 84.2,
+        "within_3_pct": 89.5,
+        "within_5p_pct": 31.6,
+        "within_10p_pct": 31.6
+      },
+      "E4_sam2_overlay_vlm": {
+        "n_samples": 19,
+        "mae": 1.8421,
+        "exact_match_pct": 15.8,
+        "inside_gt_interval_pct": 15.8,
+        "within_1_pct": 36.8,
+        "within_2_pct": 78.9,
+        "within_3_pct": 94.7,
+        "within_5p_pct": 15.8,
+        "within_10p_pct": 15.8
+      },
+      "E5_imggen_overlay_vlm": {
+        "n_samples": 19,
+        "mae": 2.9474,
+        "exact_match_pct": 15.8,
+        "inside_gt_interval_pct": 15.8,
+        "within_1_pct": 63.2,
+        "within_2_pct": 73.7,
+        "within_3_pct": 84.2,
+        "within_5p_pct": 15.8,
+        "within_10p_pct": 15.8
+      },
+      "E6_sam3_deterministic": {
+        "n_samples": 19,
+        "mae": 2.2105,
+        "exact_match_pct": 5.3,
+        "inside_gt_interval_pct": 5.3,
+        "within_1_pct": 52.6,
+        "within_2_pct": 63.2,
+        "within_3_pct": 84.2,
+        "within_5p_pct": 5.3,
+        "within_10p_pct": 10.5
+      },
+      "E7_sam3_overlay_vlm": {
+        "n_samples": 19,
+        "mae": 2.4211,
+        "exact_match_pct": 5.3,
+        "inside_gt_interval_pct": 5.3,
+        "within_1_pct": 47.4,
+        "within_2_pct": 57.9,
+        "within_3_pct": 73.7,
+        "within_5p_pct": 5.3,
+        "within_10p_pct": 5.3
+      }
+    }
+  },
+  "runs": [
+    {
+      "run_id": "tile_r036_c026_andrea_val_20260627_090706",
+      "case_study": "case_study_2",
+      "sample_id": "tile_r036_c026_andrea_val",
+      "sample_source": {
+        "sample_id": "tile_r036_c026_andrea_val",
+        "source": "validation_andrea",
+        "category": "extracted_images",
+        "filename": "tile_r036_c026_andrea_val.tiff",
+        "local_path": "/home/nielsbroekhuizen/projects/my-vscode-project/Validation_Andrea_Dataset_Images_CS2/extracted_images/tile_r036_c026_andrea_val.tiff",
+        "dataset_name": "validation_andrea_grid_scan_mirror",
+        "dataset_description": "Andrea mirrored grid-scan validation set, extracted SEM images only"
+      },
+      "started_at": "2026-06-27T09:07:06.016920+00:00",
+      "completed_at": "2026-06-27T09:10:32.918650+00:00",
+      "status": "completed",
+      "gt_count": 6,
+      "gt_count_mode": "point",
+      "gt_uncertain_count": 0,
+      "gt_interval": [
+        6,
+        6
+      ],
+      "gt_notes": null,
+      "variants_run": [
+        "E1_raw_vlm",
+        "E2_sam2_deterministic",
+        "E3_imggen_deterministic",
+        "E4_sam2_overlay_vlm",
+        "E5_imggen_overlay_vlm",
+        "E6_sam3_deterministic",
+        "E7_sam3_overlay_vlm"
+      ],
+      "predictions": {
+        "E1_raw_vlm": "completed",
+        "E2_sam2_deterministic": "completed",
+        "E3_imggen_deterministic": "completed",
+        "E4_sam2_overlay_vlm": "completed",
+        "E5_imggen_overlay_vlm": "completed",
+        "E6_sam3_deterministic": "completed",
+        "E7_sam3_overlay_vlm": "completed"
+      },
+      "logs": {
+        "runner_console": "logs/run_stdout.txt",
+        "repro_manifest": "logs/repro_manifest.json",
+        "per_variant_traces": {
+          "E1_raw_vlm": {
+            "raw_agent_trace": "full_trace/E1_raw_vlm/agent_trace.json",
+            "model_messages": "full_trace/E1_raw_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E1_raw_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E1_raw_vlm/agent_reply.txt",
+            "service_events": "full_trace/E1_raw_vlm/agent_timeline.jsonl"
+          },
+          "E4_sam2_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E4_sam2_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E4_sam2_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E4_sam2_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E4_sam2_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E4_sam2_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E5_imggen_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E5_imggen_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E5_imggen_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E5_imggen_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E5_imggen_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E5_imggen_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E7_sam3_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E7_sam3_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E7_sam3_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E7_sam3_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E7_sam3_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E7_sam3_overlay_vlm/agent_timeline.jsonl"
+          }
+        }
+      },
+      "trace_warnings": {},
+      "metrics_summary": {
+        "n_variants": 7,
+        "n_implemented": 7,
+        "n_completed": 7,
+        "n_failed": 0,
+        "n_not_impl": 0,
+        "per_variant": {
+          "E1_raw_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 6,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              6,
+              6
+            ],
+            "signed_error": -6,
+            "absolute_error": 6,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E2_sam2_deterministic": {
+            "comparable": true,
+            "predicted_count": 9,
+            "gt_count_mode": "point",
+            "gt_count": 6,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              6,
+              6
+            ],
+            "signed_error": 3,
+            "absolute_error": 3,
+            "relative_error": 0.5,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E3_imggen_deterministic": {
+            "comparable": true,
+            "predicted_count": 5,
+            "gt_count_mode": "point",
+            "gt_count": 6,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              6,
+              6
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 0.1667,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E4_sam2_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 8,
+            "gt_count_mode": "point",
+            "gt_count": 6,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              6,
+              6
+            ],
+            "signed_error": 2,
+            "absolute_error": 2,
+            "relative_error": 0.3333,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E5_imggen_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 7,
+            "gt_count_mode": "point",
+            "gt_count": 6,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              6,
+              6
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 0.1667,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E6_sam3_deterministic": {
+            "comparable": true,
+            "predicted_count": 5,
+            "gt_count_mode": "point",
+            "gt_count": 6,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              6,
+              6
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 0.1667,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E7_sam3_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 5,
+            "gt_count_mode": "point",
+            "gt_count": 6,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              6,
+              6
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 0.1667,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          }
+        },
+        "mae": 2.1429
+      }
+    },
+    {
+      "run_id": "tile_r036_c027_andrea_val_20260627_091034",
+      "case_study": "case_study_2",
+      "sample_id": "tile_r036_c027_andrea_val",
+      "sample_source": {
+        "sample_id": "tile_r036_c027_andrea_val",
+        "source": "validation_andrea",
+        "category": "extracted_images",
+        "filename": "tile_r036_c027_andrea_val.tiff",
+        "local_path": "/home/nielsbroekhuizen/projects/my-vscode-project/Validation_Andrea_Dataset_Images_CS2/extracted_images/tile_r036_c027_andrea_val.tiff",
+        "dataset_name": "validation_andrea_grid_scan_mirror",
+        "dataset_description": "Andrea mirrored grid-scan validation set, extracted SEM images only"
+      },
+      "started_at": "2026-06-27T09:10:34.929035+00:00",
+      "completed_at": "2026-06-27T09:13:35.193948+00:00",
+      "status": "completed",
+      "gt_count": 1,
+      "gt_count_mode": "point",
+      "gt_uncertain_count": 0,
+      "gt_interval": [
+        1,
+        1
+      ],
+      "gt_notes": null,
+      "variants_run": [
+        "E1_raw_vlm",
+        "E2_sam2_deterministic",
+        "E3_imggen_deterministic",
+        "E4_sam2_overlay_vlm",
+        "E5_imggen_overlay_vlm",
+        "E6_sam3_deterministic",
+        "E7_sam3_overlay_vlm"
+      ],
+      "predictions": {
+        "E1_raw_vlm": "completed",
+        "E2_sam2_deterministic": "completed",
+        "E3_imggen_deterministic": "completed",
+        "E4_sam2_overlay_vlm": "completed",
+        "E5_imggen_overlay_vlm": "completed",
+        "E6_sam3_deterministic": "completed",
+        "E7_sam3_overlay_vlm": "completed"
+      },
+      "logs": {
+        "runner_console": "logs/run_stdout.txt",
+        "repro_manifest": "logs/repro_manifest.json",
+        "per_variant_traces": {
+          "E1_raw_vlm": {
+            "raw_agent_trace": "full_trace/E1_raw_vlm/agent_trace.json",
+            "model_messages": "full_trace/E1_raw_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E1_raw_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E1_raw_vlm/agent_reply.txt",
+            "service_events": "full_trace/E1_raw_vlm/agent_timeline.jsonl"
+          },
+          "E4_sam2_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E4_sam2_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E4_sam2_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E4_sam2_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E4_sam2_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E4_sam2_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E5_imggen_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E5_imggen_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E5_imggen_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E5_imggen_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E5_imggen_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E5_imggen_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E7_sam3_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E7_sam3_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E7_sam3_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E7_sam3_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E7_sam3_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E7_sam3_overlay_vlm/agent_timeline.jsonl"
+          }
+        }
+      },
+      "trace_warnings": {},
+      "metrics_summary": {
+        "n_variants": 7,
+        "n_implemented": 7,
+        "n_completed": 7,
+        "n_failed": 0,
+        "n_not_impl": 0,
+        "per_variant": {
+          "E1_raw_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E2_sam2_deterministic": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E3_imggen_deterministic": {
+            "comparable": true,
+            "predicted_count": 1,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 0,
+            "absolute_error": 0,
+            "relative_error": 0.0,
+            "inside_gt_interval": true,
+            "exact_match": true,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": true,
+            "within_10_pct": true
+          },
+          "E4_sam2_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 1,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 0,
+            "absolute_error": 0,
+            "relative_error": 0.0,
+            "inside_gt_interval": true,
+            "exact_match": true,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": true,
+            "within_10_pct": true
+          },
+          "E5_imggen_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 1,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 0,
+            "absolute_error": 0,
+            "relative_error": 0.0,
+            "inside_gt_interval": true,
+            "exact_match": true,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": true,
+            "within_10_pct": true
+          },
+          "E6_sam3_deterministic": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E7_sam3_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          }
+        },
+        "mae": 0.5714
+      }
+    },
+    {
+      "run_id": "tile_r036_c031_andrea_val_20260627_091337",
+      "case_study": "case_study_2",
+      "sample_id": "tile_r036_c031_andrea_val",
+      "sample_source": {
+        "sample_id": "tile_r036_c031_andrea_val",
+        "source": "validation_andrea",
+        "category": "extracted_images",
+        "filename": "tile_r036_c031_andrea_val.tiff",
+        "local_path": "/home/nielsbroekhuizen/projects/my-vscode-project/Validation_Andrea_Dataset_Images_CS2/extracted_images/tile_r036_c031_andrea_val.tiff",
+        "dataset_name": "validation_andrea_grid_scan_mirror",
+        "dataset_description": "Andrea mirrored grid-scan validation set, extracted SEM images only"
+      },
+      "started_at": "2026-06-27T09:13:37.195186+00:00",
+      "completed_at": "2026-06-27T09:16:24.831922+00:00",
+      "status": "completed",
+      "gt_count": 1,
+      "gt_count_mode": "point",
+      "gt_uncertain_count": 0,
+      "gt_interval": [
+        1,
+        1
+      ],
+      "gt_notes": null,
+      "variants_run": [
+        "E1_raw_vlm",
+        "E2_sam2_deterministic",
+        "E3_imggen_deterministic",
+        "E4_sam2_overlay_vlm",
+        "E5_imggen_overlay_vlm",
+        "E6_sam3_deterministic",
+        "E7_sam3_overlay_vlm"
+      ],
+      "predictions": {
+        "E1_raw_vlm": "completed",
+        "E2_sam2_deterministic": "completed",
+        "E3_imggen_deterministic": "completed",
+        "E4_sam2_overlay_vlm": "completed",
+        "E5_imggen_overlay_vlm": "completed",
+        "E6_sam3_deterministic": "completed",
+        "E7_sam3_overlay_vlm": "completed"
+      },
+      "logs": {
+        "runner_console": "logs/run_stdout.txt",
+        "repro_manifest": "logs/repro_manifest.json",
+        "per_variant_traces": {
+          "E1_raw_vlm": {
+            "raw_agent_trace": "full_trace/E1_raw_vlm/agent_trace.json",
+            "model_messages": "full_trace/E1_raw_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E1_raw_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E1_raw_vlm/agent_reply.txt",
+            "service_events": "full_trace/E1_raw_vlm/agent_timeline.jsonl"
+          },
+          "E4_sam2_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E4_sam2_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E4_sam2_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E4_sam2_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E4_sam2_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E4_sam2_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E5_imggen_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E5_imggen_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E5_imggen_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E5_imggen_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E5_imggen_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E5_imggen_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E7_sam3_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E7_sam3_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E7_sam3_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E7_sam3_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E7_sam3_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E7_sam3_overlay_vlm/agent_timeline.jsonl"
+          }
+        }
+      },
+      "trace_warnings": {},
+      "metrics_summary": {
+        "n_variants": 7,
+        "n_implemented": 7,
+        "n_completed": 7,
+        "n_failed": 0,
+        "n_not_impl": 0,
+        "per_variant": {
+          "E1_raw_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E2_sam2_deterministic": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E3_imggen_deterministic": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E4_sam2_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E5_imggen_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E6_sam3_deterministic": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E7_sam3_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          }
+        },
+        "mae": 1.0
+      }
+    },
+    {
+      "run_id": "tile_r036_c040_andrea_val_20260627_091626",
+      "case_study": "case_study_2",
+      "sample_id": "tile_r036_c040_andrea_val",
+      "sample_source": {
+        "sample_id": "tile_r036_c040_andrea_val",
+        "source": "validation_andrea",
+        "category": "extracted_images",
+        "filename": "tile_r036_c040_andrea_val.tiff",
+        "local_path": "/home/nielsbroekhuizen/projects/my-vscode-project/Validation_Andrea_Dataset_Images_CS2/extracted_images/tile_r036_c040_andrea_val.tiff",
+        "dataset_name": "validation_andrea_grid_scan_mirror",
+        "dataset_description": "Andrea mirrored grid-scan validation set, extracted SEM images only"
+      },
+      "started_at": "2026-06-27T09:16:26.832402+00:00",
+      "completed_at": "2026-06-27T09:19:33.891729+00:00",
+      "status": "completed",
+      "gt_count": 2,
+      "gt_count_mode": "point",
+      "gt_uncertain_count": 0,
+      "gt_interval": [
+        2,
+        2
+      ],
+      "gt_notes": null,
+      "variants_run": [
+        "E1_raw_vlm",
+        "E2_sam2_deterministic",
+        "E3_imggen_deterministic",
+        "E4_sam2_overlay_vlm",
+        "E5_imggen_overlay_vlm",
+        "E6_sam3_deterministic",
+        "E7_sam3_overlay_vlm"
+      ],
+      "predictions": {
+        "E1_raw_vlm": "completed",
+        "E2_sam2_deterministic": "completed",
+        "E3_imggen_deterministic": "completed",
+        "E4_sam2_overlay_vlm": "completed",
+        "E5_imggen_overlay_vlm": "completed",
+        "E6_sam3_deterministic": "completed",
+        "E7_sam3_overlay_vlm": "completed"
+      },
+      "logs": {
+        "runner_console": "logs/run_stdout.txt",
+        "repro_manifest": "logs/repro_manifest.json",
+        "per_variant_traces": {
+          "E1_raw_vlm": {
+            "raw_agent_trace": "full_trace/E1_raw_vlm/agent_trace.json",
+            "model_messages": "full_trace/E1_raw_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E1_raw_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E1_raw_vlm/agent_reply.txt",
+            "service_events": "full_trace/E1_raw_vlm/agent_timeline.jsonl"
+          },
+          "E4_sam2_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E4_sam2_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E4_sam2_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E4_sam2_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E4_sam2_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E4_sam2_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E5_imggen_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E5_imggen_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E5_imggen_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E5_imggen_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E5_imggen_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E5_imggen_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E7_sam3_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E7_sam3_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E7_sam3_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E7_sam3_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E7_sam3_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E7_sam3_overlay_vlm/agent_timeline.jsonl"
+          }
+        }
+      },
+      "trace_warnings": {},
+      "metrics_summary": {
+        "n_variants": 7,
+        "n_implemented": 7,
+        "n_completed": 7,
+        "n_failed": 0,
+        "n_not_impl": 0,
+        "per_variant": {
+          "E1_raw_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 2,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              2,
+              2
+            ],
+            "signed_error": -2,
+            "absolute_error": 2,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E2_sam2_deterministic": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 2,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              2,
+              2
+            ],
+            "signed_error": 0,
+            "absolute_error": 0,
+            "relative_error": 0.0,
+            "inside_gt_interval": true,
+            "exact_match": true,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": true,
+            "within_10_pct": true
+          },
+          "E3_imggen_deterministic": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 2,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              2,
+              2
+            ],
+            "signed_error": 0,
+            "absolute_error": 0,
+            "relative_error": 0.0,
+            "inside_gt_interval": true,
+            "exact_match": true,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": true,
+            "within_10_pct": true
+          },
+          "E4_sam2_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 4,
+            "gt_count_mode": "point",
+            "gt_count": 2,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              2,
+              2
+            ],
+            "signed_error": 2,
+            "absolute_error": 2,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E5_imggen_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 3,
+            "gt_count_mode": "point",
+            "gt_count": 2,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              2,
+              2
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 0.5,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E6_sam3_deterministic": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 2,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              2,
+              2
+            ],
+            "signed_error": 0,
+            "absolute_error": 0,
+            "relative_error": 0.0,
+            "inside_gt_interval": true,
+            "exact_match": true,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": true,
+            "within_10_pct": true
+          },
+          "E7_sam3_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 2,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              2,
+              2
+            ],
+            "signed_error": 0,
+            "absolute_error": 0,
+            "relative_error": 0.0,
+            "inside_gt_interval": true,
+            "exact_match": true,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": true,
+            "within_10_pct": true
+          }
+        },
+        "mae": 0.7143
+      }
+    },
+    {
+      "run_id": "tile_r036_c041_andrea_val_20260627_091935",
+      "case_study": "case_study_2",
+      "sample_id": "tile_r036_c041_andrea_val",
+      "sample_source": {
+        "sample_id": "tile_r036_c041_andrea_val",
+        "source": "validation_andrea",
+        "category": "extracted_images",
+        "filename": "tile_r036_c041_andrea_val.tiff",
+        "local_path": "/home/nielsbroekhuizen/projects/my-vscode-project/Validation_Andrea_Dataset_Images_CS2/extracted_images/tile_r036_c041_andrea_val.tiff",
+        "dataset_name": "validation_andrea_grid_scan_mirror",
+        "dataset_description": "Andrea mirrored grid-scan validation set, extracted SEM images only"
+      },
+      "started_at": "2026-06-27T09:19:35.892434+00:00",
+      "completed_at": "2026-06-27T09:27:36.928934+00:00",
+      "status": "completed",
+      "gt_count": 4,
+      "gt_count_mode": "point",
+      "gt_uncertain_count": 0,
+      "gt_interval": [
+        4,
+        4
+      ],
+      "gt_notes": null,
+      "variants_run": [
+        "E1_raw_vlm",
+        "E2_sam2_deterministic",
+        "E3_imggen_deterministic",
+        "E4_sam2_overlay_vlm",
+        "E5_imggen_overlay_vlm",
+        "E6_sam3_deterministic",
+        "E7_sam3_overlay_vlm"
+      ],
+      "predictions": {
+        "E1_raw_vlm": "completed",
+        "E2_sam2_deterministic": "completed",
+        "E3_imggen_deterministic": "completed",
+        "E4_sam2_overlay_vlm": "completed",
+        "E5_imggen_overlay_vlm": "completed",
+        "E6_sam3_deterministic": "completed",
+        "E7_sam3_overlay_vlm": "completed"
+      },
+      "logs": {
+        "runner_console": "logs/run_stdout.txt",
+        "repro_manifest": "logs/repro_manifest.json",
+        "per_variant_traces": {
+          "E1_raw_vlm": {
+            "raw_agent_trace": "full_trace/E1_raw_vlm/agent_trace.json",
+            "model_messages": "full_trace/E1_raw_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E1_raw_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E1_raw_vlm/agent_reply.txt",
+            "service_events": "full_trace/E1_raw_vlm/agent_timeline.jsonl"
+          },
+          "E4_sam2_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E4_sam2_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E4_sam2_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E4_sam2_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E4_sam2_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E4_sam2_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E5_imggen_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E5_imggen_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E5_imggen_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E5_imggen_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E5_imggen_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E5_imggen_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E7_sam3_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E7_sam3_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E7_sam3_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E7_sam3_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E7_sam3_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E7_sam3_overlay_vlm/agent_timeline.jsonl"
+          }
+        }
+      },
+      "trace_warnings": {},
+      "metrics_summary": {
+        "n_variants": 7,
+        "n_implemented": 7,
+        "n_completed": 7,
+        "n_failed": 0,
+        "n_not_impl": 0,
+        "per_variant": {
+          "E1_raw_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 4,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              4,
+              4
+            ],
+            "signed_error": -4,
+            "absolute_error": 4,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E2_sam2_deterministic": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 4,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              4,
+              4
+            ],
+            "signed_error": -2,
+            "absolute_error": 2,
+            "relative_error": 0.5,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E3_imggen_deterministic": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 4,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              4,
+              4
+            ],
+            "signed_error": -2,
+            "absolute_error": 2,
+            "relative_error": 0.5,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E4_sam2_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 4,
+            "gt_count_mode": "point",
+            "gt_count": 4,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              4,
+              4
+            ],
+            "signed_error": 0,
+            "absolute_error": 0,
+            "relative_error": 0.0,
+            "inside_gt_interval": true,
+            "exact_match": true,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": true,
+            "within_10_pct": true
+          },
+          "E5_imggen_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 4,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              4,
+              4
+            ],
+            "signed_error": -2,
+            "absolute_error": 2,
+            "relative_error": 0.5,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E6_sam3_deterministic": {
+            "comparable": true,
+            "predicted_count": 1,
+            "gt_count_mode": "point",
+            "gt_count": 4,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              4,
+              4
+            ],
+            "signed_error": -3,
+            "absolute_error": 3,
+            "relative_error": 0.75,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E7_sam3_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 1,
+            "gt_count_mode": "point",
+            "gt_count": 4,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              4,
+              4
+            ],
+            "signed_error": -3,
+            "absolute_error": 3,
+            "relative_error": 0.75,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          }
+        },
+        "mae": 2.2857
+      }
+    },
+    {
+      "run_id": "tile_r036_c042_andrea_val_20260627_092738",
+      "case_study": "case_study_2",
+      "sample_id": "tile_r036_c042_andrea_val",
+      "sample_source": {
+        "sample_id": "tile_r036_c042_andrea_val",
+        "source": "validation_andrea",
+        "category": "extracted_images",
+        "filename": "tile_r036_c042_andrea_val.tiff",
+        "local_path": "/home/nielsbroekhuizen/projects/my-vscode-project/Validation_Andrea_Dataset_Images_CS2/extracted_images/tile_r036_c042_andrea_val.tiff",
+        "dataset_name": "validation_andrea_grid_scan_mirror",
+        "dataset_description": "Andrea mirrored grid-scan validation set, extracted SEM images only"
+      },
+      "started_at": "2026-06-27T09:27:38.932009+00:00",
+      "completed_at": "2026-06-27T09:30:58.951576+00:00",
+      "status": "completed",
+      "gt_count": 1,
+      "gt_count_mode": "point",
+      "gt_uncertain_count": 0,
+      "gt_interval": [
+        1,
+        1
+      ],
+      "gt_notes": null,
+      "variants_run": [
+        "E1_raw_vlm",
+        "E2_sam2_deterministic",
+        "E3_imggen_deterministic",
+        "E4_sam2_overlay_vlm",
+        "E5_imggen_overlay_vlm",
+        "E6_sam3_deterministic",
+        "E7_sam3_overlay_vlm"
+      ],
+      "predictions": {
+        "E1_raw_vlm": "completed",
+        "E2_sam2_deterministic": "completed",
+        "E3_imggen_deterministic": "completed",
+        "E4_sam2_overlay_vlm": "completed",
+        "E5_imggen_overlay_vlm": "completed",
+        "E6_sam3_deterministic": "completed",
+        "E7_sam3_overlay_vlm": "completed"
+      },
+      "logs": {
+        "runner_console": "logs/run_stdout.txt",
+        "repro_manifest": "logs/repro_manifest.json",
+        "per_variant_traces": {
+          "E1_raw_vlm": {
+            "raw_agent_trace": "full_trace/E1_raw_vlm/agent_trace.json",
+            "model_messages": "full_trace/E1_raw_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E1_raw_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E1_raw_vlm/agent_reply.txt",
+            "service_events": "full_trace/E1_raw_vlm/agent_timeline.jsonl"
+          },
+          "E4_sam2_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E4_sam2_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E4_sam2_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E4_sam2_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E4_sam2_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E4_sam2_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E5_imggen_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E5_imggen_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E5_imggen_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E5_imggen_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E5_imggen_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E5_imggen_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E7_sam3_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E7_sam3_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E7_sam3_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E7_sam3_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E7_sam3_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E7_sam3_overlay_vlm/agent_timeline.jsonl"
+          }
+        }
+      },
+      "trace_warnings": {},
+      "metrics_summary": {
+        "n_variants": 7,
+        "n_implemented": 7,
+        "n_completed": 7,
+        "n_failed": 0,
+        "n_not_impl": 0,
+        "per_variant": {
+          "E1_raw_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E2_sam2_deterministic": {
+            "comparable": true,
+            "predicted_count": 3,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 2,
+            "absolute_error": 2,
+            "relative_error": 2.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E3_imggen_deterministic": {
+            "comparable": true,
+            "predicted_count": 3,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 2,
+            "absolute_error": 2,
+            "relative_error": 2.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E4_sam2_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 3,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 2,
+            "absolute_error": 2,
+            "relative_error": 2.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E5_imggen_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 10,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 9,
+            "absolute_error": 9,
+            "relative_error": 9.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E6_sam3_deterministic": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E7_sam3_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          }
+        },
+        "mae": 2.5714
+      }
+    },
+    {
+      "run_id": "tile_r036_c044_andrea_val_20260627_093100",
+      "case_study": "case_study_2",
+      "sample_id": "tile_r036_c044_andrea_val",
+      "sample_source": {
+        "sample_id": "tile_r036_c044_andrea_val",
+        "source": "validation_andrea",
+        "category": "extracted_images",
+        "filename": "tile_r036_c044_andrea_val.tiff",
+        "local_path": "/home/nielsbroekhuizen/projects/my-vscode-project/Validation_Andrea_Dataset_Images_CS2/extracted_images/tile_r036_c044_andrea_val.tiff",
+        "dataset_name": "validation_andrea_grid_scan_mirror",
+        "dataset_description": "Andrea mirrored grid-scan validation set, extracted SEM images only"
+      },
+      "started_at": "2026-06-27T09:31:00.964055+00:00",
+      "completed_at": "2026-06-27T09:34:29.352278+00:00",
+      "status": "completed",
+      "gt_count": 7,
+      "gt_count_mode": "point",
+      "gt_uncertain_count": 0,
+      "gt_interval": [
+        7,
+        7
+      ],
+      "gt_notes": null,
+      "variants_run": [
+        "E1_raw_vlm",
+        "E2_sam2_deterministic",
+        "E3_imggen_deterministic",
+        "E4_sam2_overlay_vlm",
+        "E5_imggen_overlay_vlm",
+        "E6_sam3_deterministic",
+        "E7_sam3_overlay_vlm"
+      ],
+      "predictions": {
+        "E1_raw_vlm": "completed",
+        "E2_sam2_deterministic": "completed",
+        "E3_imggen_deterministic": "completed",
+        "E4_sam2_overlay_vlm": "completed",
+        "E5_imggen_overlay_vlm": "completed",
+        "E6_sam3_deterministic": "completed",
+        "E7_sam3_overlay_vlm": "completed"
+      },
+      "logs": {
+        "runner_console": "logs/run_stdout.txt",
+        "repro_manifest": "logs/repro_manifest.json",
+        "per_variant_traces": {
+          "E1_raw_vlm": {
+            "raw_agent_trace": "full_trace/E1_raw_vlm/agent_trace.json",
+            "model_messages": "full_trace/E1_raw_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E1_raw_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E1_raw_vlm/agent_reply.txt",
+            "service_events": "full_trace/E1_raw_vlm/agent_timeline.jsonl"
+          },
+          "E4_sam2_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E4_sam2_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E4_sam2_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E4_sam2_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E4_sam2_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E4_sam2_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E5_imggen_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E5_imggen_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E5_imggen_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E5_imggen_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E5_imggen_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E5_imggen_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E7_sam3_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E7_sam3_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E7_sam3_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E7_sam3_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E7_sam3_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E7_sam3_overlay_vlm/agent_timeline.jsonl"
+          }
+        }
+      },
+      "trace_warnings": {},
+      "metrics_summary": {
+        "n_variants": 7,
+        "n_implemented": 7,
+        "n_completed": 7,
+        "n_failed": 0,
+        "n_not_impl": 0,
+        "per_variant": {
+          "E1_raw_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 7,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              7,
+              7
+            ],
+            "signed_error": -7,
+            "absolute_error": 7,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E2_sam2_deterministic": {
+            "comparable": true,
+            "predicted_count": 4,
+            "gt_count_mode": "point",
+            "gt_count": 7,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              7,
+              7
+            ],
+            "signed_error": -3,
+            "absolute_error": 3,
+            "relative_error": 0.4286,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E3_imggen_deterministic": {
+            "comparable": true,
+            "predicted_count": 6,
+            "gt_count_mode": "point",
+            "gt_count": 7,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              7,
+              7
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 0.1429,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E4_sam2_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 4,
+            "gt_count_mode": "point",
+            "gt_count": 7,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              7,
+              7
+            ],
+            "signed_error": -3,
+            "absolute_error": 3,
+            "relative_error": 0.4286,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E5_imggen_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 6,
+            "gt_count_mode": "point",
+            "gt_count": 7,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              7,
+              7
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 0.1429,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E6_sam3_deterministic": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 7,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              7,
+              7
+            ],
+            "signed_error": -7,
+            "absolute_error": 7,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E7_sam3_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 7,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              7,
+              7
+            ],
+            "signed_error": -7,
+            "absolute_error": 7,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          }
+        },
+        "mae": 4.1429
+      }
+    },
+    {
+      "run_id": "tile_r036_c047_andrea_val_20260627_093431",
+      "case_study": "case_study_2",
+      "sample_id": "tile_r036_c047_andrea_val",
+      "sample_source": {
+        "sample_id": "tile_r036_c047_andrea_val",
+        "source": "validation_andrea",
+        "category": "extracted_images",
+        "filename": "tile_r036_c047_andrea_val.tiff",
+        "local_path": "/home/nielsbroekhuizen/projects/my-vscode-project/Validation_Andrea_Dataset_Images_CS2/extracted_images/tile_r036_c047_andrea_val.tiff",
+        "dataset_name": "validation_andrea_grid_scan_mirror",
+        "dataset_description": "Andrea mirrored grid-scan validation set, extracted SEM images only"
+      },
+      "started_at": "2026-06-27T09:34:31.354855+00:00",
+      "completed_at": "2026-06-27T09:37:41.618971+00:00",
+      "status": "completed",
+      "gt_count": 2,
+      "gt_count_mode": "point",
+      "gt_uncertain_count": 0,
+      "gt_interval": [
+        2,
+        2
+      ],
+      "gt_notes": null,
+      "variants_run": [
+        "E1_raw_vlm",
+        "E2_sam2_deterministic",
+        "E3_imggen_deterministic",
+        "E4_sam2_overlay_vlm",
+        "E5_imggen_overlay_vlm",
+        "E6_sam3_deterministic",
+        "E7_sam3_overlay_vlm"
+      ],
+      "predictions": {
+        "E1_raw_vlm": "completed",
+        "E2_sam2_deterministic": "completed",
+        "E3_imggen_deterministic": "completed",
+        "E4_sam2_overlay_vlm": "completed",
+        "E5_imggen_overlay_vlm": "completed",
+        "E6_sam3_deterministic": "completed",
+        "E7_sam3_overlay_vlm": "completed"
+      },
+      "logs": {
+        "runner_console": "logs/run_stdout.txt",
+        "repro_manifest": "logs/repro_manifest.json",
+        "per_variant_traces": {
+          "E1_raw_vlm": {
+            "raw_agent_trace": "full_trace/E1_raw_vlm/agent_trace.json",
+            "model_messages": "full_trace/E1_raw_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E1_raw_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E1_raw_vlm/agent_reply.txt",
+            "service_events": "full_trace/E1_raw_vlm/agent_timeline.jsonl"
+          },
+          "E4_sam2_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E4_sam2_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E4_sam2_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E4_sam2_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E4_sam2_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E4_sam2_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E5_imggen_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E5_imggen_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E5_imggen_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E5_imggen_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E5_imggen_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E5_imggen_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E7_sam3_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E7_sam3_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E7_sam3_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E7_sam3_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E7_sam3_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E7_sam3_overlay_vlm/agent_timeline.jsonl"
+          }
+        }
+      },
+      "trace_warnings": {},
+      "metrics_summary": {
+        "n_variants": 7,
+        "n_implemented": 7,
+        "n_completed": 7,
+        "n_failed": 0,
+        "n_not_impl": 0,
+        "per_variant": {
+          "E1_raw_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 2,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              2,
+              2
+            ],
+            "signed_error": -2,
+            "absolute_error": 2,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E2_sam2_deterministic": {
+            "comparable": true,
+            "predicted_count": 1,
+            "gt_count_mode": "point",
+            "gt_count": 2,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              2,
+              2
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 0.5,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E3_imggen_deterministic": {
+            "comparable": true,
+            "predicted_count": 1,
+            "gt_count_mode": "point",
+            "gt_count": 2,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              2,
+              2
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 0.5,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E4_sam2_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 3,
+            "gt_count_mode": "point",
+            "gt_count": 2,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              2,
+              2
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 0.5,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E5_imggen_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 1,
+            "gt_count_mode": "point",
+            "gt_count": 2,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              2,
+              2
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 0.5,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E6_sam3_deterministic": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 2,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              2,
+              2
+            ],
+            "signed_error": -2,
+            "absolute_error": 2,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E7_sam3_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 2,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              2,
+              2
+            ],
+            "signed_error": -2,
+            "absolute_error": 2,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          }
+        },
+        "mae": 1.4286
+      }
+    },
+    {
+      "run_id": "tile_r036_c048_andrea_val_20260627_093743",
+      "case_study": "case_study_2",
+      "sample_id": "tile_r036_c048_andrea_val",
+      "sample_source": {
+        "sample_id": "tile_r036_c048_andrea_val",
+        "source": "validation_andrea",
+        "category": "extracted_images",
+        "filename": "tile_r036_c048_andrea_val.tiff",
+        "local_path": "/home/nielsbroekhuizen/projects/my-vscode-project/Validation_Andrea_Dataset_Images_CS2/extracted_images/tile_r036_c048_andrea_val.tiff",
+        "dataset_name": "validation_andrea_grid_scan_mirror",
+        "dataset_description": "Andrea mirrored grid-scan validation set, extracted SEM images only"
+      },
+      "started_at": "2026-06-27T09:37:43.619612+00:00",
+      "completed_at": "2026-06-27T09:41:12.470471+00:00",
+      "status": "completed",
+      "gt_count": 1,
+      "gt_count_mode": "point",
+      "gt_uncertain_count": 0,
+      "gt_interval": [
+        1,
+        1
+      ],
+      "gt_notes": null,
+      "variants_run": [
+        "E1_raw_vlm",
+        "E2_sam2_deterministic",
+        "E3_imggen_deterministic",
+        "E4_sam2_overlay_vlm",
+        "E5_imggen_overlay_vlm",
+        "E6_sam3_deterministic",
+        "E7_sam3_overlay_vlm"
+      ],
+      "predictions": {
+        "E1_raw_vlm": "completed",
+        "E2_sam2_deterministic": "completed",
+        "E3_imggen_deterministic": "completed",
+        "E4_sam2_overlay_vlm": "completed",
+        "E5_imggen_overlay_vlm": "completed",
+        "E6_sam3_deterministic": "completed",
+        "E7_sam3_overlay_vlm": "completed"
+      },
+      "logs": {
+        "runner_console": "logs/run_stdout.txt",
+        "repro_manifest": "logs/repro_manifest.json",
+        "per_variant_traces": {
+          "E1_raw_vlm": {
+            "raw_agent_trace": "full_trace/E1_raw_vlm/agent_trace.json",
+            "model_messages": "full_trace/E1_raw_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E1_raw_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E1_raw_vlm/agent_reply.txt",
+            "service_events": "full_trace/E1_raw_vlm/agent_timeline.jsonl"
+          },
+          "E4_sam2_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E4_sam2_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E4_sam2_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E4_sam2_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E4_sam2_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E4_sam2_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E5_imggen_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E5_imggen_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E5_imggen_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E5_imggen_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E5_imggen_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E5_imggen_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E7_sam3_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E7_sam3_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E7_sam3_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E7_sam3_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E7_sam3_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E7_sam3_overlay_vlm/agent_timeline.jsonl"
+          }
+        }
+      },
+      "trace_warnings": {},
+      "metrics_summary": {
+        "n_variants": 7,
+        "n_implemented": 7,
+        "n_completed": 7,
+        "n_failed": 0,
+        "n_not_impl": 0,
+        "per_variant": {
+          "E1_raw_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E2_sam2_deterministic": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E3_imggen_deterministic": {
+            "comparable": true,
+            "predicted_count": 1,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 0,
+            "absolute_error": 0,
+            "relative_error": 0.0,
+            "inside_gt_interval": true,
+            "exact_match": true,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": true,
+            "within_10_pct": true
+          },
+          "E4_sam2_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 3,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 2,
+            "absolute_error": 2,
+            "relative_error": 2.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E5_imggen_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 1,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 0,
+            "absolute_error": 0,
+            "relative_error": 0.0,
+            "inside_gt_interval": true,
+            "exact_match": true,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": true,
+            "within_10_pct": true
+          },
+          "E6_sam3_deterministic": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E7_sam3_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          }
+        },
+        "mae": 0.8571
+      }
+    },
+    {
+      "run_id": "tile_r036_c049_andrea_val_20260627_094114",
+      "case_study": "case_study_2",
+      "sample_id": "tile_r036_c049_andrea_val",
+      "sample_source": {
+        "sample_id": "tile_r036_c049_andrea_val",
+        "source": "validation_andrea",
+        "category": "extracted_images",
+        "filename": "tile_r036_c049_andrea_val.tiff",
+        "local_path": "/home/nielsbroekhuizen/projects/my-vscode-project/Validation_Andrea_Dataset_Images_CS2/extracted_images/tile_r036_c049_andrea_val.tiff",
+        "dataset_name": "validation_andrea_grid_scan_mirror",
+        "dataset_description": "Andrea mirrored grid-scan validation set, extracted SEM images only"
+      },
+      "started_at": "2026-06-27T09:41:14.471146+00:00",
+      "completed_at": "2026-06-27T09:45:58.381898+00:00",
+      "status": "completed",
+      "gt_count": 5,
+      "gt_count_mode": "point",
+      "gt_uncertain_count": 0,
+      "gt_interval": [
+        5,
+        5
+      ],
+      "gt_notes": null,
+      "variants_run": [
+        "E1_raw_vlm",
+        "E2_sam2_deterministic",
+        "E3_imggen_deterministic",
+        "E4_sam2_overlay_vlm",
+        "E5_imggen_overlay_vlm",
+        "E6_sam3_deterministic",
+        "E7_sam3_overlay_vlm"
+      ],
+      "predictions": {
+        "E1_raw_vlm": "completed",
+        "E2_sam2_deterministic": "completed",
+        "E3_imggen_deterministic": "completed",
+        "E4_sam2_overlay_vlm": "completed",
+        "E5_imggen_overlay_vlm": "completed",
+        "E6_sam3_deterministic": "completed",
+        "E7_sam3_overlay_vlm": "completed"
+      },
+      "logs": {
+        "runner_console": "logs/run_stdout.txt",
+        "repro_manifest": "logs/repro_manifest.json",
+        "per_variant_traces": {
+          "E1_raw_vlm": {
+            "raw_agent_trace": "full_trace/E1_raw_vlm/agent_trace.json",
+            "model_messages": "full_trace/E1_raw_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E1_raw_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E1_raw_vlm/agent_reply.txt",
+            "service_events": "full_trace/E1_raw_vlm/agent_timeline.jsonl"
+          },
+          "E4_sam2_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E4_sam2_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E4_sam2_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E4_sam2_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E4_sam2_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E4_sam2_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E5_imggen_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E5_imggen_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E5_imggen_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E5_imggen_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E5_imggen_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E5_imggen_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E7_sam3_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E7_sam3_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E7_sam3_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E7_sam3_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E7_sam3_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E7_sam3_overlay_vlm/agent_timeline.jsonl"
+          }
+        }
+      },
+      "trace_warnings": {},
+      "metrics_summary": {
+        "n_variants": 7,
+        "n_implemented": 7,
+        "n_completed": 7,
+        "n_failed": 0,
+        "n_not_impl": 0,
+        "per_variant": {
+          "E1_raw_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 5,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              5,
+              5
+            ],
+            "signed_error": -5,
+            "absolute_error": 5,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E2_sam2_deterministic": {
+            "comparable": true,
+            "predicted_count": 1,
+            "gt_count_mode": "point",
+            "gt_count": 5,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              5,
+              5
+            ],
+            "signed_error": -4,
+            "absolute_error": 4,
+            "relative_error": 0.8,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E3_imggen_deterministic": {
+            "comparable": true,
+            "predicted_count": 6,
+            "gt_count_mode": "point",
+            "gt_count": 5,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              5,
+              5
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 0.2,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E4_sam2_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 11,
+            "gt_count_mode": "point",
+            "gt_count": 5,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              5,
+              5
+            ],
+            "signed_error": 6,
+            "absolute_error": 6,
+            "relative_error": 1.2,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E5_imggen_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 6,
+            "gt_count_mode": "point",
+            "gt_count": 5,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              5,
+              5
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 0.2,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E6_sam3_deterministic": {
+            "comparable": true,
+            "predicted_count": 6,
+            "gt_count_mode": "point",
+            "gt_count": 5,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              5,
+              5
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 0.2,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E7_sam3_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 6,
+            "gt_count_mode": "point",
+            "gt_count": 5,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              5,
+              5
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 0.2,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          }
+        },
+        "mae": 2.7143
+      }
+    },
+    {
+      "run_id": "tile_r037_c026_andrea_val_20260627_094600",
+      "case_study": "case_study_2",
+      "sample_id": "tile_r037_c026_andrea_val",
+      "sample_source": {
+        "sample_id": "tile_r037_c026_andrea_val",
+        "source": "validation_andrea",
+        "category": "extracted_images",
+        "filename": "tile_r037_c026_andrea_val.tiff",
+        "local_path": "/home/nielsbroekhuizen/projects/my-vscode-project/Validation_Andrea_Dataset_Images_CS2/extracted_images/tile_r037_c026_andrea_val.tiff",
+        "dataset_name": "validation_andrea_grid_scan_mirror",
+        "dataset_description": "Andrea mirrored grid-scan validation set, extracted SEM images only"
+      },
+      "started_at": "2026-06-27T09:46:00.387646+00:00",
+      "completed_at": "2026-06-27T09:49:24.774123+00:00",
+      "status": "completed",
+      "gt_count": 3,
+      "gt_count_mode": "point",
+      "gt_uncertain_count": 0,
+      "gt_interval": [
+        3,
+        3
+      ],
+      "gt_notes": null,
+      "variants_run": [
+        "E1_raw_vlm",
+        "E2_sam2_deterministic",
+        "E3_imggen_deterministic",
+        "E4_sam2_overlay_vlm",
+        "E5_imggen_overlay_vlm",
+        "E6_sam3_deterministic",
+        "E7_sam3_overlay_vlm"
+      ],
+      "predictions": {
+        "E1_raw_vlm": "completed",
+        "E2_sam2_deterministic": "completed",
+        "E3_imggen_deterministic": "completed",
+        "E4_sam2_overlay_vlm": "completed",
+        "E5_imggen_overlay_vlm": "completed",
+        "E6_sam3_deterministic": "completed",
+        "E7_sam3_overlay_vlm": "completed"
+      },
+      "logs": {
+        "runner_console": "logs/run_stdout.txt",
+        "repro_manifest": "logs/repro_manifest.json",
+        "per_variant_traces": {
+          "E1_raw_vlm": {
+            "raw_agent_trace": "full_trace/E1_raw_vlm/agent_trace.json",
+            "model_messages": "full_trace/E1_raw_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E1_raw_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E1_raw_vlm/agent_reply.txt",
+            "service_events": "full_trace/E1_raw_vlm/agent_timeline.jsonl"
+          },
+          "E4_sam2_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E4_sam2_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E4_sam2_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E4_sam2_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E4_sam2_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E4_sam2_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E5_imggen_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E5_imggen_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E5_imggen_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E5_imggen_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E5_imggen_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E5_imggen_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E7_sam3_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E7_sam3_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E7_sam3_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E7_sam3_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E7_sam3_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E7_sam3_overlay_vlm/agent_timeline.jsonl"
+          }
+        }
+      },
+      "trace_warnings": {},
+      "metrics_summary": {
+        "n_variants": 7,
+        "n_implemented": 7,
+        "n_completed": 7,
+        "n_failed": 0,
+        "n_not_impl": 0,
+        "per_variant": {
+          "E1_raw_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 3,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              3,
+              3
+            ],
+            "signed_error": -3,
+            "absolute_error": 3,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E2_sam2_deterministic": {
+            "comparable": true,
+            "predicted_count": 1,
+            "gt_count_mode": "point",
+            "gt_count": 3,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              3,
+              3
+            ],
+            "signed_error": -2,
+            "absolute_error": 2,
+            "relative_error": 0.6667,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E3_imggen_deterministic": {
+            "comparable": true,
+            "predicted_count": 3,
+            "gt_count_mode": "point",
+            "gt_count": 3,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              3,
+              3
+            ],
+            "signed_error": 0,
+            "absolute_error": 0,
+            "relative_error": 0.0,
+            "inside_gt_interval": true,
+            "exact_match": true,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": true,
+            "within_10_pct": true
+          },
+          "E4_sam2_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 3,
+            "gt_count_mode": "point",
+            "gt_count": 3,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              3,
+              3
+            ],
+            "signed_error": 0,
+            "absolute_error": 0,
+            "relative_error": 0.0,
+            "inside_gt_interval": true,
+            "exact_match": true,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": true,
+            "within_10_pct": true
+          },
+          "E5_imggen_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 3,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              3,
+              3
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 0.3333,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E6_sam3_deterministic": {
+            "comparable": true,
+            "predicted_count": 1,
+            "gt_count_mode": "point",
+            "gt_count": 3,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              3,
+              3
+            ],
+            "signed_error": -2,
+            "absolute_error": 2,
+            "relative_error": 0.6667,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E7_sam3_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 1,
+            "gt_count_mode": "point",
+            "gt_count": 3,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              3,
+              3
+            ],
+            "signed_error": -2,
+            "absolute_error": 2,
+            "relative_error": 0.6667,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          }
+        },
+        "mae": 1.4286
+      }
+    },
+    {
+      "run_id": "tile_r037_c028_andrea_val_20260627_094926",
+      "case_study": "case_study_2",
+      "sample_id": "tile_r037_c028_andrea_val",
+      "sample_source": {
+        "sample_id": "tile_r037_c028_andrea_val",
+        "source": "validation_andrea",
+        "category": "extracted_images",
+        "filename": "tile_r037_c028_andrea_val.tiff",
+        "local_path": "/home/nielsbroekhuizen/projects/my-vscode-project/Validation_Andrea_Dataset_Images_CS2/extracted_images/tile_r037_c028_andrea_val.tiff",
+        "dataset_name": "validation_andrea_grid_scan_mirror",
+        "dataset_description": "Andrea mirrored grid-scan validation set, extracted SEM images only"
+      },
+      "started_at": "2026-06-27T09:49:26.782825+00:00",
+      "completed_at": "2026-06-27T09:52:43.984976+00:00",
+      "status": "completed",
+      "gt_count": 3,
+      "gt_count_mode": "point",
+      "gt_uncertain_count": 0,
+      "gt_interval": [
+        3,
+        3
+      ],
+      "gt_notes": null,
+      "variants_run": [
+        "E1_raw_vlm",
+        "E2_sam2_deterministic",
+        "E3_imggen_deterministic",
+        "E4_sam2_overlay_vlm",
+        "E5_imggen_overlay_vlm",
+        "E6_sam3_deterministic",
+        "E7_sam3_overlay_vlm"
+      ],
+      "predictions": {
+        "E1_raw_vlm": "completed",
+        "E2_sam2_deterministic": "completed",
+        "E3_imggen_deterministic": "completed",
+        "E4_sam2_overlay_vlm": "completed",
+        "E5_imggen_overlay_vlm": "completed",
+        "E6_sam3_deterministic": "completed",
+        "E7_sam3_overlay_vlm": "completed"
+      },
+      "logs": {
+        "runner_console": "logs/run_stdout.txt",
+        "repro_manifest": "logs/repro_manifest.json",
+        "per_variant_traces": {
+          "E1_raw_vlm": {
+            "raw_agent_trace": "full_trace/E1_raw_vlm/agent_trace.json",
+            "model_messages": "full_trace/E1_raw_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E1_raw_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E1_raw_vlm/agent_reply.txt",
+            "service_events": "full_trace/E1_raw_vlm/agent_timeline.jsonl"
+          },
+          "E4_sam2_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E4_sam2_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E4_sam2_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E4_sam2_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E4_sam2_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E4_sam2_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E5_imggen_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E5_imggen_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E5_imggen_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E5_imggen_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E5_imggen_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E5_imggen_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E7_sam3_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E7_sam3_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E7_sam3_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E7_sam3_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E7_sam3_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E7_sam3_overlay_vlm/agent_timeline.jsonl"
+          }
+        }
+      },
+      "trace_warnings": {},
+      "metrics_summary": {
+        "n_variants": 7,
+        "n_implemented": 7,
+        "n_completed": 7,
+        "n_failed": 0,
+        "n_not_impl": 0,
+        "per_variant": {
+          "E1_raw_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 3,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              3,
+              3
+            ],
+            "signed_error": -3,
+            "absolute_error": 3,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E2_sam2_deterministic": {
+            "comparable": true,
+            "predicted_count": 1,
+            "gt_count_mode": "point",
+            "gt_count": 3,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              3,
+              3
+            ],
+            "signed_error": -2,
+            "absolute_error": 2,
+            "relative_error": 0.6667,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E3_imggen_deterministic": {
+            "comparable": true,
+            "predicted_count": 3,
+            "gt_count_mode": "point",
+            "gt_count": 3,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              3,
+              3
+            ],
+            "signed_error": 0,
+            "absolute_error": 0,
+            "relative_error": 0.0,
+            "inside_gt_interval": true,
+            "exact_match": true,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": true,
+            "within_10_pct": true
+          },
+          "E4_sam2_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 3,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              3,
+              3
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 0.3333,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E5_imggen_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 3,
+            "gt_count_mode": "point",
+            "gt_count": 3,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              3,
+              3
+            ],
+            "signed_error": 0,
+            "absolute_error": 0,
+            "relative_error": 0.0,
+            "inside_gt_interval": true,
+            "exact_match": true,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": true,
+            "within_10_pct": true
+          },
+          "E6_sam3_deterministic": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 3,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              3,
+              3
+            ],
+            "signed_error": -3,
+            "absolute_error": 3,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E7_sam3_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 3,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              3,
+              3
+            ],
+            "signed_error": -3,
+            "absolute_error": 3,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          }
+        },
+        "mae": 1.7143
+      }
+    },
+    {
+      "run_id": "tile_r037_c032_andrea_val_20260627_095245",
+      "case_study": "case_study_2",
+      "sample_id": "tile_r037_c032_andrea_val",
+      "sample_source": {
+        "sample_id": "tile_r037_c032_andrea_val",
+        "source": "validation_andrea",
+        "category": "extracted_images",
+        "filename": "tile_r037_c032_andrea_val.tiff",
+        "local_path": "/home/nielsbroekhuizen/projects/my-vscode-project/Validation_Andrea_Dataset_Images_CS2/extracted_images/tile_r037_c032_andrea_val.tiff",
+        "dataset_name": "validation_andrea_grid_scan_mirror",
+        "dataset_description": "Andrea mirrored grid-scan validation set, extracted SEM images only"
+      },
+      "started_at": "2026-06-27T09:52:45.985747+00:00",
+      "completed_at": "2026-06-27T09:57:14.930645+00:00",
+      "status": "completed",
+      "gt_count": 1,
+      "gt_count_mode": "point",
+      "gt_uncertain_count": 0,
+      "gt_interval": [
+        1,
+        1
+      ],
+      "gt_notes": null,
+      "variants_run": [
+        "E1_raw_vlm",
+        "E2_sam2_deterministic",
+        "E3_imggen_deterministic",
+        "E4_sam2_overlay_vlm",
+        "E5_imggen_overlay_vlm",
+        "E6_sam3_deterministic",
+        "E7_sam3_overlay_vlm"
+      ],
+      "predictions": {
+        "E1_raw_vlm": "completed",
+        "E2_sam2_deterministic": "completed",
+        "E3_imggen_deterministic": "completed",
+        "E4_sam2_overlay_vlm": "completed",
+        "E5_imggen_overlay_vlm": "completed",
+        "E6_sam3_deterministic": "completed",
+        "E7_sam3_overlay_vlm": "completed"
+      },
+      "logs": {
+        "runner_console": "logs/run_stdout.txt",
+        "repro_manifest": "logs/repro_manifest.json",
+        "per_variant_traces": {
+          "E1_raw_vlm": {
+            "raw_agent_trace": "full_trace/E1_raw_vlm/agent_trace.json",
+            "model_messages": "full_trace/E1_raw_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E1_raw_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E1_raw_vlm/agent_reply.txt",
+            "service_events": "full_trace/E1_raw_vlm/agent_timeline.jsonl"
+          },
+          "E4_sam2_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E4_sam2_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E4_sam2_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E4_sam2_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E4_sam2_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E4_sam2_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E5_imggen_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E5_imggen_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E5_imggen_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E5_imggen_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E5_imggen_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E5_imggen_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E7_sam3_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E7_sam3_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E7_sam3_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E7_sam3_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E7_sam3_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E7_sam3_overlay_vlm/agent_timeline.jsonl"
+          }
+        }
+      },
+      "trace_warnings": {},
+      "metrics_summary": {
+        "n_variants": 7,
+        "n_implemented": 7,
+        "n_completed": 7,
+        "n_failed": 0,
+        "n_not_impl": 0,
+        "per_variant": {
+          "E1_raw_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E2_sam2_deterministic": {
+            "comparable": true,
+            "predicted_count": 5,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 4,
+            "absolute_error": 4,
+            "relative_error": 4.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E3_imggen_deterministic": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E4_sam2_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 3,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 2,
+            "absolute_error": 2,
+            "relative_error": 2.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E5_imggen_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 24,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": 23,
+            "absolute_error": 23,
+            "relative_error": 23.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E6_sam3_deterministic": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E7_sam3_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 1,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              1,
+              1
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          }
+        },
+        "mae": 4.7143
+      }
+    },
+    {
+      "run_id": "tile_r037_c037_andrea_val_20260627_095716",
+      "case_study": "case_study_2",
+      "sample_id": "tile_r037_c037_andrea_val",
+      "sample_source": {
+        "sample_id": "tile_r037_c037_andrea_val",
+        "source": "validation_andrea",
+        "category": "extracted_images",
+        "filename": "tile_r037_c037_andrea_val.tiff",
+        "local_path": "/home/nielsbroekhuizen/projects/my-vscode-project/Validation_Andrea_Dataset_Images_CS2/extracted_images/tile_r037_c037_andrea_val.tiff",
+        "dataset_name": "validation_andrea_grid_scan_mirror",
+        "dataset_description": "Andrea mirrored grid-scan validation set, extracted SEM images only"
+      },
+      "started_at": "2026-06-27T09:57:16.931396+00:00",
+      "completed_at": "2026-06-27T10:00:35.105160+00:00",
+      "status": "completed",
+      "gt_count": 7,
+      "gt_count_mode": "point",
+      "gt_uncertain_count": 0,
+      "gt_interval": [
+        7,
+        7
+      ],
+      "gt_notes": null,
+      "variants_run": [
+        "E1_raw_vlm",
+        "E2_sam2_deterministic",
+        "E3_imggen_deterministic",
+        "E4_sam2_overlay_vlm",
+        "E5_imggen_overlay_vlm",
+        "E6_sam3_deterministic",
+        "E7_sam3_overlay_vlm"
+      ],
+      "predictions": {
+        "E1_raw_vlm": "completed",
+        "E2_sam2_deterministic": "completed",
+        "E3_imggen_deterministic": "completed",
+        "E4_sam2_overlay_vlm": "completed",
+        "E5_imggen_overlay_vlm": "completed",
+        "E6_sam3_deterministic": "completed",
+        "E7_sam3_overlay_vlm": "completed"
+      },
+      "logs": {
+        "runner_console": "logs/run_stdout.txt",
+        "repro_manifest": "logs/repro_manifest.json",
+        "per_variant_traces": {
+          "E1_raw_vlm": {
+            "raw_agent_trace": "full_trace/E1_raw_vlm/agent_trace.json",
+            "model_messages": "full_trace/E1_raw_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E1_raw_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E1_raw_vlm/agent_reply.txt",
+            "service_events": "full_trace/E1_raw_vlm/agent_timeline.jsonl"
+          },
+          "E4_sam2_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E4_sam2_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E4_sam2_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E4_sam2_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E4_sam2_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E4_sam2_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E5_imggen_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E5_imggen_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E5_imggen_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E5_imggen_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E5_imggen_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E5_imggen_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E7_sam3_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E7_sam3_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E7_sam3_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E7_sam3_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E7_sam3_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E7_sam3_overlay_vlm/agent_timeline.jsonl"
+          }
+        }
+      },
+      "trace_warnings": {},
+      "metrics_summary": {
+        "n_variants": 7,
+        "n_implemented": 7,
+        "n_completed": 7,
+        "n_failed": 0,
+        "n_not_impl": 0,
+        "per_variant": {
+          "E1_raw_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 7,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              7,
+              7
+            ],
+            "signed_error": -7,
+            "absolute_error": 7,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E2_sam2_deterministic": {
+            "comparable": true,
+            "predicted_count": 9,
+            "gt_count_mode": "point",
+            "gt_count": 7,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              7,
+              7
+            ],
+            "signed_error": 2,
+            "absolute_error": 2,
+            "relative_error": 0.2857,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E3_imggen_deterministic": {
+            "comparable": true,
+            "predicted_count": 3,
+            "gt_count_mode": "point",
+            "gt_count": 7,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              7,
+              7
+            ],
+            "signed_error": -4,
+            "absolute_error": 4,
+            "relative_error": 0.5714,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E4_sam2_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 4,
+            "gt_count_mode": "point",
+            "gt_count": 7,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              7,
+              7
+            ],
+            "signed_error": -3,
+            "absolute_error": 3,
+            "relative_error": 0.4286,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E5_imggen_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 4,
+            "gt_count_mode": "point",
+            "gt_count": 7,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              7,
+              7
+            ],
+            "signed_error": -3,
+            "absolute_error": 3,
+            "relative_error": 0.4286,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E6_sam3_deterministic": {
+            "comparable": true,
+            "predicted_count": 1,
+            "gt_count_mode": "point",
+            "gt_count": 7,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              7,
+              7
+            ],
+            "signed_error": -6,
+            "absolute_error": 6,
+            "relative_error": 0.8571,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E7_sam3_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 1,
+            "gt_count_mode": "point",
+            "gt_count": 7,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              7,
+              7
+            ],
+            "signed_error": -6,
+            "absolute_error": 6,
+            "relative_error": 0.8571,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          }
+        },
+        "mae": 4.4286
+      }
+    },
+    {
+      "run_id": "tile_r037_c044_andrea_val_20260627_100037",
+      "case_study": "case_study_2",
+      "sample_id": "tile_r037_c044_andrea_val",
+      "sample_source": {
+        "sample_id": "tile_r037_c044_andrea_val",
+        "source": "validation_andrea",
+        "category": "extracted_images",
+        "filename": "tile_r037_c044_andrea_val.tiff",
+        "local_path": "/home/nielsbroekhuizen/projects/my-vscode-project/Validation_Andrea_Dataset_Images_CS2/extracted_images/tile_r037_c044_andrea_val.tiff",
+        "dataset_name": "validation_andrea_grid_scan_mirror",
+        "dataset_description": "Andrea mirrored grid-scan validation set, extracted SEM images only"
+      },
+      "started_at": "2026-06-27T10:00:37.105971+00:00",
+      "completed_at": "2026-06-27T10:07:21.405971+00:00",
+      "status": "completed",
+      "gt_count": 18,
+      "gt_count_mode": "point",
+      "gt_uncertain_count": 0,
+      "gt_interval": [
+        18,
+        18
+      ],
+      "gt_notes": null,
+      "variants_run": [
+        "E1_raw_vlm",
+        "E2_sam2_deterministic",
+        "E3_imggen_deterministic",
+        "E4_sam2_overlay_vlm",
+        "E5_imggen_overlay_vlm",
+        "E6_sam3_deterministic",
+        "E7_sam3_overlay_vlm"
+      ],
+      "predictions": {
+        "E1_raw_vlm": "completed",
+        "E2_sam2_deterministic": "completed",
+        "E3_imggen_deterministic": "completed",
+        "E4_sam2_overlay_vlm": "completed",
+        "E5_imggen_overlay_vlm": "completed",
+        "E6_sam3_deterministic": "completed",
+        "E7_sam3_overlay_vlm": "completed"
+      },
+      "logs": {
+        "runner_console": "logs/run_stdout.txt",
+        "repro_manifest": "logs/repro_manifest.json",
+        "per_variant_traces": {
+          "E1_raw_vlm": {
+            "raw_agent_trace": "full_trace/E1_raw_vlm/agent_trace.json",
+            "model_messages": "full_trace/E1_raw_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E1_raw_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E1_raw_vlm/agent_reply.txt",
+            "service_events": "full_trace/E1_raw_vlm/agent_timeline.jsonl"
+          },
+          "E4_sam2_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E4_sam2_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E4_sam2_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E4_sam2_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E4_sam2_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E4_sam2_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E5_imggen_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E5_imggen_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E5_imggen_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E5_imggen_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E5_imggen_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E5_imggen_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E7_sam3_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E7_sam3_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E7_sam3_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E7_sam3_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E7_sam3_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E7_sam3_overlay_vlm/agent_timeline.jsonl"
+          }
+        }
+      },
+      "trace_warnings": {},
+      "metrics_summary": {
+        "n_variants": 7,
+        "n_implemented": 7,
+        "n_completed": 7,
+        "n_failed": 0,
+        "n_not_impl": 0,
+        "per_variant": {
+          "E1_raw_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 18,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              18,
+              18
+            ],
+            "signed_error": -18,
+            "absolute_error": 18,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E2_sam2_deterministic": {
+            "comparable": true,
+            "predicted_count": 13,
+            "gt_count_mode": "point",
+            "gt_count": 18,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              18,
+              18
+            ],
+            "signed_error": -5,
+            "absolute_error": 5,
+            "relative_error": 0.2778,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E3_imggen_deterministic": {
+            "comparable": true,
+            "predicted_count": 18,
+            "gt_count_mode": "point",
+            "gt_count": 18,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              18,
+              18
+            ],
+            "signed_error": 0,
+            "absolute_error": 0,
+            "relative_error": 0.0,
+            "inside_gt_interval": true,
+            "exact_match": true,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": true,
+            "within_10_pct": true
+          },
+          "E4_sam2_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 16,
+            "gt_count_mode": "point",
+            "gt_count": 18,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              18,
+              18
+            ],
+            "signed_error": -2,
+            "absolute_error": 2,
+            "relative_error": 0.1111,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E5_imggen_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 20,
+            "gt_count_mode": "point",
+            "gt_count": 18,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              18,
+              18
+            ],
+            "signed_error": 2,
+            "absolute_error": 2,
+            "relative_error": 0.1111,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E6_sam3_deterministic": {
+            "comparable": true,
+            "predicted_count": 17,
+            "gt_count_mode": "point",
+            "gt_count": 18,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              18,
+              18
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 0.0556,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": true
+          },
+          "E7_sam3_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 14,
+            "gt_count_mode": "point",
+            "gt_count": 18,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              18,
+              18
+            ],
+            "signed_error": -4,
+            "absolute_error": 4,
+            "relative_error": 0.2222,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          }
+        },
+        "mae": 4.5714
+      }
+    },
+    {
+      "run_id": "tile_r037_c046_andrea_val_20260627_100723",
+      "case_study": "case_study_2",
+      "sample_id": "tile_r037_c046_andrea_val",
+      "sample_source": {
+        "sample_id": "tile_r037_c046_andrea_val",
+        "source": "validation_andrea",
+        "category": "extracted_images",
+        "filename": "tile_r037_c046_andrea_val.tiff",
+        "local_path": "/home/nielsbroekhuizen/projects/my-vscode-project/Validation_Andrea_Dataset_Images_CS2/extracted_images/tile_r037_c046_andrea_val.tiff",
+        "dataset_name": "validation_andrea_grid_scan_mirror",
+        "dataset_description": "Andrea mirrored grid-scan validation set, extracted SEM images only"
+      },
+      "started_at": "2026-06-27T10:07:23.409957+00:00",
+      "completed_at": "2026-06-27T10:12:06.044529+00:00",
+      "status": "completed",
+      "gt_count": 8,
+      "gt_count_mode": "point",
+      "gt_uncertain_count": 0,
+      "gt_interval": [
+        8,
+        8
+      ],
+      "gt_notes": null,
+      "variants_run": [
+        "E1_raw_vlm",
+        "E2_sam2_deterministic",
+        "E3_imggen_deterministic",
+        "E4_sam2_overlay_vlm",
+        "E5_imggen_overlay_vlm",
+        "E6_sam3_deterministic",
+        "E7_sam3_overlay_vlm"
+      ],
+      "predictions": {
+        "E1_raw_vlm": "completed",
+        "E2_sam2_deterministic": "completed",
+        "E3_imggen_deterministic": "completed",
+        "E4_sam2_overlay_vlm": "completed",
+        "E5_imggen_overlay_vlm": "completed",
+        "E6_sam3_deterministic": "completed",
+        "E7_sam3_overlay_vlm": "completed"
+      },
+      "logs": {
+        "runner_console": "logs/run_stdout.txt",
+        "repro_manifest": "logs/repro_manifest.json",
+        "per_variant_traces": {
+          "E1_raw_vlm": {
+            "raw_agent_trace": "full_trace/E1_raw_vlm/agent_trace.json",
+            "model_messages": "full_trace/E1_raw_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E1_raw_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E1_raw_vlm/agent_reply.txt",
+            "service_events": "full_trace/E1_raw_vlm/agent_timeline.jsonl"
+          },
+          "E4_sam2_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E4_sam2_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E4_sam2_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E4_sam2_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E4_sam2_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E4_sam2_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E5_imggen_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E5_imggen_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E5_imggen_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E5_imggen_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E5_imggen_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E5_imggen_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E7_sam3_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E7_sam3_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E7_sam3_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E7_sam3_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E7_sam3_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E7_sam3_overlay_vlm/agent_timeline.jsonl"
+          }
+        }
+      },
+      "trace_warnings": {},
+      "metrics_summary": {
+        "n_variants": 7,
+        "n_implemented": 7,
+        "n_completed": 7,
+        "n_failed": 0,
+        "n_not_impl": 0,
+        "per_variant": {
+          "E1_raw_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 8,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              8,
+              8
+            ],
+            "signed_error": -8,
+            "absolute_error": 8,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E2_sam2_deterministic": {
+            "comparable": true,
+            "predicted_count": 8,
+            "gt_count_mode": "point",
+            "gt_count": 8,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              8,
+              8
+            ],
+            "signed_error": 0,
+            "absolute_error": 0,
+            "relative_error": 0.0,
+            "inside_gt_interval": true,
+            "exact_match": true,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": true,
+            "within_10_pct": true
+          },
+          "E3_imggen_deterministic": {
+            "comparable": true,
+            "predicted_count": 4,
+            "gt_count_mode": "point",
+            "gt_count": 8,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              8,
+              8
+            ],
+            "signed_error": -4,
+            "absolute_error": 4,
+            "relative_error": 0.5,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E4_sam2_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 10,
+            "gt_count_mode": "point",
+            "gt_count": 8,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              8,
+              8
+            ],
+            "signed_error": 2,
+            "absolute_error": 2,
+            "relative_error": 0.25,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E5_imggen_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 3,
+            "gt_count_mode": "point",
+            "gt_count": 8,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              8,
+              8
+            ],
+            "signed_error": -5,
+            "absolute_error": 5,
+            "relative_error": 0.625,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E6_sam3_deterministic": {
+            "comparable": true,
+            "predicted_count": 5,
+            "gt_count_mode": "point",
+            "gt_count": 8,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              8,
+              8
+            ],
+            "signed_error": -3,
+            "absolute_error": 3,
+            "relative_error": 0.375,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E7_sam3_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 4,
+            "gt_count_mode": "point",
+            "gt_count": 8,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              8,
+              8
+            ],
+            "signed_error": -4,
+            "absolute_error": 4,
+            "relative_error": 0.5,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          }
+        },
+        "mae": 3.7143
+      }
+    },
+    {
+      "run_id": "tile_r037_c047_andrea_val_20260627_101208",
+      "case_study": "case_study_2",
+      "sample_id": "tile_r037_c047_andrea_val",
+      "sample_source": {
+        "sample_id": "tile_r037_c047_andrea_val",
+        "source": "validation_andrea",
+        "category": "extracted_images",
+        "filename": "tile_r037_c047_andrea_val.tiff",
+        "local_path": "/home/nielsbroekhuizen/projects/my-vscode-project/Validation_Andrea_Dataset_Images_CS2/extracted_images/tile_r037_c047_andrea_val.tiff",
+        "dataset_name": "validation_andrea_grid_scan_mirror",
+        "dataset_description": "Andrea mirrored grid-scan validation set, extracted SEM images only"
+      },
+      "started_at": "2026-06-27T10:12:08.045379+00:00",
+      "completed_at": "2026-06-27T10:15:45.865953+00:00",
+      "status": "completed",
+      "gt_count": 8,
+      "gt_count_mode": "point",
+      "gt_uncertain_count": 0,
+      "gt_interval": [
+        8,
+        8
+      ],
+      "gt_notes": null,
+      "variants_run": [
+        "E1_raw_vlm",
+        "E2_sam2_deterministic",
+        "E3_imggen_deterministic",
+        "E4_sam2_overlay_vlm",
+        "E5_imggen_overlay_vlm",
+        "E6_sam3_deterministic",
+        "E7_sam3_overlay_vlm"
+      ],
+      "predictions": {
+        "E1_raw_vlm": "completed",
+        "E2_sam2_deterministic": "completed",
+        "E3_imggen_deterministic": "completed",
+        "E4_sam2_overlay_vlm": "completed",
+        "E5_imggen_overlay_vlm": "completed",
+        "E6_sam3_deterministic": "completed",
+        "E7_sam3_overlay_vlm": "completed"
+      },
+      "logs": {
+        "runner_console": "logs/run_stdout.txt",
+        "repro_manifest": "logs/repro_manifest.json",
+        "per_variant_traces": {
+          "E1_raw_vlm": {
+            "raw_agent_trace": "full_trace/E1_raw_vlm/agent_trace.json",
+            "model_messages": "full_trace/E1_raw_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E1_raw_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E1_raw_vlm/agent_reply.txt",
+            "service_events": "full_trace/E1_raw_vlm/agent_timeline.jsonl"
+          },
+          "E4_sam2_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E4_sam2_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E4_sam2_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E4_sam2_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E4_sam2_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E4_sam2_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E5_imggen_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E5_imggen_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E5_imggen_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E5_imggen_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E5_imggen_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E5_imggen_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E7_sam3_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E7_sam3_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E7_sam3_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E7_sam3_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E7_sam3_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E7_sam3_overlay_vlm/agent_timeline.jsonl"
+          }
+        }
+      },
+      "trace_warnings": {},
+      "metrics_summary": {
+        "n_variants": 7,
+        "n_implemented": 7,
+        "n_completed": 7,
+        "n_failed": 0,
+        "n_not_impl": 0,
+        "per_variant": {
+          "E1_raw_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 8,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              8,
+              8
+            ],
+            "signed_error": -8,
+            "absolute_error": 8,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E2_sam2_deterministic": {
+            "comparable": true,
+            "predicted_count": 6,
+            "gt_count_mode": "point",
+            "gt_count": 8,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              8,
+              8
+            ],
+            "signed_error": -2,
+            "absolute_error": 2,
+            "relative_error": 0.25,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E3_imggen_deterministic": {
+            "comparable": true,
+            "predicted_count": 5,
+            "gt_count_mode": "point",
+            "gt_count": 8,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              8,
+              8
+            ],
+            "signed_error": -3,
+            "absolute_error": 3,
+            "relative_error": 0.375,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E4_sam2_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 9,
+            "gt_count_mode": "point",
+            "gt_count": 8,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              8,
+              8
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 0.125,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E5_imggen_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 5,
+            "gt_count_mode": "point",
+            "gt_count": 8,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              8,
+              8
+            ],
+            "signed_error": -3,
+            "absolute_error": 3,
+            "relative_error": 0.375,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E6_sam3_deterministic": {
+            "comparable": true,
+            "predicted_count": 5,
+            "gt_count_mode": "point",
+            "gt_count": 8,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              8,
+              8
+            ],
+            "signed_error": -3,
+            "absolute_error": 3,
+            "relative_error": 0.375,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E7_sam3_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 5,
+            "gt_count_mode": "point",
+            "gt_count": 8,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              8,
+              8
+            ],
+            "signed_error": -3,
+            "absolute_error": 3,
+            "relative_error": 0.375,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          }
+        },
+        "mae": 3.2857
+      }
+    },
+    {
+      "run_id": "tile_r037_c048_andrea_val_20260627_101547",
+      "case_study": "case_study_2",
+      "sample_id": "tile_r037_c048_andrea_val",
+      "sample_source": {
+        "sample_id": "tile_r037_c048_andrea_val",
+        "source": "validation_andrea",
+        "category": "extracted_images",
+        "filename": "tile_r037_c048_andrea_val.tiff",
+        "local_path": "/home/nielsbroekhuizen/projects/my-vscode-project/Validation_Andrea_Dataset_Images_CS2/extracted_images/tile_r037_c048_andrea_val.tiff",
+        "dataset_name": "validation_andrea_grid_scan_mirror",
+        "dataset_description": "Andrea mirrored grid-scan validation set, extracted SEM images only"
+      },
+      "started_at": "2026-06-27T10:15:47.869125+00:00",
+      "completed_at": "2026-06-27T10:18:37.915515+00:00",
+      "status": "completed",
+      "gt_count": 6,
+      "gt_count_mode": "point",
+      "gt_uncertain_count": 0,
+      "gt_interval": [
+        6,
+        6
+      ],
+      "gt_notes": null,
+      "variants_run": [
+        "E1_raw_vlm",
+        "E2_sam2_deterministic",
+        "E3_imggen_deterministic",
+        "E4_sam2_overlay_vlm",
+        "E5_imggen_overlay_vlm",
+        "E6_sam3_deterministic",
+        "E7_sam3_overlay_vlm"
+      ],
+      "predictions": {
+        "E1_raw_vlm": "completed",
+        "E2_sam2_deterministic": "completed",
+        "E3_imggen_deterministic": "completed",
+        "E4_sam2_overlay_vlm": "completed",
+        "E5_imggen_overlay_vlm": "completed",
+        "E6_sam3_deterministic": "completed",
+        "E7_sam3_overlay_vlm": "completed"
+      },
+      "logs": {
+        "runner_console": "logs/run_stdout.txt",
+        "repro_manifest": "logs/repro_manifest.json",
+        "per_variant_traces": {
+          "E1_raw_vlm": {
+            "raw_agent_trace": "full_trace/E1_raw_vlm/agent_trace.json",
+            "model_messages": "full_trace/E1_raw_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E1_raw_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E1_raw_vlm/agent_reply.txt",
+            "service_events": "full_trace/E1_raw_vlm/agent_timeline.jsonl"
+          },
+          "E4_sam2_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E4_sam2_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E4_sam2_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E4_sam2_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E4_sam2_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E4_sam2_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E5_imggen_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E5_imggen_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E5_imggen_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E5_imggen_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E5_imggen_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E5_imggen_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E7_sam3_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E7_sam3_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E7_sam3_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E7_sam3_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E7_sam3_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E7_sam3_overlay_vlm/agent_timeline.jsonl"
+          }
+        }
+      },
+      "trace_warnings": {},
+      "metrics_summary": {
+        "n_variants": 7,
+        "n_implemented": 7,
+        "n_completed": 7,
+        "n_failed": 0,
+        "n_not_impl": 0,
+        "per_variant": {
+          "E1_raw_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 6,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              6,
+              6
+            ],
+            "signed_error": -6,
+            "absolute_error": 6,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E2_sam2_deterministic": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 6,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              6,
+              6
+            ],
+            "signed_error": -4,
+            "absolute_error": 4,
+            "relative_error": 0.6667,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E3_imggen_deterministic": {
+            "comparable": true,
+            "predicted_count": 7,
+            "gt_count_mode": "point",
+            "gt_count": 6,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              6,
+              6
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 0.1667,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E4_sam2_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 8,
+            "gt_count_mode": "point",
+            "gt_count": 6,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              6,
+              6
+            ],
+            "signed_error": 2,
+            "absolute_error": 2,
+            "relative_error": 0.3333,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E5_imggen_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 7,
+            "gt_count_mode": "point",
+            "gt_count": 6,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              6,
+              6
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 0.1667,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E6_sam3_deterministic": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 6,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              6,
+              6
+            ],
+            "signed_error": -4,
+            "absolute_error": 4,
+            "relative_error": 0.6667,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E7_sam3_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 2,
+            "gt_count_mode": "point",
+            "gt_count": 6,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              6,
+              6
+            ],
+            "signed_error": -4,
+            "absolute_error": 4,
+            "relative_error": 0.6667,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          }
+        },
+        "mae": 3.1429
+      }
+    },
+    {
+      "run_id": "tile_r037_c049_andrea_val_20260627_101839",
+      "case_study": "case_study_2",
+      "sample_id": "tile_r037_c049_andrea_val",
+      "sample_source": {
+        "sample_id": "tile_r037_c049_andrea_val",
+        "source": "validation_andrea",
+        "category": "extracted_images",
+        "filename": "tile_r037_c049_andrea_val.tiff",
+        "local_path": "/home/nielsbroekhuizen/projects/my-vscode-project/Validation_Andrea_Dataset_Images_CS2/extracted_images/tile_r037_c049_andrea_val.tiff",
+        "dataset_name": "validation_andrea_grid_scan_mirror",
+        "dataset_description": "Andrea mirrored grid-scan validation set, extracted SEM images only"
+      },
+      "started_at": "2026-06-27T10:18:39.916472+00:00",
+      "completed_at": "2026-06-27T10:22:32.162592+00:00",
+      "status": "completed",
+      "gt_count": 5,
+      "gt_count_mode": "point",
+      "gt_uncertain_count": 0,
+      "gt_interval": [
+        5,
+        5
+      ],
+      "gt_notes": null,
+      "variants_run": [
+        "E1_raw_vlm",
+        "E2_sam2_deterministic",
+        "E3_imggen_deterministic",
+        "E4_sam2_overlay_vlm",
+        "E5_imggen_overlay_vlm",
+        "E6_sam3_deterministic",
+        "E7_sam3_overlay_vlm"
+      ],
+      "predictions": {
+        "E1_raw_vlm": "completed",
+        "E2_sam2_deterministic": "completed",
+        "E3_imggen_deterministic": "completed",
+        "E4_sam2_overlay_vlm": "completed",
+        "E5_imggen_overlay_vlm": "completed",
+        "E6_sam3_deterministic": "completed",
+        "E7_sam3_overlay_vlm": "completed"
+      },
+      "logs": {
+        "runner_console": "logs/run_stdout.txt",
+        "repro_manifest": "logs/repro_manifest.json",
+        "per_variant_traces": {
+          "E1_raw_vlm": {
+            "raw_agent_trace": "full_trace/E1_raw_vlm/agent_trace.json",
+            "model_messages": "full_trace/E1_raw_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E1_raw_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E1_raw_vlm/agent_reply.txt",
+            "service_events": "full_trace/E1_raw_vlm/agent_timeline.jsonl"
+          },
+          "E4_sam2_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E4_sam2_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E4_sam2_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E4_sam2_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E4_sam2_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E4_sam2_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E5_imggen_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E5_imggen_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E5_imggen_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E5_imggen_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E5_imggen_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E5_imggen_overlay_vlm/agent_timeline.jsonl"
+          },
+          "E7_sam3_overlay_vlm": {
+            "raw_agent_trace": "full_trace/E7_sam3_overlay_vlm/agent_trace.json",
+            "model_messages": "full_trace/E7_sam3_overlay_vlm/model_messages.jsonl",
+            "tool_calls": "full_trace/E7_sam3_overlay_vlm/tool_calls.jsonl",
+            "agent_reply": "full_trace/E7_sam3_overlay_vlm/agent_reply.txt",
+            "service_events": "full_trace/E7_sam3_overlay_vlm/agent_timeline.jsonl"
+          }
+        }
+      },
+      "trace_warnings": {},
+      "metrics_summary": {
+        "n_variants": 7,
+        "n_implemented": 7,
+        "n_completed": 7,
+        "n_failed": 0,
+        "n_not_impl": 0,
+        "per_variant": {
+          "E1_raw_vlm": {
+            "comparable": true,
+            "predicted_count": 0,
+            "gt_count_mode": "point",
+            "gt_count": 5,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              5,
+              5
+            ],
+            "signed_error": -5,
+            "absolute_error": 5,
+            "relative_error": 1.0,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E2_sam2_deterministic": {
+            "comparable": true,
+            "predicted_count": 1,
+            "gt_count_mode": "point",
+            "gt_count": 5,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              5,
+              5
+            ],
+            "signed_error": -4,
+            "absolute_error": 4,
+            "relative_error": 0.8,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": false,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E3_imggen_deterministic": {
+            "comparable": true,
+            "predicted_count": 4,
+            "gt_count_mode": "point",
+            "gt_count": 5,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              5,
+              5
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 0.2,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E4_sam2_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 8,
+            "gt_count_mode": "point",
+            "gt_count": 5,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              5,
+              5
+            ],
+            "signed_error": 3,
+            "absolute_error": 3,
+            "relative_error": 0.6,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": false,
+            "within_2": false,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E5_imggen_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 4,
+            "gt_count_mode": "point",
+            "gt_count": 5,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              5,
+              5
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 0.2,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E6_sam3_deterministic": {
+            "comparable": true,
+            "predicted_count": 4,
+            "gt_count_mode": "point",
+            "gt_count": 5,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              5,
+              5
+            ],
+            "signed_error": -1,
+            "absolute_error": 1,
+            "relative_error": 0.2,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          },
+          "E7_sam3_overlay_vlm": {
+            "comparable": true,
+            "predicted_count": 6,
+            "gt_count_mode": "point",
+            "gt_count": 5,
+            "gt_uncertain_count": 0,
+            "gt_interval": [
+              5,
+              5
+            ],
+            "signed_error": 1,
+            "absolute_error": 1,
+            "relative_error": 0.2,
+            "inside_gt_interval": false,
+            "exact_match": false,
+            "within_1": true,
+            "within_2": true,
+            "within_3": true,
+            "within_5_pct": false,
+            "within_10_pct": false
+          }
+        },
+        "mae": 2.2857
+      }
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+method,n_runs,median_final_score,mean_final_score,median_absolute_improvement,mean_absolute_improvement,median_filter_adjustments,median_vlm_snapshots,exploratory_better_fraction
+direct,114,0.174262,0.572972701754386,1.575337,2.0948100701754386,4.0,4.0,
+exploratory,114,0.213782,0.6096609122807017,1.560839,2.058121859649123,9.0,8.0,
+matched_delta_exploratory_minus_direct,57,0.018835999999999853,0.03668821052631576,,,,,0.42105263157894735
